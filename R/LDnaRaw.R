@@ -63,9 +63,16 @@ LDnaRaw <- function(LDmat){
   LDmat3 <- LDmat
   LDmat3[upper.tri(LDmat3)] <- t(LDmat3)[upper.tri(LDmat3)]
   for(i in 2:ncol(clusterfile)){
+    #p <- phylo$edge[,1][phylo$edge[,2] == Ntips+i]-Ntips
+    #LD1 <- median(LDmat3[clusterfile[,i],clusterfile[,i]], na.rm=T)
+    #LD2 <- median(LDmat3[clusterfile[,p],clusterfile[,p]], na.rm=T)
+    #Lambda[i+Ntips] <- (LD1 - LD2)*length(which(clusterfile[,i]))
     p <- phylo$edge[,1][phylo$edge[,2] == Ntips+i]-Ntips
-    LD1 <- median(LDmat3[clusterfile[,i],clusterfile[,i]], na.rm=T)
-    LD2 <- median(LDmat3[clusterfile[,p],clusterfile[,i]], na.rm=T)
+    temp <- LDmat3[clusterfile[,i],clusterfile[,i]]
+    temp <- temp[lower.tri(temp)]
+    LD1 <- median(temp, na.rm=T)
+    temp <- c(temp, LDmat3[clusterfile[,p] + clusterfile[,i]==1,clusterfile[,i]])
+    LD2 <- median(temp, na.rm=T)
     Lambda[i+Ntips] <- (LD1 - LD2)*length(which(clusterfile[,i]))
   }
   
@@ -82,7 +89,6 @@ LDnaRaw <- function(LDmat){
   d <- d[rev(order(d$nV)),]
   out <- list(clusterfile, d)
   names(out) <- c("clusterfile", "stats")
-  class(out) <- "ldna"
   return(out)
 }
 

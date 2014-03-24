@@ -72,7 +72,7 @@ clusters <- extractClusters(ldna, min.edges=0, phi=2, rm.COCs=FALSE)
 data(LDna)
 ldna <- LDnaRaw(r2.baimaii_subs)
 # Different values of min.edges and phi can have crucial effects which clusters are extracted
-clusters <- extractClusters(ldna, min.edges=5, phi=3)
+clusters <- extractClusters(ldna, min.edges=15, phi=3)
 clusters <- extractClusters(ldna, min.edges=10, phi=2)
 # Includes COCs
 clusters <- extractClusters(ldna, min.edges=15, phi=10, rm.COCs=FALSE)
