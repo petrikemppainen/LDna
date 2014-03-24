@@ -100,11 +100,19 @@ extractClusters <- function(ldna, min.edges=10, phi=2, lambda.lim=NULL, rm.COCs=
   
   # plot tree
   if(plot.tree){
-    #phylo$root.edge <- 
-    col <- rep("grey", length(phylo$edge))
+   col <- rep("grey", length(phylo$edge))
     if(rm.COCs==FALSE){
+      distances <- phylo$edge.length[phylo$edge[,2] %in% which(phylo$tip.label %in% clusters.out)]
+      clusters.temp <- phylo$tip.label[phylo$edge[,2][phylo$edge[,2] %in% which(phylo$tip.label %in% clusters.out)]]
+      keep.col <- clusters.temp[distances > 0]
+      col[phylo$edge[,2] %in% which(phylo$tip.label %in% keep.col)] <- "blue"
       col[phylo$edge[,2] %in% phylo$edge[,1][phylo$edge[,2] %in% which(phylo$tip.label %in% clusters.out)]] <- "blue"    
     }
+    phylo$edge[phylo$edge[,2] %in% which(phylo$tip.label %in% SOCs),]
+    distances <- phylo$edge.length[phylo$edge[,2] %in% which(phylo$tip.label %in% SOCs)]
+    clusters.temp <- phylo$tip.label[phylo$edge[,2][phylo$edge[,2] %in% which(phylo$tip.label %in% SOCs)]]
+    keep.col <- clusters.temp[distances > 0]
+    col[phylo$edge[,2] %in% which(phylo$tip.label %in% keep.col)] <- "red"
     col[phylo$edge[,2] %in% phylo$edge[,1][phylo$edge[,2] %in% which(phylo$tip.label %in% SOCs)]] <- "red"
     col.tip <- rep("#00000000", length(phylo$tip.label))
     if(rm.COCs==FALSE){
