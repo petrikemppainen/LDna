@@ -19,7 +19,7 @@
 #' @return If \code{plot.tree} and \code{plot.graph} are set to \code{TRUE}, \code{extractClusters} plots two graphs. The first shows all \eqn{\lambda}-values oredered from low to high and indicates which values are above \eqn{\lambda_{lim}}. Values corresponding to SOCs are indicated in red and values corresponding to COCs are indiced in blue. The second gives the tree illustrating cluster merger with decreasing LD threshold where branches represent unique clusters and branch points indicate the merging of clusters/loci and distance gives the LD threholds at which these events occur. Branches corresponding to SOCs are indicated in red and values corresponding to COCs are indiced in blue (if \code{rm.COCs} are set to \code{FALSE}). Returns a list of vectors giving the loci from each of the extracted clusters.
 #' @examples
 #' # Simple upper diagonal LD matrix
-#' LDmat <- structure(c(NA, 0.84, 0.64, 0.24, 0.2, 0.16, 0.12, 0.44, NA, NA, 0.8, 0.28, 0.4, 0.36, 0.08, 0.2, NA, NA, NA, 0.48, 0.32, 0.04, 0.44, 0.2, NA, NA, NA, NA, 0.76, 0.56, 0.6, 0.2, NA, NA, NA, NA, NA, 0.72, 0.68, 0.1, NA, NA, NA, NA, NA, NA, 0.2, 0.1, NA, NA, NA, NA, NA, NA, NA, 0.1, NA, NA, NA, NA, NA, NA, NA, NA), .Dim = c(8L, 8L), .Dimnames = list(c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"), c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8")))
+#' LDmat <- structure(c(NA, 0.84, 0.64, 0.24, 0.2, 0.16, 0.44, 0.44, NA, NA, 0.8, 0.28, 0.4, 0.36, 0.36, 0.24, NA, NA, NA, 0.48, 0.32, 0.2, 0.36, 0.2, NA, NA, NA, NA, 0.76, 0.56, 0.6, 0.2, NA, NA, NA, NA, NA, 0.72, 0.68, 0.24, NA, NA, NA, NA, NA, NA, 0.44, 0.24, NA, NA, NA, NA, NA, NA, NA, 0.2, NA, NA, NA, NA, NA, NA, NA, NA), .Dim = c(8L, 8L), .Dimnames = list(c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"), c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8")))
 #' # calculate raw data
 #' ldna <- LDnaRaw(LDmat)
 #' # extract clusters and plot graphs, for this small example min.edges is set to zero such that each tip clade corresponds to an individual locus
@@ -42,7 +42,7 @@
 #' clusters <- extractClusters(ldna, min.edges=15, lambda.lim=1)
 
 
-extractClusters <- function(ldna, min.edges=0, phi=1, lambda.lim=NULL, rm.COCs=TRUE, extract=TRUE, plot.tree=TRUE, plot.graph=TRUE){
+extractClusters <- function(ldna, min.edges=10, phi=2, lambda.lim=NULL, rm.COCs=TRUE, extract=TRUE, plot.tree=TRUE, plot.graph=TRUE){
   # Get file for tree and clusters above min.edges and their lambda values
     phylo <- clusterPhylo(ldna, min.edges)
   if(extract){
@@ -103,17 +103,8 @@ extractClusters <- function(ldna, min.edges=0, phi=1, lambda.lim=NULL, rm.COCs=T
     #phylo$root.edge <- 
     col <- rep("grey", length(phylo$edge))
     if(rm.COCs==FALSE){
-      distances <- phylo$edge.length[phylo$edge[,2] %in% which(phylo$tip.label %in% clusters.out)]
-      clusters.temp <- phylo$tip.label[phylo$edge[,2][phylo$edge[,2] %in% which(phylo$tip.label %in% clusters.out)]]
-      keep.col <- clusters.temp[distances > 0]
-      col[phylo$edge[,2] %in% which(phylo$tip.label %in% keep.col)] <- "blue"
       col[phylo$edge[,2] %in% phylo$edge[,1][phylo$edge[,2] %in% which(phylo$tip.label %in% clusters.out)]] <- "blue"    
     }
-    phylo$edge[phylo$edge[,2] %in% which(phylo$tip.label %in% SOCs),]
-    distances <- phylo$edge.length[phylo$edge[,2] %in% which(phylo$tip.label %in% SOCs)]
-    clusters.temp <- phylo$tip.label[phylo$edge[,2][phylo$edge[,2] %in% which(phylo$tip.label %in% SOCs)]]
-    keep.col <- clusters.temp[distances > 0]
-    col[phylo$edge[,2] %in% which(phylo$tip.label %in% keep.col)] <- "red"
     col[phylo$edge[,2] %in% phylo$edge[,1][phylo$edge[,2] %in% which(phylo$tip.label %in% SOCs)]] <- "red"
     col.tip <- rep("#00000000", length(phylo$tip.label))
     if(rm.COCs==FALSE){

@@ -1,25 +1,17 @@
 devtools::install_github("petrikemppainen/LDna")
 require(LDna)
-LDmat <- as.matrix(read.table("LDmat.txt"))
 LDmat <- structure(c(NA, 0.84, 0.64, 0.24, 0.2, 0.16, 0.44, 0.44, NA, NA, 0.8, 0.28, 0.4, 0.36, 0.36, 0.24, NA, NA, NA, 0.48, 0.32, 0.2, 0.36, 0.2, NA, NA, NA, NA, 0.76, 0.56, 0.6, 0.2, NA, NA, NA, NA, NA, 0.72, 0.68, 0.24, NA, NA, NA, NA, NA, NA, 0.44, 0.24, NA, NA, NA, NA, NA, NA, NA, 0.2, NA, NA, NA, NA, NA, NA, NA, NA), .Dim = c(8L, 8L), .Dimnames = list(c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"), c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8")))
-dimnames(LDmat) <- list(c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"), c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"))
-LDmat[8,] <- c(0.44, 0.24, 0.20, 0.20, 0.16, 0.20, 0.16, NA)
-x <- list()
-x[[1]] <- LDmat
-fix(x)
-LDmat[upper.tri(LDmat)] <- t(LDmat)[upper.tri(LDmat)]
-ldna <- out
 ldna <- LDnaRaw(LDmat)
 par(mfcol=c(1,1))
-clusters <- extractClusters(ldna, min.edges=0, phi=0)
-clusters <- extractClusters(ldna, min.edges=0, phi=1, rm.COCs=F)
+clusters <- extractClusters(ldna, min.edges=0, phi=1)
+clusters <- extractClusters(ldna, min.edges=0, phi=0.25, rm.COCs=F)
 
 data(LDna)
 dim(r2.baimaii_subs)
 ldna <- LDnaRaw(r2.baimaii_subs)
 clusters <- extractClusters(ldna, min.edges=15, extract=FALSE)
 clusters <- extractClusters(ldna, min.edges=0, extract=FALSE)
-clusters <- extractClusters(ldna, min.edges=10, phi=4)
+clusters <- extractClusters(ldna, min.edges=5, phi=5)
 clusters <- extractClusters(ldna, min.edges=10, phi=2)
 clusters <- extractClusters(ldna, min.edges=15, lambda.lim=1)
 clusters <- extractClusters(ldna, min.edges=10, phi=2, rm.COCs=FALSE)

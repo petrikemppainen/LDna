@@ -11,7 +11,7 @@
 #' @return A list with two objects: \code{clusterfile} and \code{stats}. The first, \code{clusterfile} is a matrix with all unique clusters (defined by a specific set of loci) as columns and each locus as rows. In this matrix \code{TRUE} indicates the presense of a locus in a specific cluster, else \code{FALSE} is given. The second, \code{stats} is a data frame that gives all the edges for the \code{single linkage clustering tree} along with the following information for each edge: probe, parent probe, and the corresponding \code{nV}, \code{nE}, and the lambda for each probe.
 #' @examples
 #' # Simple upper diagonal LD matrix
-#' LDmat <- structure(c(NA, 0.84, 0.64, 0.24, 0.2, 0.16, 0.12, 0.44, NA, NA, 0.8, 0.28, 0.4, 0.36, 0.08, 0.2, NA, NA, NA, 0.48, 0.32, 0.04, 0.44, 0.2, NA, NA, NA, NA, 0.76, 0.56, 0.6, 0.2, NA, NA, NA, NA, NA, 0.72, 0.68, 0.1, NA, NA, NA, NA, NA, NA, 0.2, 0.1, NA, NA, NA, NA, NA, NA, NA, 0.1, NA, NA, NA, NA, NA, NA, NA, NA), .Dim = c(8L, 8L), .Dimnames = list(c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"), c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8")))
+#' LDmat <- structure(c(NA, 0.84, 0.64, 0.24, 0.2, 0.16, 0.44, 0.44, NA, NA, 0.8, 0.28, 0.4, 0.36, 0.36, 0.24, NA, NA, NA, 0.48, 0.32, 0.2, 0.36, 0.2, NA, NA, NA, NA, 0.76, 0.56, 0.6, 0.2, NA, NA, NA, NA, NA, 0.72, 0.68, 0.24, NA, NA, NA, NA, NA, NA, 0.44, 0.24, NA, NA, NA, NA, NA, NA, NA, 0.2, NA, NA, NA, NA, NA, NA, NA, NA), .Dim = c(8L, 8L), .Dimnames = list(c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"), c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8")))
 #' # Calculate raw data
 #' ldna <- LDnaRaw(LDmat)
 #' # For larger data set
