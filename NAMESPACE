@@ -1,0 +1,6 @@
+importFrom(ape, "read.tree", "plot.phylo", "drop.tip")
+
+importFrom(igraph, "decompose.graph", "V","E", "layout.fruchterman.reingold",
+          "plot.igraph", "print.igraph", "graph.edgelist")
+
+export(LDnaRaw, extractClusters, mat2el, summaryLDna, plotLDnetwork)
