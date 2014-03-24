@@ -41,14 +41,15 @@
 #' # Set fixed value for lambda_lim
 #' clusters <- extractClusters(ldna, min.edges=15, lambda.lim=1)
 
+
 extractClusters <- function(ldna, min.edges=0, phi=1, lambda.lim=NULL, rm.COCs=TRUE, extract=TRUE, plot.tree=TRUE, plot.graph=TRUE){
   # Get file for tree and clusters above min.edges and their lambda values
     phylo <- clusterPhylo(ldna, min.edges)
   if(extract){
     clusters <- phylo$tip.label
-    lambda_new <- ldna$stats$Lambda[ldna$stats$nE >= min.edges]
-    names(lambda_new) <- rownames(ldna$stats)[ldna$stats$nE >= min.edges]
-    if(min.edges==0) lambda_new <- lambda_new[ldna$stats$nV!=1]
+    lambda_new <- ldna$stats$Lambda[ldna$stats$nE >= min.edges][-1]
+    names(lambda_new) <- rownames(ldna$stats)[ldna$stats$nE >= min.edges][-1]
+    if(min.edges==0) lambda_new <- lambda_new[ldna$stats$nV!=1][-length(lambda_new[ldna$stats$nV!=1])]
     
     # Get thresholds. If lambda.lim is given, this takes precedence.
     if(!is.null(lambda.lim)){threshold <- lambda.lim
@@ -102,7 +103,6 @@ extractClusters <- function(ldna, min.edges=0, phi=1, lambda.lim=NULL, rm.COCs=T
     #phylo$root.edge <- 
     col <- rep("grey", length(phylo$edge))
     if(rm.COCs==FALSE){
-      
       distances <- phylo$edge.length[phylo$edge[,2] %in% which(phylo$tip.label %in% clusters.out)]
       clusters.temp <- phylo$tip.label[phylo$edge[,2][phylo$edge[,2] %in% which(phylo$tip.label %in% clusters.out)]]
       keep.col <- clusters.temp[distances > 0]
