@@ -49,7 +49,7 @@ extractClusters <- function(ldna, min.edges=10, phi=2, lambda.lim=NULL, rm.COCs=
   if(extract){
     clusters <- phylo$tip.label
     lambda_new <- ldna$stats$Lambda[ldna$stats$nE >= min.edges][-1]
-    names(lambda_new) <- rownames(ldna$stats)[ldna$stats$nE >= min.edges][-1]
+    names(lambda_new) <- ldna$stats$probe[ldna$stats$nE >= min.edges][-1]
     if(min.edges==0) lambda_new <- lambda_new[ldna$stats$nV!=1][-length(lambda_new[ldna$stats$nV!=1])]
     
     # Get thresholds. If lambda.lim is given, this takes precedence.

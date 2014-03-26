@@ -84,7 +84,9 @@ LDnaRaw <- function(LDmat){
   d <- data.frame(d , stats[match(d[,1], rownames(stats)), ])
   names(d) <- c("probe", "parent_probe", "edge.length", "nV", "nE", "Lambda")
   d <- d[rev(order(d$nV)),]
+  rownames(d) <- 1:nrow(d)
   out <- list(clusterfile, d)
+  
   names(out) <- c("clusterfile", "stats")
   return(out)
 }
