@@ -61,7 +61,7 @@ plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summar
 # For large data sets
 plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=FALSE, include.parent=FALSE, after.merger=FALSE)
 # To visualise the merger
-plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=TRUE, after.merger=FALSE)
+plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=TRUE, after.merger=TRUE)
 # Or
 plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=FALSE, include.parent=TRUE, after.merger=TRUE)
 # To show that ususally several clusters are involved in most mergers

@@ -31,7 +31,7 @@
 #' # For large data sets
 #' plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=FALSE, include.parent=FALSE, after.merger=FALSE)
 #' # To visualise the merger
-#' plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=TRUE, after.merger=FALSE)
+#' plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=TRUE, after.merger=TRUE)
 #' # Or
 #' plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=FALSE, include.parent=TRUE, after.merger=TRUE)
 #' # To show that ususally several clusters are involved in most mergers
@@ -43,20 +43,15 @@ exl=NULL, full.network=TRUE, include.parent=FALSE, after.merger=FALSE){
     if(option==2) option2(ldna, LDmat, clusters, summary, exl, full.network, include.parent, after.merger)
     if(option==1) return(g)
 }
-#exl <- "L8"
+
 option1 <- function(LDmat, threshold, exl){
-    # exlude loci
+    
     LDmat <- LDmat[!(rownames(LDmat) %in% exl),!(rownames(LDmat) %in% exl)]
-    # only keep values above cut.off
-    LDmat[LDmat>threshold] <- 1  
-    LDmat[LDmat!=1] <- 0
-    #calculate network
-    g <- graph.adjacency(LDmat, mode="lower", diag=FALSE)
-    decomp <- decompose.graph(g)
-    remove <- which(sapply(decomp, function(x) length(E(x)))==0)
-    exl <- unlist(lapply(decomp[remove], function(x) V(x)$name))
-    LDmat <- LDmat[!(rownames(LDmat) %in% exl),!(rownames(LDmat) %in% exl)]
-    g <- graph.adjacency(LDmat, mode="lower", diag=FALSE)
+    
+    g <- graph.adjacency(LDmat, mode="lower", diag=FALSE, weighted=T)
+    E(g)$weight <- round(E(g)$weight, 2)
+    g <- delete.edges(g, which(E(g)$weight<=threshold))
+    g <- delete.vertices(g, which(degree(g) < 1))
     
     plot.igraph(g, layout=layout.fruchterman.reingold, vertex.size=3, vertex.label.dist=NULL,
     vertex.color="grey", edge.width=1, vertex.label=NA, vertex.frame.color="grey")
@@ -76,7 +71,7 @@ option2 <- function(ldna, LDmat, clusters, summary, exl, full.network, include.p
         names(clusters)[[i]])
     }
 }
-# cluster.name <- names(clusters)[[i]]
+
 option2raw <- function(ldna, LDmat, exl, loci, col, full.network, threshold, include.parent, after.merger, cluster.name){
     if(!is.null(exl)){
       LDmat <- LDmat[!(rownames(LDmat) %in% exl),!(rownames(LDmat) %in% exl)]
@@ -97,17 +92,13 @@ option2raw <- function(ldna, LDmat, exl, loci, col, full.network, threshold, inc
         if(p2=="root") {threshold <- threshold-0.01
         }else{threshold <- as.numeric(strsplit(p2, "_", fixed=T)[[1]][2])}
     }
-    LDmat[LDmat>threshold] <- 1  
-    LDmat[LDmat!=1] <- 0
     
     # only keep values above cut.off
     #calculate network
-    g <- graph.adjacency(LDmat, mode="lower", diag=FALSE)
-    decomp <- decompose.graph(g)
-    remove <- which(sapply(decomp, function(x) length(E(x)))==0)
-    exl <- unlist(lapply(decomp[remove], function(x) V(x)$name))
-    LDmat <- LDmat[!(rownames(LDmat) %in% exl),!(rownames(LDmat) %in% exl)]
-    g <- graph.adjacency(LDmat, mode="lower", diag=FALSE)
+    g <- graph.adjacency(LDmat, mode="lower", diag=FALSE, weighted=T)
+    E(g)$weight <- round(E(g)$weight, 2)
+    g <- delete.edges(g, which(E(g)$weight<=threshold))
+    g <- delete.vertices(g, which(degree(g) < 1))
     
     #cluster color
     col.frame <- V(g)$name
