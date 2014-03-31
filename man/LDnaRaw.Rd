@@ -16,10 +16,10 @@ unique clusters as columns and each locus as rows, where
 cluster (else \code{FALSE} is given). \code{Stats} is a
 data frame that gives all edges for the \code{single
 linkage clustering tree} along with the following
-information for each edge: probe (focal cluster), parent
-probe (cluster efter merger), and the corresponding
+information for each edge: cluster (focal cluster), parent
+cluster (cluster efter merger), and the corresponding
 \code{nV}, \code{nE}, and \eqn{\lambda} for each cluster
-(probe).
+(cluster).
 }
 \description{
 Takes a lower diagonal matrix of pairwise LD values and

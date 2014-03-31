@@ -31,12 +31,12 @@ summaryLDna <- function(ldna, clusters, LDmat){
   
   #nE <- NULL
   #for(i in 1:length(clusters)){
-  #  nE <- c(nE, unique(ldna$stats$nE[ldna$stats$probe==names(clusters)[i]]))
+  #  nE <- c(nE, unique(ldna$stats$nE[ldna$stats$cluster==names(clusters)[i]]))
   #}
-  nE <- ldna$stats$nE[ldna$stats$probe %in% names(clusters)]
-  names(nE) <- ldna$stats$probe[ldna$stats$probe %in% names(clusters)]
-  Lambda <- ldna$stats$Lambda[ldna$stats$probe %in% names(clusters)]
-  names(Lambda) <- ldna$stats$probe[ldna$stats$probe %in% names(clusters)]
+  nE <- ldna$stats$nE[ldna$stats$cluster %in% names(clusters)]
+  names(nE) <- ldna$stats$cluster[ldna$stats$cluster %in% names(clusters)]
+  Lambda <- ldna$stats$Lambda[ldna$stats$cluster %in% names(clusters)]
+  names(Lambda) <- ldna$stats$cluster[ldna$stats$cluster %in% names(clusters)]
 
   std.err <- function(x) sd(x)/sqrt(length(x))
   Mean.LD <- NULL

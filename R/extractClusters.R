@@ -45,11 +45,11 @@
 
 extractClusters <- function(ldna, min.edges=10, phi=2, lambda.lim=NULL, rm.COCs=TRUE, extract=TRUE, plot.tree=TRUE, plot.graph=TRUE){
   # Get file for tree and clusters above min.edges and their lambda values
-    phylo <- clusterPhylo(ldna, min.edges)
+    tree <- clusterPhylo(ldna, min.edges)
   if(extract){
-    clusters <- phylo$tip.label
+    clusters <- tree$tip.label
     lambda_new <- ldna$stats$Lambda[ldna$stats$nE >= min.edges][-1]
-    names(lambda_new) <- ldna$stats$probe[ldna$stats$nE >= min.edges][-1]
+    names(lambda_new) <- ldna$stats$cluster[ldna$stats$nE >= min.edges][-1]
     if(min.edges==0) lambda_new <- lambda_new[ldna$stats$nV!=1][-length(lambda_new[ldna$stats$nV!=1])]
     
     # Get thresholds. If lambda.lim is given, this takes precedence.
@@ -101,26 +101,26 @@ extractClusters <- function(ldna, min.edges=10, phi=2, lambda.lim=NULL, rm.COCs=
   
   # plot tree
   if(plot.tree){
-   col <- rep("grey", length(phylo$edge))
+   col <- rep("grey", length(tree$edge))
     if(rm.COCs==FALSE){
-      distances <- phylo$edge.length[phylo$edge[,2] %in% which(phylo$tip.label %in% clusters.out)]
-      clusters.temp <- phylo$tip.label[phylo$edge[,2][phylo$edge[,2] %in% which(phylo$tip.label %in% clusters.out)]]
+      distances <- tree$edge.length[tree$edge[,2] %in% which(tree$tip.label %in% clusters.out)]
+      clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %in% which(tree$tip.label %in% clusters.out)]]
       keep.col <- clusters.temp[distances > 0]
-      col[phylo$edge[,2] %in% which(phylo$tip.label %in% keep.col)] <- "blue"
-      col[phylo$edge[,2] %in% phylo$edge[,1][phylo$edge[,2] %in% which(phylo$tip.label %in% clusters.out[!clusters.out %in% keep.col])]] <- "blue"    
+      col[tree$edge[,2] %in% which(tree$tip.label %in% keep.col)] <- "blue"
+      col[tree$edge[,2] %in% tree$edge[,1][tree$edge[,2] %in% which(tree$tip.label %in% clusters.out[!clusters.out %in% keep.col])]] <- "blue"    
     }
-    phylo$edge[phylo$edge[,2] %in% which(phylo$tip.label %in% SOCs),]
-    distances <- phylo$edge.length[phylo$edge[,2] %in% which(phylo$tip.label %in% SOCs)]
-    clusters.temp <- phylo$tip.label[phylo$edge[,2][phylo$edge[,2] %in% which(phylo$tip.label %in% SOCs)]]
+    tree$edge[tree$edge[,2] %in% which(tree$tip.label %in% SOCs),]
+    distances <- tree$edge.length[tree$edge[,2] %in% which(tree$tip.label %in% SOCs)]
+    clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %in% which(tree$tip.label %in% SOCs)]]
     keep.col <- clusters.temp[distances > 0]
-    col[phylo$edge[,2] %in% which(phylo$tip.label %in% keep.col)] <- "red"
-    col[phylo$edge[,2] %in% phylo$edge[,1][phylo$edge[,2] %in% which(phylo$tip.label %in% SOCs[!SOCs %in% keep.col])]] <- "red"
-    col.tip <- rep("#00000000", length(phylo$tip.label))
+    col[tree$edge[,2] %in% which(tree$tip.label %in% keep.col)] <- "red"
+    col[tree$edge[,2] %in% tree$edge[,1][tree$edge[,2] %in% which(tree$tip.label %in% SOCs[!SOCs %in% keep.col])]] <- "red"
+    col.tip <- rep("#00000000", length(tree$tip.label))
     if(rm.COCs==FALSE){
-      col.tip[phylo$tip.label %in% clusters.out] <- "blue"
+      col.tip[tree$tip.label %in% clusters.out] <- "blue"
     }
-    col.tip[phylo$tip.label %in% SOCs] <- "black"
-    plot(phylo, show.tip.label=T, edge.width=3, edge.color=col, cex=1, tip.color=col.tip, root.edge=TRUE, underscore=T)
+    col.tip[tree$tip.label %in% SOCs] <- "black"
+    plot(tree, show.tip.label=T, edge.width=3, edge.color=col, cex=1, tip.color=col.tip, root.edge=TRUE, underscore=T)
    if(min.edges==0){
      axis(1, at=c(0,(1:10)*0.1))
    }else{
@@ -145,7 +145,7 @@ extractClusters <- function(ldna, min.edges=10, phi=2, lambda.lim=NULL, rm.COCs=
   return(loci)
   
   }else{     
-        plot(phylo, edge.width=3,show.tip.label=F,edge.color="grey", cex=1,  root.edge=TRUE)
+        plot(tree, edge.width=3,show.tip.label=F,edge.color="grey", cex=1,  root.edge=TRUE)
         axis(1, at=c(0,(1:10)*0.1))
         title(xlab="LD threshold", main=as.expression(bquote("|E|"[min]*plain("=")* .(min.edges))))       
   }
@@ -164,8 +164,8 @@ clusterPhylo <-  function(ldna, min.edges=0){
   newick<-character()
   
   repeat{
-    probe<-as.character(d$probe[row])
-    d$offspring[[row]]<-which(as.character(d$parent_probe)==probe)
+    cluster<-as.character(d$cluster[row])
+    d$offspring[[row]]<-which(as.character(d$parent_cluster)==cluster)
     offspNo<-sum(!is.na(d$offspring[[row]]))
     
     if(offspNo==0){d$terminal[row]<-1}
@@ -173,9 +173,9 @@ clusterPhylo <-  function(ldna, min.edges=0){
     if(d$terminal[row]==1){
       d$ancestor[row]<-rowOld
       if(d$ancestor[row]==0){
-        newick<-paste("(",probe,":0,:0);", sep="")
+        newick<-paste("(",cluster,":0,:0);", sep="")
         break}
-      newick<-paste(newick,probe,":",d$edge.length[row], sep="")
+      newick<-paste(newick,cluster,":",d$edge.length[row], sep="")
       row<-d$ancestor[row]
       next}
     
@@ -198,9 +198,9 @@ clusterPhylo <-  function(ldna, min.edges=0){
     
     if(d$times[row]>0 & d$times[row]==offspNo){
       if(offspNo==1){
-        newick<-paste(newick,",",probe,":0):",d$edge.length[row], sep="")
+        newick<-paste(newick,",",cluster,":0):",d$edge.length[row], sep="")
       }else{
-        newick<-paste(newick,paste(rep("):0",(offspNo-1)),sep="", collapse=""),",",probe,":0):",d$edge.length[row], sep="", collapse="")            
+        newick<-paste(newick,paste(rep("):0",(offspNo-1)),sep="", collapse=""),",",cluster,":0):",d$edge.length[row], sep="", collapse="")            
       }
       if(d$ancestor[row]==0){
         newick<-paste(newick,";", sep="")

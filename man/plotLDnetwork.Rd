@@ -3,7 +3,8 @@
 \title{Plots linkage disequilibrium networks}
 \usage{
 plotLDnetwork(ldna, LDmat, option, threshold, clusters, summary, exl = NULL,
-  full.network = TRUE, include.parent = FALSE, after.merger = FALSE)
+  full.network = TRUE, include.parent = FALSE, after.merger = FALSE,
+  graph.object = FALSE)
 }
 \arguments{
   \item{ldna}{Output from \code{\link{LDnaRaw}}}
@@ -41,6 +42,9 @@ plotLDnetwork(ldna, LDmat, option, threshold, clusters, summary, exl = NULL,
   \item{after.merger}{Whether to show LD networks at an LD
   threshold just before (\code{FALSE}) or just after
   (\code{TRUE}) merger.}
+
+  \item{graph.object}{Whether to output \code{graph object}
+  when option=1 (default=\code{FALSE}).}
 }
 \description{
 Allows for visual inspection of clusters identified by
