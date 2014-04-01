@@ -64,7 +64,7 @@ option2 <- function(ldna, LDmat, clusters, summary, exl, full.network, include.p
     col <- as.vector(summary$Type)
     col[col=="COC"] <- "blue"
     col[col=="SOC"] <- "red"
-    # i <- 3
+
     for(i in 1:nrow(summary)){
         threshold <- as.numeric(as.vector(summary$Merge.at[rownames(summary) == names(clusters)[[i]]]))
         option2raw(ldna, LDmat, exl, clusters[[i]], col=col[i],
@@ -88,6 +88,7 @@ option2raw <- function(ldna, LDmat, exl, loci, col, full.network, threshold, inc
           LDmat <- LDmat[(rownames(LDmat) %in% loci_p), (rownames(LDmat) %in% loci_p)]
         }
     }
+    
     if(after.merger==TRUE) {
         p2 <- as.vector(ldna$stats$parent_cluster[ldna$stats$cluster %in%  p])
         if(p2=="root") {threshold <- threshold-0.01
