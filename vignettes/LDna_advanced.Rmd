@@ -1,12 +1,10 @@
 <!--
 %\VignetteEngine{knitr}
-%\VignetteIndexEntry{An introduction to the LDna package, advanced}
+%\VignetteIndexEntry{An introduction to the LDna package: Advanced}
 -->
 
 ```{r setup, include=FALSE}
 library(knitr)
-require(LDna)
-data(LDna)
 ```
 
 An introduction to the **LDna** package: advanced
@@ -24,6 +22,7 @@ See `LDna::LDna_basics`
 ### Explore data
 To access sample data:
 ```{r}
+require(LDna)
 data(LDna)
 LDmat <- r2.baimaii_subs
 ```

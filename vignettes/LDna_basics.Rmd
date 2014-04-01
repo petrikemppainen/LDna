@@ -1,6 +1,6 @@
 <!--
 %\VignetteEngine{knitr}
-%\VignetteIndexEntry{An introduction to the LDna package}
+%\VignetteIndexEntry{An introduction to the LDna package: Basics}
 -->
 
 ```{r setup, include=FALSE}
