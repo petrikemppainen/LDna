@@ -17,8 +17,6 @@ Alternatively, download the source file directly an install by:
 ```r
 install.packages("/path_to/source_file", repos = NULL, type = "source")
 ```
-
-
-
+Please install and follow package documentation for more info (includes two tutorials).
 
 
