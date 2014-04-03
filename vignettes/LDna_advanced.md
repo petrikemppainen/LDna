@@ -1,19 +1,19 @@
 <!--
 %\VignetteEngine{knitr}
-%\VignetteIndexEntry{An introduction to the LDna package, advanced}
+%\VignetteIndexEntry{An introduction to the LDna package: Advanced}
 -->
 
 
 
 
-An introduction to the **LDna** package: advanced
+An introduction to the **LDna** package: Advanced
 =======================================
 
 Introduction
 ------------
-This tutorial demonstrates the use of LDna on a RAD sequence landscape genomics data set form a Southeast Asian mosquito malaria vector, *Anopheles baimaii*. This species has a widespread distribution extending from Northeast India, through Myanmar and into Thailand. Prior polytene chromosome mapping studies suggests that one polymorphic inversion is found on each of the five chromosome arms (2L, 2R, 3L, 3R and the X-chromosome) in *A. baimaii* and that they constitute up to 43% of their respective chromosomes {Baimai:1988fz, Baimai:1988tl, Poopittayasataporn:1995up}. Intraspecific inversion polymorphism is exceptionally prone to causing high LD between large sets of loci that are easily identified by LDna from population genomic data sets. The full RAD sequence data set consists of 3828 SNPs from 184 samples and 91 geographical sites but here we only use a random subset comprising 25% of these loci called `r2.baimaii_subs`. This tutorial assumes you have read and understood the `LDna::LDna_basics` tutorial.
+This tutorial demonstrates the use of LDna on a RAD sequence landscape genomics data set form a Southeast Asian mosquito malaria vector, *Anopheles baimaii*. This species has a widespread distribution extending from Northeast India, through Myanmar and into Thailand. Prior polytene chromosome mapping studies suggests that one polymorphic inversion is found on each of the five chromosome arms (2L, 2R, 3L, 3R and the X-chromosome) in *A. baimaii* and that they constitute up to 43% of their respective chromosomes {Baimai:1988fz, Baimai:1988tl, Poopittayasataporn:1995up}. Intraspecific inversion polymorphism is expected to cause high LD between large sets of loci that are easily identified by LDna from population genomic data sets. The full RAD sequence data set consists of 3828 SNPs from 184 samples and 91 geographical sites but here we only use a random subset comprising 25% of these loci called `r2.baimaii_subs`. This tutorial assumes you have read and understood the `LDna::LDna_basics` tutorial.
 
-Pipeline
+Linkage disequilibrium network analysis
 ------------
 ### Installation
 See `LDna::LDna_basics`
@@ -22,27 +22,11 @@ See `LDna::LDna_basics`
 To access sample data:
 
 ```r
-require(LDna)
-```
-
-```
-## Loading required package: LDna
-## Loading required package: ape
-## Loading required package: igraph
-## 
-## Attaching package: 'igraph'
-## 
-## The following object is masked from 'package:ape':
-## 
-##     edges
-```
-
-```r
 data(LDna)
 LDmat <- r2.baimaii_subs
 ```
 
-With only a matrix of pairwise LD values from a popoulation genomics data set it is possible to plot networks at different LD thresholds to get a good idea of how much 'LD clustering' there is in the data set. This is achieved by the `plotLDnetwork` function and as can be seen below, at LD threshold 0.8 not much interesting is happening. However, at 0.5 and 0.3 several distinct clusters can be seen and we have thus good reason to be excited. Between 0.5 and 0.3 some merging of large cluster have occurred, and the idea behind LDna is to find the exact LD thresholds when this happens such that these clusters can be extracted just before they merge. There will always be least one large cluster, given a low enough LD threshold value, but most often there will be several, sometimes up to hundreds, depending on LD threshold and data set.
+With only a matrix of pairwise LD values from a popoulation genomics data set it is possible to plot networks at different LD thresholds to get an idea of how much 'LD clustering' exists in the data. This is achieved by the `plotLDnetwork` function and as can be seen below, at LD threshold 0.8 not much interesting is happening. However, at 0.5 and 0.3 several distinct clusters can be seen and we have thus good reason to be excited. Between 0.5 and 0.3 some merging of large cluster have occurred, and the idea behind LDna is to find the exact LD thresholds when this happens such that these clusters can be extracted just before they merge. There will always be least one large cluster, given a low enough LD threshold value, but most often there will be several, sometimes up to hundreds, depending on LD threshold and data set.
 
 ```r
 par(mfcol = c(1, 3))
@@ -54,9 +38,9 @@ plotLDnetwork(LDmat = LDmat, option = 1, threshold = 0.3)
 ![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
 
 ### The LDna pipeline
-Linkage disequilibrium network analysis is a powerful exploratory tool for population genomic data sets. The LDna process is iterative involving several analysis steps. Once clusters have been identified these need to be visually explored by plotting networks as well as further analysed for instance by standard analyses of  genetic structure and mapping to reference genome(s), if possible. Only then can the 'biological relevance' of an extracted cluster be assessed. In this tutorial we focus on a data set where we already know which clusters are associated with inversions from extensive downstream analyses. This tutorial will not cover the downstream analyses.
+Linkage disequilibrium network analysis is a powerful exploratory tool for population genomic data sets. The LDna process is iterative involving several analysis steps. Once clusters have been identified they need to be visually explored by plotting networks as well as further analysed for instance by standard analyses of  genetic structure and mapping to reference genome(s), if possible. Only then can the 'biological relevance' of an extracted cluster be assessed. In this tutorial we focus on a data set where we already know which clusters are associated with inversions from extensive downstream analyses. This tutorial will not cover the downstream analyses.
 
-In practice, one would most likely explore the data set for a while through LDna, and once reasonably satisfied, proceed with some quick downstream analyses. This information would then be fed back for a second round of LDna analyses, if necessary. This works well for reduced representation population genomic data sets with not too many loci (up to ~10000) such as RAD sequence data sets. If your data set is much larger than this, it is always possible to subsample. If the signatures of LD are strong, not more than 1000 SNPs are sometimes necessary, as will be demonstrated here. If your data set is large, I would recommend starting with a subsample, say up up to 10000 SNPs (and perhaps only from a subset of chromosomes, if this information is known) to get an overall idea about what factors are causing LD in the data before attemting to analyse the full data set.
+In practice, one would most likely explore the data set for a while through LDna, and once reasonably satisfied, proceed with some quick downstream analyses. This information would then be fed back for a second round of LDna analyses, if necessary. This works well for reduced representation population genomic data sets with not too many loci (up to ~10000) such as RAD sequence data sets. If your data set is much larger than this, it is always possible to subsample. If the signatures of LD are strong, not more than 1000 SNPs are sometimes necessary, as will be demonstrated here. If your data set is large, it is a good idea to start with a subsample (up to ~10000 SNPs and perhaps only from a subset of chromosomes, if this information is known) to get an overall idea about what factors are causing LD in the data before attemting to analyse the full data set.
 
 ### Produce raw data for LDna
 The first step in LDna produces the raw data for all the subsequent analyses using the function `LDnaRaw`.
@@ -88,11 +72,11 @@ plotLDnetwork(LDmat = LDmat, option = 1, threshold = 0.3)
 ![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
 
 ### "Single outlier clusters" and "compound outlier clusters"
-Outlier $\lambda$ values imply the merging of large and distinct clusters comprising loci bearing different LD signals (see `LDna::basics`). However, as we can see from the above trees, there is a succession of cluster merging as the LD threshold is lowered. Along this succession only the first merger (moving form right to left along a clade in a tree) involves clusters were both are likely caused by separate distinct evolutionary factors or forces. To distinguish that a cluster is the first outlier cluster, *OC*, moving from right to left along a clade, we call this *"single outlier cluster"*, or *"SOC"*. If an *OC* already is a result of the merging of two *OCs* (at a higher LD threshold), we call this a *"compound outlier cluster"*, or *"COC"* to denote that it likely contains loci bearing different LD signals. Normally we are only interested in *SOCs*, but for the purpose of illustration we will next demonstrate a tree where both *SOCs* and *COCs* are indicated. This is achieved by setting the option `rm.COCs` to `FALSE` in the `extractClusters` function. In this figure blue colour indicates that the cluster in question is a *COC* rather than a *SOC* (red). We set both `min.edges` and `phi` to relatively high values for this data set (14 and 5, respectively), such that we only get a few large *OCs* (this is covered in more detail below).
+Outlier $\lambda$ values imply the merging of large and distinct clusters comprising loci bearing different LD signals (see `LDna::basics`). However, as we can see from the above trees, there is a succession of cluster merging as the LD threshold is lowered. Along this succession only the first merger (moving form right to left along a clade in a tree) involves clusters were both are likely caused by separate distinct evolutionary factors or forces. To distinguish that a cluster is the first outlier cluster, *OC*, moving from right to left along a clade, we call this *"single outlier cluster"*, or *"SOC"*. If an *OC* already is a result of the merging of two *OCs* (at a higher LD threshold), we call this a *"compound outlier cluster"*, or *"COC"* to denote that it likely contains loci bearing LD signals from more than two evolutionary factor or force. Normally we are only interested in *SOCs*, but for the purpose of illustration we will next demonstrate a tree where both *SOCs* and *COCs* are indicated. This is achieved by setting the option `rm.COCs` to `FALSE` in the `extractClusters` function. In this figure blue colour indicates that the cluster in question is a *COC* rather than a *SOC* (red). We set both `min.edges` and `phi` to relatively high values for this data set (18 and 4, respectively), such that we only get a few large *OCs* (this is covered in more detail below).
 
 ```r
 par(mfcol = c(1, 2))
-clusters <- extractClusters(ldna, min.edges = 10, phi = 5, rm.COCs = F, plot.tree = T, 
+clusters <- extractClusters(ldna, min.edges = 18, phi = 4, rm.COCs = F, plot.tree = T, 
     plot.graph = T)
 ```
 
@@ -115,7 +99,7 @@ summary
 186_0.23  SOC     0.22    16  47  2.853   0.227    0.01530
 ```
 
-If we now plot all the extracted clusters (default settings), any COC will be colored blue and any SOC will be colored red. As can be seen from the above tree, *COC 149_0.32* contains loci from *SOCs 112_0.39* and *COC 111_0.27* in turn contains loci from *COC 149_0.32* and *SOC 148_0.32*. Thus, the main focus should be on *SOCs* not *COCs* (but see below).
+If we now plot all the extracted clusters (default settings), any COC will be colored blue and any SOC will be colored red. As can be seen from the above tree, *COC 149_0.32* includes loci from *SOC 112_0.39* and *COC 111_0.27* in turn includes loci from *COC 149_0.32* and *SOC 148_0.32*.
 
 ```r
 par(mfcol = c(2, 3))
@@ -125,24 +109,24 @@ plotLDnetwork(ldna, LDmat, option = 2, clusters = clusters, summary = summary)
 ![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
 
 ### Identifying and extracting clusters, the effects of $\varphi$
-For the follwing analyses we will keep `rm.COSs=TRUE`, i.e automatically remove any *COCs* from the analyses. As seen above, the two parameters that go into the function `extractClusters` are $|E|_{min}$ and $\varphi$ controlled by the options `min.edges` and `phi`. I will first focus on $\varphi$ while keeping $|E|_{min}$ fixed (at 18). Thus, let's look at two analyses that only differ in their $\varphi$-value (4 and 2 respectively). The main difference between them is that at `phi=$`, instead of *SOC 148_0.32* and *112_0.39* (which now are *COCs*) on the two bottom branches instead we now  get *SOCs 90_0.47*  and *75_0.53*. In other words; *OCs 47_0.46* and *90_0.47* mask *OCs 148_0.32* and *112_0.39* as a *COCs* going from `phi=4` to `phi=2`.
+For the follwing analyses `rm.COSs` is kept at `FALSE`, i.e both *SOCs* and *COCs* are included. As seen above, the two parameters that go into the function `extractClusters` are $|E|_{min}$ and $\varphi$ controlled by the arguments `min.edges` and `phi`. While keeping $|E|_{min}$ fixed (at 18), changing `phi` from `4` to `2`, instead of *SOC 148_0.32* and *112_0.39* (which now are *COCs*) on the two bottom branches instead we now  get *SOCs 90_0.47*  and *75_0.53*. In other words; *OCs 47_0.46* and *90_0.47* mask *OCs 148_0.32* and *112_0.39* as a *COCs* going from `phi=4` to `phi=2`.
 
 ```r
 par(mfcol = c(1, 2))
-clusters_4 <- extractClusters(ldna, min.edges = 18, phi = 4, rm.COCs = F, plot.tree = T, 
-    plot.graph = T)
+clusters_4 <- extractClusters(ldna, min.edges = 18, phi = 4, rm.COCs = FALSE, 
+    plot.tree = TRUE, plot.graph = TRUE)
 ```
 
 ![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-91.png) 
 
 ```r
-clusters_2 <- extractClusters(ldna, min.edges = 18, phi = 2, rm.COCs = F, plot.tree = T, 
-    plot.graph = T)
+clusters_2 <- extractClusters(ldna, min.edges = 18, phi = 2, rm.COCs = FALSE, 
+    plot.tree = TRUE, plot.graph = TRUE)
 ```
 
 ![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-92.png) 
 
-So which setting should we use? Let's firs look at the relationship between *OCs 148_0.39* and *90_0.47*. From the summary (below) we can see that the main differences are the size, mean LD and $\lambda$. Thus, if we were to use `phi=2` we would identify a SOC from the clade in question that is smaller (with respect to numbers of loci) compared to with `phi=4`. However, the mean LD in *OC 90_0.47* is also significantly higher than in *OC 148_0.39*. Note that in this particular case *148_0.39* is a defined as a *COC* (as it contains loci from *90_0.47*). Note also that the only way to access both *OCs* in the same analysis is to set option `rm.COCs` to `TRUE`.
+So which setting should we use? Let's firs look at the relationship between *OCs 148_0.39* and *90_0.47*. From the summary (below) we can see that the main differences are the size, mean LD and $\lambda$. Thus, if we were to use `phi=2` we would identify a *SOC* from the clade in question that is smaller (with respect to numbers of loci) compared to with `phi=4`. However, the mean LD in *OC 90_0.47* is also significantly higher than in *OC 148_0.39*. Note that in this particular case *148_0.39* is a defined as a *COC* (as it contains loci from *90_0.47*). Note also that the only way to access both *OCs* in the same analysis is to set option `rm.COCs` to `TRUE`.
 
 ```r
 summary <- summaryLDna(ldna, clusters_2[c(2, 5)], LDmat)
@@ -155,7 +139,7 @@ summary
 148_0.32  COC     0.31    24 100  5.143   0.302     0.0119
 ```
 
-To demonstrate why there is such a large difference in $\lambda$ between these two *OCs*, I will introduce a few useful aspects of the `plotLDnetwork` function. $\lambda$ is a function of both the focal cluster (cluster before merger) and the cluster/loci it merges with (see the `LDna::basics`), and we can use `plotLDnetwork` to specifically explore this. This is achieved by only showing the focal cluster and the cluster/loci it merges with by setting `full.network` to `FALSE` but also allowing any clusters/loci the focal cluster merges with in the network by setting `include.parent` to `TRUE`. In addition, we can choose to show the clusters before or after merger via `after.merger` (`TRUE` for showing network after merger and `FALSE` for before, default is `FALSE`) as follows:
+To demonstrate why there is such a large difference in $\lambda$ between these two *OCs*, a few useful aspects of the `plotLDnetwork` function will be introduced. $\lambda$ is a function of both the focal cluster (cluster before merger) and the cluster/loci it merges with (see the `LDna::basics`), and we can use `plotLDnetwork` to specifically explore this. This is achieved by only showing the focal cluster and the cluster/loci it merges with by setting `full.network` to `FALSE` but also allowing any clusters/loci the focal cluster merges with in the network by setting `include.parent` to `TRUE`. In addition, we can choose to show the clusters before or after merger via `after.merger` (`TRUE` for showing network after merger and `FALSE` for before, default is `FALSE`) as follows:
 
 ```r
 par(mfcol = c(1, 2))
@@ -165,7 +149,7 @@ plotLDnetwork(ldna, LDmat, option = 2, clusters = clusters_2[c(2, 5)], summary =
 
 ![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11.png) 
 
-At first, the above seems strange as for *OC 90_0.47* only the focal cluster is shown (all vertices are colored red) in contrast to *OC 148_0.39* (note also that *OC 148_0.39* is blue as it is technically a *COC*). But when we then look at the networks after merger (below) we can see that indeed *90_0.47* does not merge with any cluster(s) but instead with two separate loci. Although *90_0.47* only merges with two loci, there is a large difference in the pairwise LD values between them and the remaining loci, thus giving this cluster a relatively high $\lambda$-value. This is indicated by the large difference in LD threshold values when OC *90_0.47* firstly appears (0.47) compared to when it merges with the two loci (0.43). Which one(s) of the two *OCs* do you then keep?. This question cannot fully be answered until some downstream analyses of both clusters have been performed. In our case I can report that all loci in *OC 148_0.39* map to the same inverted region and thus `phi=4` makes the most sense.
+At first, the above seems strange as for *OC 90_0.47* only the focal cluster is shown (all vertices are colored red) in contrast to *OC 148_0.39* (note also that *OC 148_0.39* is blue as it is technically a *COC*). When networks are plotted after merger (below) we can see that indeed *90_0.47* does not merge with any cluster(s) but instead with two separate loci. Although *90_0.47* only merges with two loci, there is a large difference in the pairwise LD values between them and the remaining loci, thus giving this cluster a relatively high $\lambda$-value. This is indicated by the large difference in LD threshold values when *OC 90_0.47* firstly appears (0.47) compared to when it merges with the two loci (0.43). Which one(s) of the two *OCs* do you then keep?. This question cannot fully be answered until some downstream analyses of both clusters have been performed. In this case we know that all loci in *OC 148_0.39* map to the same inverted region and thus `phi=4` makes the most sense. 
 
 ```r
 par(mfcol = c(1, 2))
@@ -175,9 +159,9 @@ plotLDnetwork(ldna, LDmat, option = 2, clusters = clusters_2[c(2, 5)], summary =
 
 ![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png) 
 
-With respect to suggestions for your own analyses, I generally consider $\varphi$ values 2-3 to be low, 3-5 to be medium and 5-8 to be high. As outlier $\lambda$ values are relative to the median of all values in the tree this is likely to be true for any data set. Going below 2 and above 8 makes little sense except for the purpose of demonstration. In practice, for smaller data sets, the merging of 'biologically relevant clusters' may not cause exceptionally high $\lambda$-values (even relative to all other values in the data) and thus, in order to not miss such mergers, it makes sense to in these cases keep $\varphi$ relatively low for small data sets. You will always get at least one *SOC* from any ‘large clade’ in a tree with relatively low $\varphi$ values. The risk with a 'too' low $\varphi$ is that you may not be able to extract the maximum possible number of loci that are associated with a particular evolutionary factor/force. On the other hand, these loci will be in higher LD with each other and in this sense low values of $\varphi$ can be considered conservative. If $\varphi$ is set 'too' high you risk missing a merger and may thus end up grouping together loci that ultimate are caused by separate evolutionary factors/forces, which is worse. However, downstream analysis can usually spot this.
+Based purely on our own experience, we consider $\varphi$-values: 2-3 to be low, 3-5 to be medium and 5-8 to be high. As outlier $\lambda$ values are relative to the median of all values in the tree this is likely to be true for any data set. Going below 2 and above 8 makes little sense except for the purpose of demonstration. In practice, for smaller data sets, the merging of 'biologically relevant clusters' may not cause exceptionally high $\lambda$-values (even relative to all other values in the data) and thus, in order to not miss such mergers, it makes sense to cases keep $\varphi$ relatively low for small data sets. You will always get at least one *SOC* from any ‘large clade’ in a tree with relatively low $\varphi$ values. The risk with a 'too' low $\varphi$ is that you may not be able to extract the maximum possible number of loci that are associated with a particular evolutionary factor/force. On the other hand, these loci will be in higher LD with each other and in this sense low values of $\varphi$ can be considered conservative. If $\varphi$ is set 'too' high you risk missing a merger and may thus end up grouping together loci that ultimate are caused by separate evolutionary factors/forces, which is worse. However, downstream analysis can usually spot this.
 
-There is also a possibility to use a fixed value of $\lambda_{lim}$ via the `lambda.lim` option in `excractClusters` as follows. In fact, just looking at the below figure, if you would decied upon a $\lambda_{lim}$ yourself, an appropriate value would be two, as this clearly separates two distinct groups (or 'clusters') of $\lambda$ values as demonstrated below. 
+There is also a possibility to use a fixed value of $\lambda_{lim}$ via the `lambda.lim` option in `excractClusters` as follows:
 
 ```r
 clusters <- extractClusters(ldna, LDmat, min.edges = 18, lambda.lim = 2, rm.COCs = T, 
@@ -200,30 +184,30 @@ clusters <- extractClusters(ldna, min.edges = 8, phi = 2, rm.COCs = TRUE, plot.t
 summary <- summaryLDna(ldna, clusters, LDmat)
 ```
 
-Here we will focus on two smallest clusters (the remaining we already know are associated with inversions). In the example data set here, we have allowed several SNPs from each RAD locus (as long as they are informative) and these are in many cases likely to be in high LD with each other. As there are usually no more than 4 such SNPs from each RAD locus, these alone are not likely to cause large clusters. However, each restriction cut site leads to two RAD adjacent RAD loci and these as well are likely to be in high LD. As can be seen below, the three small clusters here appear to be containing several SNPs from the same RAD loci. Thus, our conclusion is that these three small clusters are mainly artifacts of the above.
+Here we will focus on two smallest clusters (the remaining we already know are associated with inversions). From downstream analyses of the full data set {LDna ref}, we know that *OC 118_0.38* to some extent is associated with overall poulation history of this species. In the example data set here, we have allowed several SNPs from each RAD locus and these are in many cases likely to be in high LD with each other. In addition, each restriction cut site can lead adjacent RAD loci and these as well are likely to be in high LD. As seen below, the 11 SNPs from *OC 194_0.21* only represent 7 unique RAD loci and mapping these loci to the reference genomes reveals that at least three of these pairs are come from the same restriction cut site.
+
 
 ```r
-summary <- summaryLDna(ldna, clusters[c(3, 6)], LDmat)
-summary
+clusters$"194_0.21"
 ```
 
 ```
-         Type Merge.at nLoci nE Lambda Mean.LD Mean.LD.SE
-118_0.38  SOC     0.37    13 17  1.221   0.258     0.0158
-194_0.21  SOC      0.2    11 14  1.438   0.172     0.0206
+ [1] "L2425.1"  "L2425.4"  "L508.6"   "L7111.8"  "L5877.1"  "L1007.6" 
+ [7] "L1007.7"  "L3153.5"  "L4957.11" "L5758.9"  "L5758.18"
 ```
 
-As can be seen from the networks (below), these two cluster do indeed look promising, and shows the power of LDna to identify even small but potentially interesting clusters.
+Nevertheless, ss can be seen from the networks (below), these two cluster do indeed look promising, and shows the power of LDna to identify even small but potentially interesting clusters.
 
 ```r
 par(mfcol = c(1, 2))
-plotLDnetwork(ldna, LDmat, option = 2, clusters = clusters[c(3, 6)], summary = summary)
+plotLDnetwork(ldna, LDmat, option = 2, clusters = clusters[c(3, 6)], summary = summary[c(3, 
+    6), ])
 ```
 
 ![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16.png) 
 
 ### Final analysis
-Finally, having explored the data at sufficient depth we can run the full LDna pipeline with appropriate parameter values that result in the identification of only the *OCs* that we know are associated with inversions (which we can only know from downstream analyses).
+Finally, having explored the data at sufficient depth we can run the full LDna pipeline with appropriate parameter values that result in the identification of only the 'most interesting' *OCs*, in this case those where downstream analses have allowed us to reveal their association with inversions.
 
 ```r
 par(mfcol = c(1, 2))
@@ -289,6 +273,6 @@ plotLDnetwork(ldna, LDmat, option = 2, clusters = clusters, summary = summary)
 Note that there are two apporaches for choosing which *OCs* to keep for downstream analyeses. First, you can play around with different values of $|E|_{min}$ and $\varphi$ to find a setting that identifies exactly the *SOCs* you are interested in, perhaps after several rounds of downstream analyses of different *OCs*. Second, you can settle with a low value for both $|E|_{min}$ and $\varphi$ and then 'cherrypick' the *COCs* and *SOCs* (keeping `rm.COC=FALSE`) you are mostly interested for the downstram analyses. Or even analyse them all and then report which ones are potentially interesting.
 
 ### Concluding remarks on the choice of $|E|_{min}$ and $\varphi$
-Although what constitutes a ‘biologically relevant *SOC*’ cannot be known *a priori*, there are three main reasons why such theoretical *SOCs* would not be identified  from a given analysis: 1) $|E|_{min}$ is set too high such that the *SOC* in question falls below this value, 2) $\varphi$ is set too low such that the *SOC* in question is masked as a *COC* by allowing another *SOC* to be extracted at a higher LD threshold along the same ‘clade’, or 3) $\varphi$ is set too high such that the $\lambda$ value of the *SOC* in question is lower than the resulting $\lambda_{lim}$. Thus, it is necessary to explore the data set with different parameters settings for `extractClusters`, look at the resulting $\lambda$-values and tree, summarize the data (with `summaryLDna`) and then explore the clusters with `plotLDnetworks`. However, only the downstream analyses will finally reveal how 'biologically' relevant each *SOC* is likely to be. As such, LDna is a highly iterative process and has to be considered as an exploratory tool. It is a good idea for you to explore different values `min.edges` and `phi` to see how the OCs change. It may be also be useful for you to keep `rm.COCs=FALSE` in order to see how a particular *SOC* can at some paramaeter values be a *COC* and vice versa.
+Although what constitutes a ‘biologically relevant *SOC*' cannot be known *a priori*, there are three main reasons why such theoretical *SOCs* would not be identified from a given analysis: 1) $|E|_{min}$ is set too high such that the *SOC* in question falls below this value, 2) $\varphi$ is set too low such that the *SOC* in question is masked as a *COC* by allowing another *SOC* to be extracted at a higher LD threshold along the same ‘clade’, or 3) $\varphi$ is set too high such that the $\lambda$ value of the *SOC* in question is lower than the resulting $\lambda_{lim}$. Thus, it is necessary to explore the data set with different parameters settings for `extractClusters`, look at the resulting $\lambda$-values and tree, summarize the data (with `summaryLDna`) and then explore the clusters with `plotLDnetworks`. However, only the downstream analyses will finally reveal how 'biologically' relevant each *SOC* is likely to be. As such, LDna is a highly iterative process and has to be considered as an exploratory tool. It is a good idea to explore different values `min.edges` and `phi` to see how the *OCs* change. It may be also be useful for you to keep `rm.COCs=FALSE` in order to see how a particular *SOC* can at some paramaeter values be a *COC* and vice versa.
 
 Note that exactly what cluster you in the end decide to extract for downstream analyses does not really matter and you may not even be able to find one specific setting that allows you to extract all the *OCs* you are interested in. What matter is what the downstream analyses show; there is nothing wrong to initially include many different *SOCs* and *COCs* in the downstream analyses and only then decide which of them make the most sense.

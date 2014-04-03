@@ -1,16 +1,24 @@
-###LDna
+Linkage disequilibrium network analysis (LDna)
+-------------
 
-Linkage disequilibrium network analyses
+LDna uses network analyses to find clusters of loci in high linkage disequilibrium (LD) from population genomic data sets (Kemppainen et al., unpublished).
 
-Current version is 0.56
+Current beta version is 0.57.
 
-## Installing 
+###Installing
 
-With devtools (install from CRAN) LDna can be installed by:
-
-```
+With **devtools** (accessible from CRAN) LDna can be installed by:
+```r
 devtools::install_github("petrikemppainen/LDna")
 ```
-Development of tutorials is in progress, and documentation is not complete. For the time being, some examples are provided in demo.R. 
+This downloads the source directly from **github** and builds the vignettes and thus requires LaTeX to be installed on your computer.
+
+Alternatively, download the source file directly an install by:
+```r
+install.packages("/path_to/source_file", repos = NULL, type = "source")
+```
+
+
+
 
 
