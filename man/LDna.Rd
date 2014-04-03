@@ -2,26 +2,22 @@
 \name{LDna}
 \alias{LDna}
 \alias{LDna-package}
-\title{Linkage disequilibrium network analyses}
+\title{Linkage disequilibrium network analyses (LDna)}
 \description{
-Lubridate provides tools that make it easier to parse and
-manipulate dates. These tools are grouped below by common
-purpose. More information about each function can be found
-in its help documentation.
+Linkage disequilibrium anlyses is an exploratory tool for
+population genomic data that can identify distinct
+population genetic signals and identify loci causing them.
 }
 \details{
-Parsing dates
-
-Lubridate's parsing functions read strings into R as
-POSIXct date-time objects. Users should choose the function
-whose name models the order in which the year ('y'), month
-('m') and day ('d') elements appear the string to be
-parsed: \code{\link{LDnaRaw}}, \code{\link{summaryLDna}},
-\code{\link{extractClusters}}.
+The main pipeline is to produce raw data using:
+\code{\link{LDnaRaw}}, extract clusters using:
+\code{\link{extractClusters}}, summerise data using:
+\code{\link{summaryLDna}} and exploring networks using
+\code{\link{plotLDnetwork}}.
 }
-\references{
-Garrett Grolemund, Hadley Wickham (2011). Dates and Times
-Made Easy with lubridate. Journal of Statistical Software,
-40(3), 1-25.
+\author{
+Petri Kemppainen, \email{petrikemppainen2@gmail.com} and
+Christopher Knight Christopher Knight,
+\email{Chris.Knight@manchester.ac.uk}
 }
 

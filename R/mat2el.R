@@ -1,6 +1,6 @@
 #' Transforms matrix to an edge list.
 #'
-#' Transforms an upper diagonal matrix to an edge list
+#' Transforms a lower diagonal matrix to an edge list.
 #'
 #' @param LDmat upper diagonal matrix of pairwise values to transform
 #' @keywords mat2el
