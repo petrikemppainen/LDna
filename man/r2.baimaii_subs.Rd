@@ -6,7 +6,7 @@
 r2.baimaii_subs
 }
 \description{
-Upper diagonal pairwise matrix of \eqn{R^2} values between
+Lower diagonal pairwise matrix of \eqn{R^2} values between
 957 SNPs from 91 wild-caught individuals of the SE Asian
 mosquito malaria vector, \emph{Anopheles baimaii}.
 }

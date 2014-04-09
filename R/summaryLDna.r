@@ -1,10 +1,10 @@
-#' Summerizes LD clusters
+#' Summerises LD clusters
 #'
 #' Creates a data frame with summary information of LD clusters extracted by function \code{\link{extractClusters}}
 #'
 #' @param ldna Output from \code{\link{LDnaRaw}}
 #' @param clusters Output from \code{\link{extractClusters}}
-#' @param LDmat Lower diagonal matrix of pairwise LD values used to produce ldna
+#' @param LDmat Lower diagonal matrix of pairwise LD values
 #' @keywords summaryLDna
 #' @seealso \code{\link{extractClusters}}, \code{\link{LDnaRaw}} and \code{\link{plotLDnetwork}}
 #' @return Returns a data frame with each row corresponding to a cluster, in decreasing order with respect to highest LD threshold value at which they are present. Column \emph{Type} specifies if a cluster is a \emph{"single outlier cluster", SOC} or a \emph{"compound oulier cluster", COC}. Column \emph{"Merge.at"} specfies the LD threshold for cluster merger. "Mean.LD" gives the average LD of all pairwise values between loci in a cluster.
@@ -12,9 +12,9 @@
 #' @examples
 #' # Simple upper diagonal LD matrix
 #' LDmat <- structure(c(NA, 0.84, 0.64, 0.24, 0.2, 0.16, 0.44, 0.44, NA, NA, 0.8, 0.28, 0.4, 0.36, 0.36, 0.24, NA, NA, NA, 0.48, 0.32, 0.2, 0.36, 0.2, NA, NA, NA, NA, 0.76, 0.56, 0.6, 0.2, NA, NA, NA, NA, NA, 0.72, 0.68, 0.24, NA, NA, NA, NA, NA, NA, 0.44, 0.24, NA, NA, NA, NA, NA, NA, NA, 0.2, NA, NA, NA, NA, NA, NA, NA, NA), .Dim = c(8L, 8L), .Dimnames = list(c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"), c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8")))
-#' # Produce neccesary data
+#' # Produce neccesary data for LDna
 #' ldna <- LDnaRaw(LDmat)
-#' # extract clusters and plot graphs, for this small example min.edges is set to zero such that each tip clade corresponds to an individual locus
+#' # Extract clusters and plot graphs, for this small example min.edges is set to zero such that each tip clade corresponds to an individual locus
 #' clusters <- extractClusters(ldna, min.edges=0, phi=0.25, rm.COCs=FALSE)
 #' summary <- summaryLDna(ldna, clusters, LDmat)
 
@@ -35,8 +35,8 @@ summaryLDna <- function(ldna, clusters, LDmat){
   #}
   nE <- ldna$stats$nE[ldna$stats$cluster %in% names(clusters)]
   names(nE) <- ldna$stats$cluster[ldna$stats$cluster %in% names(clusters)]
-  Lambda <- ldna$stats$Lambda[ldna$stats$cluster %in% names(clusters)]
-  names(Lambda) <- ldna$stats$cluster[ldna$stats$cluster %in% names(clusters)]
+  lambda <- ldna$stats$lambda[ldna$stats$cluster %in% names(clusters)]
+  names(lambda) <- ldna$stats$cluster[ldna$stats$cluster %in% names(clusters)]
 
   std.err <- function(x) sd(x)/sqrt(length(x))
   Mean.LD <- NULL
@@ -50,7 +50,6 @@ summaryLDna <- function(ldna, clusters, LDmat){
   
   temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %in% names(clusters)]
   nested <- matrix("SOC", ncol(temp), ncol(temp))
-  #nested <- rep("SOC", ncol(temp))
   for(i in 1:ncol(temp)){
     for(j in 1:ncol(temp)){
       if(i!=j & any(apply(cbind(temp[,i], temp[,j]),1, function(x) x[1]==TRUE & x[2]==TRUE))){
@@ -69,7 +68,7 @@ summaryLDna <- function(ldna, clusters, LDmat){
   Type[Type != "SOC"] <- "COC"
   names(Type) <- names(clusters)
   
-  Lambda[match(names(Type), names(Lambda))]
-  summary <- data.frame(Type, Merge.at, nLoci, nE=nE[match(names(Type), names(nE))], Lambda=Lambda[match(names(Type), names(Lambda))], Mean.LD, Mean.LD.SE)
+  lambda[match(names(Type), names(lambda))]
+  summary <- data.frame(Type, Merge.at, nLoci, nE=nE[match(names(Type), names(nE))], lambda=lambda[match(names(Type), names(lambda))], Mean.LD, Mean.LD.SE)
   return(summary)
 }

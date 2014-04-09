@@ -1,6 +1,6 @@
 \name{summaryLDna}
 \alias{summaryLDna}
-\title{Summerizes LD clusters}
+\title{Summerises LD clusters}
 \usage{
 summaryLDna(ldna, clusters, LDmat)
 }
@@ -10,8 +10,7 @@ summaryLDna(ldna, clusters, LDmat)
   \item{clusters}{Output from
   \code{\link{extractClusters}}}
 
-  \item{LDmat}{Lower diagonal matrix of pairwise LD values
-  used to produce ldna}
+  \item{LDmat}{Lower diagonal matrix of pairwise LD values}
 }
 \value{
 Returns a data frame with each row corresponding to a
@@ -31,9 +30,9 @@ clusters extracted by function
 \examples{
 # Simple upper diagonal LD matrix
 LDmat <- structure(c(NA, 0.84, 0.64, 0.24, 0.2, 0.16, 0.44, 0.44, NA, NA, 0.8, 0.28, 0.4, 0.36, 0.36, 0.24, NA, NA, NA, 0.48, 0.32, 0.2, 0.36, 0.2, NA, NA, NA, NA, 0.76, 0.56, 0.6, 0.2, NA, NA, NA, NA, NA, 0.72, 0.68, 0.24, NA, NA, NA, NA, NA, NA, 0.44, 0.24, NA, NA, NA, NA, NA, NA, NA, 0.2, NA, NA, NA, NA, NA, NA, NA, NA), .Dim = c(8L, 8L), .Dimnames = list(c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"), c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8")))
-# Produce neccesary data
+# Produce neccesary data for LDna
 ldna <- LDnaRaw(LDmat)
-# extract clusters and plot graphs, for this small example min.edges is set to zero such that each tip clade corresponds to an individual locus
+# Extract clusters and plot graphs, for this small example min.edges is set to zero such that each tip clade corresponds to an individual locus
 clusters <- extractClusters(ldna, min.edges=0, phi=0.25, rm.COCs=FALSE)
 summary <- summaryLDna(ldna, clusters, LDmat)
 }

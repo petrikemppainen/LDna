@@ -11,7 +11,7 @@ LDnaRaw(LDmat)
 \value{
 A list with two objects: \code{clusterfile} and
 \code{stats}. \code{Clusterfile} is a matrix with all
-unique clusters as columns and each locus as rows, where
+unique clusters as columns and loci as rows, where
 \code{TRUE} indicates the presense of a locus in a specific
 cluster (else \code{FALSE} is given). \code{Stats} is a
 data frame that gives all edges for the \code{single
@@ -19,7 +19,8 @@ linkage clustering tree} along with the following
 information for each edge: cluster (focal cluster), parent
 cluster (cluster efter merger), and the corresponding
 \code{nV}, \code{nE}, and \eqn{\lambda} for each cluster
-(cluster).
+(cluster). Each cluster is given a unique name which
+indicates the highest LD threshold at which it is present.
 }
 \description{
 Takes a lower diagonal matrix of pairwise LD values and
@@ -30,25 +31,23 @@ In LDna clusters represent loci (vertices) connected by LD
 values (edges) above given thresholds. From a lower
 diagonal matrix of LD values a \code{single linkage
 clustering algorithim} (see \code{\link{hclust}}) is used
-to produce a tree that describes the order of cluster
-merging with decreasing LD threshold. In these trees
-branches represent clusters/loci and branch points
-represent the merger of one or several clusters/loci and
-distance indicates LD threshold values at which these
-events occur. To identify mergers of distinct clusters, the
-change in median LD before and after merger, \eqn{\lambda},
-is calculated for all clusters in the tree. \eqn{\lambda}
-is defined as \eqn{(x_1-x_2)*n} where \eqn{x_1} is the
-median of all pairwise LD values within the focal cluster,
-\eqn{x_2} is the median of all pairwise values between loci
-within the focal cluster and between the loci in the focal
-cluster and any other loci it merges with, and \eqn{n} is
-the number of loci in the focal cluster. High values of
-\eqn{\lambda}, relative to the median of all values across
-the tree, indicate the merging of clusters with highly
-distinct LD signals. For each cluster the number of
-vertices, \code{nV}, the number of edges, \code{nE} are
-recorded.
+to produce a tree that describes cluster merging with
+decreasing LD threshold. In these trees nodes represent
+clusters/loci and node distance indicates LD threshold
+values at which these events occur. To identify mergers of
+distinct clusters, the change in median LD before and after
+merger, \eqn{\lambda}, is calculated for all clusters in
+the tree. \eqn{\lambda} is defined as \eqn{(x_1-x_2)*n}
+where \eqn{x_1} is the median of all pairwise LD values
+within the focal cluster, \eqn{x_2} is the median of all
+pairwise values between loci within the focal cluster and
+between the loci in the focal cluster and any other loci it
+merges with, and \eqn{n} is the number of loci in the focal
+cluster. High values of \eqn{\lambda}, relative to the
+median of all values across the tree, indicate the merging
+of clusters with highly distinct LD signals. For each
+cluster the number of vertices, \code{nV}, the number of
+edges, \code{nE} are recorded.
 }
 \examples{
 # Simple upper diagonal LD matrix

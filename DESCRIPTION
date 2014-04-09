@@ -14,16 +14,15 @@ Description: Performs linkage disequilibrium networks analyses (LDna). In LD net
             events or forces. By monitoring change in LD as clusters successively
             merge with decreasing LD threshold, such distinct clusters can be
             identified and extracted at appropriate LD thresholds. Cluster merging
-            is visualized using trees, where branches represent clusters and branch
-            points reperesent the merging of clusters and distance indicates at
-            which LD threshold this occurrs. Functions are provided to: produce 
-            necessary data files for LDna from a matrix of pairwise LD values;
-            calculate lambda, which measured the change in LD before and after
-            cluster merging and is used to identify distinct clusters; extract
-            clusters based on user defined parameters; summerize data and visualise
-            results, both when extracting clusers and when exploring the extracted
-            clusters.
+            is visualized using trees, where represent  clusters and node distance
+            clusters and distance indicates at LD threshold at which this occurrs. 
+            Functions are provided to: produce necessary data files for LDna from a 
+            matrix of pairwise LD values; calculate lambda, which measured the change 
+            in LD before and after cluster merging and is used to identify distinct 
+            clusters; extract clusters based on user defined parameters; summerize 
+            data and visualise results, both when extracting clusers and when 
+            exploring the extracted clusters.
 License: GPL (>= 2)
-URL: http://ldnetworkanalysis.wordpress.com
+URL: http://ldnetworkanalysis.wordpress.com, http://www.github.com/petrikemppainen/LDna
 VignetteBuilder: knitr 
 Suggests: knitr 

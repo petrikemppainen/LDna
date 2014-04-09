@@ -10,11 +10,11 @@ library(LDna)
 
 An introduction **LDna**: Advanced
 =======================================
-####Petri kemppainen, April 5, 2014
+#### Petri kemppainen, April 5, 2014
 
 Introduction
 ------------
-This tutorial demonstrates the use of LDna on a RAD sequence landscape genomics data set form a Southeast Asian mosquito malaria vector, *Anopheles baimaii*. This species has a widespread distribution extending from Northeast India, through Myanmar and into Thailand. Prior polytene chromosome mapping studies suggests that one polymorphic inversion is found on each of the five chromosome arms (2L, 2R, 3L, 3R and the X-chromosome) in *A. baimaii* and that they constitute up to 43% of their respective chromosomes [1-3]. Intraspecific inversion polymorphism is expected to cause high LD between large sets of loci that are easily identified by LDna from population genomic data sets (Kemppainen et al., unpublished). The full RAD sequence data set consists of 3828 SNPs from 184 samples and 91 geographical sites but here we only use a random subset comprising 25% of these loci called `r2.baimaii_subs`. This tutorial assumes you have read and understood the `LDna::LDna_basics` tutorial.
+This vingnette provides a tutorial that demonstrates the use of LDna on a RAD sequence landscape genomics data set form a Southeast Asian mosquito malaria vector, *Anopheles baimaii*. This species has a widespread distribution extending from Northeast India, through Myanmar and into Thailand. Prior polytene chromosome mapping studies suggests that one polymorphic inversion is found on each of the five chromosome arms (2L, 2R, 3L, 3R and the X-chromosome) in *A. baimaii* and that they constitute up to 43% of their respective chromosomes [1-3]. Intraspecific inversion polymorphism is expected to cause high LD between large sets of loci that are easily identified by LDna from population genomic data sets (Kemppainen et al., unpublished). The full RAD sequence data set consists of 3828 SNPs from 184 samples and 91 geographical sites but here we only use a random subset comprising 25% of these loci called `r2.baimaii_subs`. This tutorial assumes you have read and understood the `LDna::LDna_basics` tutorial.
 
 Linkage disequilibrium network analysis
 ------------

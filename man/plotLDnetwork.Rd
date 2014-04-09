@@ -44,11 +44,19 @@ plotLDnetwork(ldna, LDmat, option, threshold, clusters, summary, exl = NULL,
   (\code{TRUE}) merger.}
 
   \item{graph.object}{Whether to output \code{graph object}
-  when option=1 (default=\code{FALSE}).}
+  when \code{option=1} (default=\code{FALSE}).}
+}
+\value{
+If \code{option=1} and \code{graph.object=TRUE} the output
+is an igraph.object that can further be manipulated for
+custom networks (see \code{\link{igraph}} for details).
 }
 \description{
 Allows for visual inspection of clusters identified by
 \code{\link{extractClusters}}.
+}
+\details{
+See examples for more details
 }
 \examples{
 ### Example with option=1

@@ -1,6 +1,6 @@
 \name{extractClusters}
 \alias{extractClusters}
-\title{Extracts LD clusters}
+\title{Extracts LD clusters for linkage disequilibrium network analysis (LDna)}
 \usage{
 extractClusters(ldna, min.edges = 10, phi = 2, lambda.lim = NULL,
   rm.COCs = TRUE, extract = TRUE, plot.tree = TRUE, plot.graph = TRUE)
@@ -39,24 +39,24 @@ Returns a list of vectors giving the loci for the extracted
 clusters.
 }
 \description{
-Based on output from \code{\link{LDnaRaw}} identifies
-\emph{outlier clusters}, \emph{OCs}.
+Identifies \emph{outlier clusters}, \emph{OCs}, and plots
+\code{"single linage clustering trees"} that describes
+cluster merging with decreasing LD threshold.
 }
 \details{
 If \code{plot.tree} and \code{plot.graph} are set to
-\code{TRUE}, \code{extractClusters} plots two graphs. The
-first shows all \eqn{\lambda}-values oredered from low to
-high and indicates which values are above
-\eqn{\lambda_{lim}}. Values corresponding to
+\code{TRUE}, \code{extractClusters} plots two graphs
+(default). The first shows all \eqn{\lambda}-values
+oredered from low to high and indicates which values are
+above \eqn{\lambda_{lim}}. Values corresponding to
 \emph{"selected outlier clusters", SOCs} are indicated in
 red and values corresponding to \emph{COCs} are indiced in
 blue. A \emph{COC} is defined as any \emph{OC} that
 contains loci from an \emph{OC} already extracted at a
 higher LD threshold. The second graph gives the tree
 illustrating cluster merger with decreasing LD threshold
-where branches represent unique clusters and branch points
-indicate the merging of clusters/loci and distance gives
-the LD threholds at which these events occur. Branches
+where nodes represent and node distance gives the LD
+threholds at which these events occur. Branches
 corresponding to \emph{SOCs} are indicated in red and those
 corresponding to \emph{COCs} are indiced in blue (if
 \code{rm.COCs=FALSE}).
@@ -64,9 +64,9 @@ corresponding to \emph{COCs} are indiced in blue (if
 \examples{
 # Simple upper diagonal LD matrix
 LDmat <- structure(c(NA, 0.84, 0.64, 0.24, 0.2, 0.16, 0.44, 0.44, NA, NA, 0.8, 0.28, 0.4, 0.36, 0.36, 0.24, NA, NA, NA, 0.48, 0.32, 0.2, 0.36, 0.2, NA, NA, NA, NA, 0.76, 0.56, 0.6, 0.2, NA, NA, NA, NA, NA, 0.72, 0.68, 0.24, NA, NA, NA, NA, NA, NA, 0.44, 0.24, NA, NA, NA, NA, NA, NA, NA, 0.2, NA, NA, NA, NA, NA, NA, NA, NA), .Dim = c(8L, 8L), .Dimnames = list(c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"), c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8")))
-# calculate raw data
+# Calculate raw data
 ldna <- LDnaRaw(LDmat)
-# extract clusters and plot graphs, for this example min.edges=0 such that each tip clade corresponds to an individual locus
+# Extract clusters and plot graphs, for this example min.edges=0 such that each tip clade corresponds to an individual locus
 par(mfcol=c(1,2))
 clusters <- extractClusters(ldna, min.edges=0, phi=1)
 clusters <- extractClusters(ldna, min.edges=0, phi=0.25, rm.COCs=FALSE)
@@ -79,7 +79,7 @@ clusters <- extractClusters(ldna, min.edges=5, extract=FALSE)
 # Different values of min.edges and phi can have crucial effects which clusters are extracted
 clusters <- extractClusters(ldna, min.edges=15, phi=3)
 clusters <- extractClusters(ldna, min.edges=10, phi=2)
-# Includes COCs
+# Include COCs
 clusters <- extractClusters(ldna, min.edges=15, phi=5, rm.COCs=FALSE)
 # Extract clusers without plottin graphs
 clusters <- extractClusters(ldna, min.edges=15, phi=5, plot.tree=FALSE, plot.graph=FALSE)

@@ -2,6 +2,8 @@
 #'
 #' Allows for visual inspection of clusters identified by \code{\link{extractClusters}}.
 #'
+#' See examples for more details
+#'
 #' @keywords plotLDnetwork
 #' @param ldna Output from \code{\link{LDnaRaw}}
 #' @param LDmat Lower diagonal LD matrix
@@ -13,8 +15,9 @@
 #' @param full.network If \code{TRUE} (default), includes all loci in the LD networks, not recommended for large data sets.
 #' @param include.parent If \code{full.network=FALSE} and \code{include.parent=TRUE} all loci from the parent cluster (after merger) are included. If \code{include.parent=FALSE} only the focal cluster is shown.
 #' @param after.merger Whether to show LD networks at an LD threshold just before (\code{FALSE}) or just after (\code{TRUE}) merger.
-#' @param graph.object Whether to output \code{graph object} when option=1 (default=\code{FALSE}).
+#' @param graph.object Whether to output \code{graph object} when \code{option=1} (default=\code{FALSE}).
 #' @seealso \code{\link{LDnaRaw}}, \code{\link{extractClusters}} and \code{\link{summaryLDna}}
+#' @return If \code{option=1} and \code{graph.object=TRUE} the output is an igraph.object that can further be manipulated for custom networks (see \code{\link{igraph}} for details).
 #' @export
 #' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}
 #' @examples
