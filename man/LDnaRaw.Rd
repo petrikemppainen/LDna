@@ -65,7 +65,7 @@ ldna <- LDnaRaw(LDmat, mc.cores=4)
 data(LDna)
 ldna <- LDnaRaw(r2.baimaii_subs)
 # With multicore, in this case only slightly faster
-ldna <- LDnaRaw(LDmat, mc.cores=4)
+ldna <- LDnaRaw(r2.baimaii_subs, mc.cores=4)
 }
 \author{
 Petri Kemppainen \email{petrikemppainen2@gmail.com},
