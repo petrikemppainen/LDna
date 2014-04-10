@@ -100,42 +100,39 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
   
   # plot tree
   if(plot.tree){
-    col <- rep("grey", length(tree$edge))
-    clusters.out2 <- tree$tip.label %in% clusters.out
-    SOCs2 <- tree$tip.label %in% SOCs
-    COCs2 <- tree$tip.label %in% COCs
-    if(rm.COCs==FALSE){
-      distances <- tree$edge.length[tree$edge[,2] %in% which(clusters.out2)]
-      clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %in% which(clusters.out2)]]
+      col <- rep("grey", length(tree$edge))
+      if(rm.COCs==FALSE){
+          distances <- tree$edge.length[tree$edge[,2] %in% which(tree$tip.label %in% clusters.out)]
+          clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %in% which(tree$tip.label %in% clusters.out)]]
+          keep.col <- clusters.temp[distances > 0]
+          col[tree$edge[,2] %in% which(tree$tip.label %in% keep.col)] <- "blue"
+          col[tree$edge[,2] %in% tree$edge[,1][tree$edge[,2] %in% which(tree$tip.label %in% clusters.out[!clusters.out %in% keep.col])]] <- "blue"
+      }
+      tree$edge[tree$edge[,2] %in% which(tree$tip.label %in% SOCs),]
+      distances <- tree$edge.length[tree$edge[,2] %in% which(tree$tip.label %in% SOCs)]
+      clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %in% which(tree$tip.label %in% SOCs)]]
       keep.col <- clusters.temp[distances > 0]
-      col[tree$edge[,2] %in% which(tree$tip.label %in% keep.col)] <- "blue"
-      col[tree$edge[,2] %in% tree$edge[,1][tree$edge[,2] %in% which(clusters.out2[!clusters.out %in% keep.col])]] <- "blue"    
-    }
-    tree$edge[tree$edge[,2] %in% which(SOCs2),]
-    distances <- tree$edge.length[tree$edge[,2] %in% which(SOCs2)]
-    clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %in% which(SOCs2)]]
-    keep.col <- clusters.temp[distances > 0]
-    col[tree$edge[,2] %in% which(tree$tip.label %in% keep.col)] <- "red"
-    col[tree$edge[,2] %in% tree$edge[,1][tree$edge[,2] %in% which(SOCs2[!SOCs %in% keep.col])]] <- "red"
-    col.tip <- rep("#00000000", length(tree$tip.label))
-    if(rm.COCs==FALSE){
-      col.tip[clusters.out2] <- "blue"
-    }
-    col.tip[SOCs2] <- "black"
-    plot(tree, show.tip.label=T, edge.width=3, edge.color=col, cex=1, tip.color=col.tip, root.edge=TRUE, underscore=T)
-   if(min.edges==0){
-     axis(1, at=c(0,(1:10)*0.1))
-   }else{
-      temp <- as.vector(ldna$stats[ldna$stats$nE > min.edges,2][-1])
-      x <- round(10*max(as.numeric(do.call('rbind', strsplit(temp, "_", fixed=TRUE))[,2])),0)+1
-      if(x>10) x <- 10
-      axis(1, at=c(0,(1:x)*0.1))
-   }
-    if(!is.null(lambda.lim)){
-      title(xlab="LD threshold", main=as.expression(bquote(lambda[lim]*plain("=")*.(lambda.lim)*"," ~~ "|E|"[min]*plain("=")* .(min.edges))))
-    }else{
-      title(xlab="LD threshold", main=as.expression(bquote(varphi*plain("=")*.(phi)*"," ~~ "|E|"[min]*plain("=")* .(min.edges))))
-    }
+      col[tree$edge[,2] %in% which(tree$tip.label %in% keep.col)] <- "red"
+      col[tree$edge[,2] %in% tree$edge[,1][tree$edge[,2] %in% which(tree$tip.label %in% SOCs[!SOCs %in% keep.col])]] <- "red"
+      col.tip <- rep("#00000000", length(tree$tip.label))
+      if(rm.COCs==FALSE){
+          col.tip[tree$tip.label %in% clusters.out] <- "blue"
+      }
+      col.tip[tree$tip.label %in% SOCs] <- "black"
+      plot(tree, show.tip.label=T, edge.width=3, edge.color=col, cex=1, tip.color=col.tip, root.edge=TRUE, underscore=T)
+      if(min.edges==0){
+          axis(1, at=c(0,(1:10)*0.1))
+      }else{
+          temp <- as.vector(ldna$stats[ldna$stats$nE > min.edges,2][-1])
+          x <- round(10*max(as.numeric(do.call('rbind', strsplit(temp, "_", fixed=TRUE))[,2])),0)+1
+          if(x>10) x <- 10
+          axis(1, at=c(0,(1:x)*0.1))
+      }
+      if(!is.null(lambda.lim)){
+          title(xlab="LD threshold", main=as.expression(bquote(lambda[lim]*plain("=")*.(lambda.lim)*"," ~~ "|E|"[min]*plain("=")* .(min.edges))))
+      }else{
+          title(xlab="LD threshold", main=as.expression(bquote(varphi*plain("=")*.(phi)*"," ~~ "|E|"[min]*plain("=")* .(min.edges))))
+      }
   }
   
   if(rm.COCs==FALSE){out <- clusters.out[order(-as.numeric(do.call('rbind', strsplit(clusters.out, "_"))[,2]))]
@@ -146,10 +143,10 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
   loci <- apply(temp, 2, function(x) rownames(temp)[x])
   return(loci)
   
-  }else{     
-        plot(tree, edge.width=3,show.tip.label=F,edge.color="grey", cex=1,  root.edge=TRUE)
-        axis(1, at=c(0,(1:10)*0.1))
-        title(xlab="LD threshold", main=as.expression(bquote("|E|"[min]*plain("=")* .(min.edges))))       
+  }else{
+      plot(tree, edge.width=3,show.tip.label=F,edge.color="grey", cex=1,  root.edge=TRUE)
+      axis(1, at=c(0,(1:10)*0.1))
+      title(xlab="LD threshold", main=as.expression(bquote("|E|"[min]*plain("=")* .(min.edges))))
   }
 }
 

@@ -22,8 +22,8 @@
 #' data(LDna)
 #' ldna <- LDnaRaw(r2.baimaii_subs)
 #' # With multicore, in this case only slightly faster
-#' ldna <- LDnaRaw(LDmat, mc.cores=4)
-
+#' ldna <- LDnaRaw(r2.baimaii_subs, mc.cores=4)
+# LDmat <- r2.baimaii_subs
 LDnaRaw <- function(LDmat, mc.cores=NULL){
   LDmat1 <- round(LDmat, 2)
   temp2 <- hclust(as.dist(1-LDmat1), method="single")
@@ -52,7 +52,7 @@ LDnaRaw <- function(LDmat, mc.cores=NULL){
   if(!is.null(mc.cores)){out <- parallel::mclapply(Ntips:length(tree$edge.length)+1, stats.fun, mc.cores = mc.cores, mc.preschedule = TRUE)
   }else{out <- lapply(Ntips:length(tree$edge.length)+1, stats.fun)}
   
-  rm(LDmat1)
+  
   nV <- sapply(out, function(x){x$nV})
   nE <- sapply(out, function(x){x$nE})
   tot.d <- sapply(out, function(x){x$tot.d})
