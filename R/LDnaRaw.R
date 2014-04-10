@@ -48,11 +48,11 @@ LDnaRaw <- function(LDmat, mc.cores=NULL){
                 tot.d=tot.d,
                 loci=loci)
   }
-  rm(LDmat1)
   
-  if(!is.null(mc.cores)){out <- mclapply(Ntips:length(tree$edge.length)+1, stats.fun, mc.cores = mc.cores, mc.preschedule = TRUE)
+  if(!is.null(mc.cores)){out <- parallel::mclapply(Ntips:length(tree$edge.length)+1, stats.fun, mc.cores = mc.cores, mc.preschedule = TRUE)
   }else{out <- lapply(Ntips:length(tree$edge.length)+1, stats.fun)}
   
+  rm(LDmat1)
   nV <- sapply(out, function(x){x$nV})
   nE <- sapply(out, function(x){x$nE})
   tot.d <- sapply(out, function(x){x$tot.d})
@@ -77,7 +77,7 @@ LDnaRaw <- function(LDmat, mc.cores=NULL){
     list(lambda=(LD1 - LD2)*length(which(clusterfile[,x])))
   }
   
-  if(!is.null(mc.cores)){out <- mclapply(2:ncol(clusterfile), lambda.fun, mc.cores = mc.cores, mc.preschedule = TRUE)
+  if(!is.null(mc.cores)){out <- parallel::mclapply(2:ncol(clusterfile), lambda.fun, mc.cores = mc.cores, mc.preschedule = TRUE)
   }else{out <- lapply(2:ncol(clusterfile), lambda.fun)}
   
   lambda <- sapply(out, function(x){x$lambda})

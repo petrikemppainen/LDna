@@ -100,11 +100,11 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
   
   # plot tree
   if(plot.tree){
-   col <- rep("grey", length(tree$edge))
+    col <- rep("grey", length(tree$edge))
+    clusters.out2 <- tree$tip.label %in% clusters.out
+    SOCs2 <- tree$tip.label %in% SOCs
+    COCs2 <- tree$tip.label %in% COCs
     if(rm.COCs==FALSE){
-      clusters.out2 <- tree$tip.label %in% clusters.out
-      SOCs2 <- tree$tip.label %in% SOCs
-      COCs2 <- tree$tip.label %in% COCs
       distances <- tree$edge.length[tree$edge[,2] %in% which(clusters.out2)]
       clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %in% which(clusters.out2)]]
       keep.col <- clusters.temp[distances > 0]
