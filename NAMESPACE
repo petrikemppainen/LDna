@@ -1,8 +1,2 @@
-#importFrom(ape, "read.tree", "plot.phylo", "drop.tip", "as.phylo", "di2multi")
-
-#importFrom(igraph, "decompose.graph", "V","E", "plot.igraph", "print.igraph", "graph.adjacency")
-
 importFrom(parallel, "mclapply")
-
-
 export(LDnaRaw, extractClusters, summaryLDna, plotLDnetwork)

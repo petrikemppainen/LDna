@@ -26,8 +26,7 @@
 
 LDnaRaw <- function(LDmat, mc.cores=NULL){
   LDmat1 <- round(LDmat, 2)
-  LDmat2 <- 1-LDmat1
-  temp2 <- hclust(as.dist(LDmat2), method="single")
+  temp2 <- hclust(as.dist(1-LDmat1), method="single")
   tree <- as.phylo(temp2)
   tree <- di2multi(tree)
   Ntips <- length(tree$tip.label)
@@ -49,6 +48,7 @@ LDnaRaw <- function(LDmat, mc.cores=NULL){
                 tot.d=tot.d,
                 loci=loci)
   }
+  rm(LDmat1)
   
   if(!is.null(mc.cores)){out <- mclapply(Ntips:length(tree$edge.length)+1, stats.fun, mc.cores = mc.cores, mc.preschedule = TRUE)
   }else{out <- lapply(Ntips:length(tree$edge.length)+1, stats.fun)}

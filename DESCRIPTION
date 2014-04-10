@@ -7,15 +7,15 @@ Author: Petri Kemppainen <petrikemppainen2@gmail.com>
 Maintainer:  Petri Kemppainen <petrikemppainen2@gmail.com>
 Depends: R (>= 3.0.2), ape, igraph
 Imports: parallel
-Description: Performs linkage disequilibrium networks analyses (LDna). In LD networks
-            nodes represent loci and connections between nodes represent LD values
-            above a given threshold. Distinct clusters visible across a wide range
-            of LD thresholds are likely to be associated with distinct evolutionary
+Description: R package for linkage disequilibrium (LD) network analysis (LDna). In 
+            LD networks nodes represent loci and connections between nodes represent 
+            LD values a given thresholds. Distinct clusters visible across a wide range
+            of LD thresholds are expected to be associated with distinct evolutionary
             events or forces. By monitoring change in LD as clusters successively
             merge with decreasing LD threshold, such distinct clusters can be
             identified and extracted at appropriate LD thresholds. Cluster merging
-            is visualized using trees, where represent  clusters and node distance
-            clusters and distance indicates at LD threshold at which this occurrs. 
+            is visualized using trees, where nodes represent clusters and node distance
+            distance indicates lowest LD threshold at which the cluster is present. 
             Functions are provided to: produce necessary data files for LDna from a 
             matrix of pairwise LD values; calculate lambda, which measured the change 
             in LD before and after cluster merging and is used to identify distinct 

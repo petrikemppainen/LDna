@@ -42,7 +42,7 @@
 #' # Set fixed value for lambda.lim
 #' clusters <- extractClusters(ldna, min.edges=15, lambda.lim=2)
 
-extractClusters <- function(ldna, min.edges=10, phi=2, lambda.lim=NULL, rm.COCs=TRUE, extract=TRUE, plot.tree=TRUE, plot.graph=TRUE){
+extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=TRUE, extract=TRUE, plot.tree=TRUE, plot.graph=TRUE){
   # Get file for tree and clusters above min.edges and their lambda values
     tree <- clusterPhylo(ldna, min.edges)
   if(extract){
@@ -60,7 +60,7 @@ extractClusters <- function(ldna, min.edges=10, phi=2, lambda.lim=NULL, rm.COCs=
     }
     
     #get outlier clusters
-    clusters.out <- names(lambda_new)[which(as.numeric(lambda_new)>=threshold)]
+    clusters.out <- names(lambda_new)[which(lambda_new >= threshold)]
     
     # get SOCs and COCs
     temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %in% clusters.out]
@@ -102,23 +102,26 @@ extractClusters <- function(ldna, min.edges=10, phi=2, lambda.lim=NULL, rm.COCs=
   if(plot.tree){
    col <- rep("grey", length(tree$edge))
     if(rm.COCs==FALSE){
-      distances <- tree$edge.length[tree$edge[,2] %in% which(tree$tip.label %in% clusters.out)]
-      clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %in% which(tree$tip.label %in% clusters.out)]]
+      clusters.out2 <- tree$tip.label %in% clusters.out
+      SOCs2 <- tree$tip.label %in% SOCs
+      COCs2 <- tree$tip.label %in% COCs
+      distances <- tree$edge.length[tree$edge[,2] %in% which(clusters.out2)]
+      clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %in% which(clusters.out2)]]
       keep.col <- clusters.temp[distances > 0]
       col[tree$edge[,2] %in% which(tree$tip.label %in% keep.col)] <- "blue"
-      col[tree$edge[,2] %in% tree$edge[,1][tree$edge[,2] %in% which(tree$tip.label %in% clusters.out[!clusters.out %in% keep.col])]] <- "blue"    
+      col[tree$edge[,2] %in% tree$edge[,1][tree$edge[,2] %in% which(clusters.out2[!clusters.out %in% keep.col])]] <- "blue"    
     }
-    tree$edge[tree$edge[,2] %in% which(tree$tip.label %in% SOCs),]
-    distances <- tree$edge.length[tree$edge[,2] %in% which(tree$tip.label %in% SOCs)]
-    clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %in% which(tree$tip.label %in% SOCs)]]
+    tree$edge[tree$edge[,2] %in% which(SOCs2),]
+    distances <- tree$edge.length[tree$edge[,2] %in% which(SOCs2)]
+    clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %in% which(SOCs2)]]
     keep.col <- clusters.temp[distances > 0]
     col[tree$edge[,2] %in% which(tree$tip.label %in% keep.col)] <- "red"
-    col[tree$edge[,2] %in% tree$edge[,1][tree$edge[,2] %in% which(tree$tip.label %in% SOCs[!SOCs %in% keep.col])]] <- "red"
+    col[tree$edge[,2] %in% tree$edge[,1][tree$edge[,2] %in% which(SOCs2[!SOCs %in% keep.col])]] <- "red"
     col.tip <- rep("#00000000", length(tree$tip.label))
     if(rm.COCs==FALSE){
-      col.tip[tree$tip.label %in% clusters.out] <- "blue"
+      col.tip[clusters.out2] <- "blue"
     }
-    col.tip[tree$tip.label %in% SOCs] <- "black"
+    col.tip[SOCs2] <- "black"
     plot(tree, show.tip.label=T, edge.width=3, edge.color=col, cex=1, tip.color=col.tip, root.edge=TRUE, underscore=T)
    if(min.edges==0){
      axis(1, at=c(0,(1:10)*0.1))

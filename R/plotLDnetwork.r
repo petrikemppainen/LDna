@@ -67,8 +67,7 @@ option1 <- function(LDmat, threshold, exl){
     g <- delete.edges(g, which(E(g)$weight<=threshold))
     g <- delete.vertices(g, which(degree(g) == 0))
     
-    plot.igraph(g, layout=layout.fruchterman.reingold, vertex.size=3, vertex.label.dist=NULL,
-    vertex.color="grey", edge.width=1, vertex.label=NA, vertex.frame.color="grey")
+    plot.igraph(g, layout=layout.fruchterman.reingold, vertex.size=3, vertex.label.dist=NULL, vertex.color="grey", edge.width=1, vertex.label=NA, vertex.frame.color="grey")
     title(main=paste(" @", threshold, sep=""))
     return(g)
 }
@@ -108,19 +107,15 @@ option2raw <- function(ldna, LDmat, exl, loci, col, full.network, threshold, inc
         }else{threshold <- as.numeric(strsplit(p2, "_", fixed=T)[[1]][2])}
     }
     
-    # only keep values above cut.off
-    #calculate network
     g <- graph.adjacency(LDmat, mode="lower", diag=FALSE, weighted=T)
     E(g)$weight <- round(E(g)$weight, 2)
     g <- delete.edges(g, which(E(g)$weight<=threshold))
     g <- delete.vertices(g, which(degree(g) == 0))
     
-    #cluster color
     col.frame <- V(g)$name
     col.frame[which(col.frame %in% loci)] <- col
     col.frame[which(!col.frame %in% col)] <- "grey"
     
-    plot.igraph(g, layout=layout.fruchterman.reingold, vertex.size=3, vertex.label.dist=NULL,
-    vertex.color=col.frame, edge.width=1, vertex.label=NA, vertex.frame.color=col.frame)
+    plot.igraph(g, layout=layout.fruchterman.reingold, vertex.size=3, vertex.label.dist=NULL, vertex.color=col.frame, edge.width=1, vertex.label=NA, vertex.frame.color=col.frame)
     title(main=paste(cluster.name, " @", threshold, sep=""))
 }
