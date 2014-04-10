@@ -2,11 +2,15 @@
 \alias{LDnaRaw}
 \title{Produces necessary data for LDna from a matrix of pairwise LD values}
 \usage{
-LDnaRaw(LDmat)
+LDnaRaw(LDmat, mc.cores = NULL)
 }
 \arguments{
   \item{LDmat}{Lower diagonal matrix of pairwise LD values,
   \eqn{R^2} is strongly recommended.}
+
+  \item{mc.cores}{Specifies number of cores for
+  \code{\link{mclapply}}. \code{NULL} (default) uses
+  \code{\link{lapply}}.}
 }
 \value{
 A list with two objects: \code{clusterfile} and
@@ -47,16 +51,21 @@ cluster. High values of \eqn{\lambda}, relative to the
 median of all values across the tree, indicate the merging
 of clusters with highly distinct LD signals. For each
 cluster the number of vertices, \code{nV}, the number of
-edges, \code{nE} are recorded.
+edges, \code{nE} are recorded. \code{LDnaRaw} includes
+\code{\link{mcapply}} to enable the use of multiple cores.
 }
 \examples{
 # Simple upper diagonal LD matrix
 LDmat <- structure(c(NA, 0.84, 0.64, 0.24, 0.2, 0.16, 0.44, 0.44, NA, NA, 0.8, 0.28, 0.4, 0.36, 0.36, 0.24, NA, NA, NA, 0.48, 0.32, 0.2, 0.36, 0.2, NA, NA, NA, NA, 0.76, 0.56, 0.6, 0.2, NA, NA, NA, NA, NA, 0.72, 0.68, 0.24, NA, NA, NA, NA, NA, NA, 0.44, 0.24, NA, NA, NA, NA, NA, NA, NA, 0.2, NA, NA, NA, NA, NA, NA, NA, NA), .Dim = c(8L, 8L), .Dimnames = list(c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"), c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8")))
 # Produce raw data
 ldna <- LDnaRaw(LDmat)
+# With multicore
+ldna <- LDnaRaw(LDmat, mc.cores=4)
 # Larger data set
 data(LDna)
 ldna <- LDnaRaw(r2.baimaii_subs)
+# With multicore, in this case only slightly faster
+ldna <- LDnaRaw(LDmat, mc.cores=4)
 }
 \author{
 Petri Kemppainen \email{petrikemppainen2@gmail.com},

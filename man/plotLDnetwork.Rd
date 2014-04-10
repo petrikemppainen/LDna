@@ -78,6 +78,14 @@ plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summar
 plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=FALSE, include.parent=TRUE, after.merger=TRUE)
 # To show that ususally several clusters are involved in most mergers
 plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=FALSE, include.parent=TRUE, after.merger=FALSE)
+# a multicore version
+\dontrun{fun <- function(x){
+setEPS()
+postscript(paste(x, "network.eps",  sep="_"))
+plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[x], summary=summary[x,])
+dev.off()
+}
+mclapply(1:length(clusters), fun, mc.cores=4, mc.preschedule=TRUE)}
 }
 \author{
 Petri Kemppainen \email{petrikemppainen2@gmail.com}
