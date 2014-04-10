@@ -21,9 +21,9 @@
 #' # Larger data set
 #' data(LDna)
 #' ldna <- LDnaRaw(r2.baimaii_subs)
-#' # With multicore, in this case only slightly faster
+#' # With multicore, in this case only slightly faster. 
 #' ldna <- LDnaRaw(r2.baimaii_subs, mc.cores=4)
-# LDmat <- r2.baimaii_subs
+
 LDnaRaw <- function(LDmat, mc.cores=NULL){
   LDmat1 <- round(LDmat, 2)
   temp2 <- hclust(as.dist(1-LDmat1), method="single")
