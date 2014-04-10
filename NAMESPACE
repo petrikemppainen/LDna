@@ -1,10 +1,8 @@
-#importFrom(ape, "read.tree", "plot.phylo", "drop.tip")
+#importFrom(ape, "read.tree", "plot.phylo", "drop.tip", "as.phylo", "di2multi")
 
-#importFrom(igraph, "decompose.graph", "V","E", "layout.fruchterman.reingold",
-#          "plot.igraph", "print.igraph", "graph.edgelist")
+#importFrom(igraph, "decompose.graph", "V","E", "plot.igraph", "print.igraph", "graph.adjacency")
 
-#importFrom(multicore, "decompose.graph", "V","E", "layout.fruchterman.reingold",
-#          "plot.igraph", "print.igraph", "graph.edgelist")
+importFrom(parallel, "mclapply")
 
 
 export(LDnaRaw, extractClusters, summaryLDna, plotLDnetwork)

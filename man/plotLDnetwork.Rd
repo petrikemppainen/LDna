@@ -9,6 +9,11 @@ plotLDnetwork(ldna, LDmat, option, threshold, clusters, summary, exl = NULL,
 \arguments{
   \item{ldna}{Output from \code{\link{LDnaRaw}}}
 
+  \item{clusters}{Output from
+  \code{\link{extractClusters}}.}
+
+  \item{summary}{Output from \code{\link{summaryLDna}}.}
+
   \item{LDmat}{Lower diagonal LD matrix}
 
   \item{option}{\code{option=1} prints a full LD network
@@ -20,11 +25,6 @@ plotLDnetwork(ldna, LDmat, option, threshold, clusters, summary, exl = NULL,
 
   \item{threshold}{Specifies the LD threshold at which an
   LD network is plotted. Only required for option=1.}
-
-  \item{clusters}{Output from
-  \code{\link{extractClusters}}.}
-
-  \item{summary}{Output from \code{\link{summaryLDna}}.}
 
   \item{exl}{A list of locus names to be excluded from the
   LD networks (default is \code{NULL}).}
@@ -78,8 +78,9 @@ plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summar
 plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=FALSE, include.parent=TRUE, after.merger=TRUE)
 # To show that ususally several clusters are involved in most mergers
 plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=FALSE, include.parent=TRUE, after.merger=FALSE)
-# a multicore version
-\dontrun{fun <- function(x){
+# a multicore version that prints directly to file, recommended for large data sets with many clusters
+\dontrun{
+fun <- function(x){
 setEPS()
 postscript(paste(x, "network.eps",  sep="_"))
 plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[x], summary=summary[x,])

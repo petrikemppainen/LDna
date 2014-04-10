@@ -6,11 +6,11 @@
 #'
 #' @keywords plotLDnetwork
 #' @param ldna Output from \code{\link{LDnaRaw}}
+#' @param clusters Output from \code{\link{extractClusters}}.
+#' @param summary Output from \code{\link{summaryLDna}}.
 #' @param LDmat Lower diagonal LD matrix
 #' @param option \code{option=1} prints a full LD network from and edge list (\code{LDmat}) and a specified LD threshold (\code{threshold}). \code{option=2} prints LD networks based on the files \code{clusters} and \code{summary} that contains information of extracted clusters.
 #' @param threshold Specifies the LD threshold at which an LD network is plotted. Only required for option=1.
-#' @param clusters Output from \code{\link{extractClusters}}.
-#' @param summary Output from \code{\link{summaryLDna}}.
 #' @param exl A list of locus names to be excluded from the LD networks (default is \code{NULL}).
 #' @param full.network If \code{TRUE} (default), includes all loci in the LD networks, not recommended for large data sets.
 #' @param include.parent If \code{full.network=FALSE} and \code{include.parent=TRUE} all loci from the parent cluster (after merger) are included. If \code{include.parent=FALSE} only the focal cluster is shown.

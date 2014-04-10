@@ -52,7 +52,7 @@ median of all values across the tree, indicate the merging
 of clusters with highly distinct LD signals. For each
 cluster the number of vertices, \code{nV}, the number of
 edges, \code{nE} are recorded. \code{LDnaRaw} includes
-\code{\link{mcapply}} to enable the use of multiple cores.
+\code{\link{mclapply}} to enable the use of multiple cores.
 }
 \examples{
 # Simple upper diagonal LD matrix
