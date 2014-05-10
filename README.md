@@ -13,7 +13,7 @@ devtools::install_github("petrikemppainen/LDna")
 ```
 This downloads the source directly from **github** and builds the vignettes and thus requires LaTeX to be installed on your computer.
 
-Alternatively, download the source file directly an install by:
+Alternatively, download the source file directly and install by:
 ```r
 install.packages("/path_to/source_file", repos = NULL, type = "source")
 ```
