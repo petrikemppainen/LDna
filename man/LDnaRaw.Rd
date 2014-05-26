@@ -64,7 +64,7 @@ ldna <- LDnaRaw(LDmat, mc.cores=4)
 # Larger data set
 data(LDna)
 ldna <- LDnaRaw(r2.baimaii_subs)
-# With multicore, in this case only slightly faster
+# With multicore, in this case only slightly faster.
 ldna <- LDnaRaw(r2.baimaii_subs, mc.cores=4)
 }
 \author{
