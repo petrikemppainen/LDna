@@ -35,8 +35,10 @@ extractClusters(ldna, min.edges = 20, phi = 2, lambda.lim = NULL,
   \code{phi}.}
 }
 \value{
-Returns a list of vectors giving the loci for the extracted
-clusters.
+If extract=TRUE a named list of vectors giving the loci for
+the extracted clusters; otherwise returns plots of the tree
+(if plot.tree=TRUE) and the distribution of \eqn{\lambda}
+values (if plot.graph=TRUE and extract=TRUE)
 }
 \description{
 Identifies \emph{outlier clusters}, \emph{OCs}, and plots

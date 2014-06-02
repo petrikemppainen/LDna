@@ -91,7 +91,7 @@ LDnaRaw <- function(LDmat, mc.cores=NULL){
   d <- cbind(d, c(round(tree$edge.length*2, 3)))
   d <- rbind(c(d[1,2], "root", min(round(tot.d2, 3))), d)
   d <- data.frame(d , stats[match(d[,1], c.names), ])
-  names(d) <- c("cluster", "parent_cluster", "edge.length", "nV", "nE", "lambda")
+  names(d) <- c("cluster", "parent_cluster", "distance", "nV", "nE", "lambda")
   d$nV[is.na(d$nV)] <- 1
   d$nE[is.na(d$nE)] <- 0
   d$lambda[is.na(d$lambda)] <- 0
