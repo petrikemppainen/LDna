@@ -1,13 +1,13 @@
 R-package: LDna
 -------------
 
-Linkage disequilibrium (LD) network analyses (LDna) is used to find clusters of loci in high  (LD) from population genomic data sets (Kemppainen et al., unpublished) using network analysis. It provides a means to partition population genomics data into sets of loci that bear similar population genetic signals. It can for instance be used to *in silico* identify inversion polymorphism and loci involved in local adaptation (Kemppainen et al., unpublished). As it only requires a matrix of pair-wise LD values it is particularly useful for non-model species where closely related and well-characterized reference genomes are not available.
+Linkage disequilibrium (LD) network analyses (LDna) is used to find clusters of loci in high (LD) from population genomic data sets (Kemppainen et al., unpublished) using network analysis. It provides a means to partition population genomics data into sets of loci that bear similar population genetic signals. It can for instance be used to *in silico* identify inversion polymorphism and loci involved in local adaptation (Kemppainen et al., unpublished). As it only requires a matrix of pair-wise LD values it is particularly useful for non-model species where closely related and well-characterized reference genomes are not available.
 
 Current beta version is 0.57.
 
 ###Installing
 
-With **devtools** (accessible from CRAN) LDna can be installed by:
+With **devtools** (accessible from CRAN) **LDna** can be installed by:
 ```r
 devtools::install_github("petrikemppainen/LDna")
 ```
