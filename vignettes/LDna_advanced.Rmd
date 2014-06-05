@@ -80,7 +80,7 @@ Following from above analsyes `rm.COSs` is kept at `FALSE` (i.e both *SOCs* and 
 par(mfcol=c(1,2))
 clusters_phi2 <- extractClusters(ldna, min.edges = 18, phi = 2, rm.COCs = FALSE, plot.tree = TRUE, plot.graph = TRUE)
 ```
-So which setting should we use for `phi` and which of the *OCs* (*148_0.32* or *90_0.47*) should we focus on? From the summary (below) we can see that the main differences between these two *OCs* are the size (with respect to numbers of loci), mean LD and $\lambda$. Thus, with `phi=2` we would identify a *SOC* (*OC 90_0.47*) from the branch in question that is smaller, have higher the mean LD and lower $\lambda$ relative to `phi=4` (*OC 148_0.32*).
+So which setting should we use for `phi` and which of the *OCs* (*148_0.32* or *90_0.47*) should we focus on? From the summary (below) we can see that the main differences between these two *OCs* are the size (with respect to numbers of loci), median LD and $\lambda$. Thus, with `phi=2` we would identify a *SOC* (*OC 90_0.47*) from the branch in question that is smaller, have higher the median LD and lower $\lambda$ relative to `phi=4` (*OC 148_0.32*).
 ```{r, comment=NA}
 summary_phi2 <- summaryLDna(ldna, clusters_phi2[names(clusters_phi2) %in% c("90_0.47","148_0.32")], LDmat)
 summary_phi2

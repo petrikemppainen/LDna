@@ -7,7 +7,7 @@
 #' @param LDmat Lower diagonal matrix of pairwise LD values
 #' @keywords summaryLDna
 #' @seealso \code{\link{extractClusters}}, \code{\link{LDnaRaw}} and \code{\link{plotLDnetwork}}
-#' @return Returns a data frame with each row corresponding to a cluster, in decreasing order with respect to highest LD threshold value at which they are present. Column \emph{Type} specifies if a cluster is a \emph{"single outlier cluster", SOC} or a \emph{"compound oulier cluster", COC}. Column \emph{"Merge.at"} specfies the LD threshold for cluster merger. "Mean.LD" gives the average LD of all pairwise values between loci in a cluster.
+#' @return Returns a data frame with each row corresponding to a cluster, in decreasing order with respect to highest LD threshold value at which they are present. Column \emph{Type} specifies if a cluster is a \emph{"single outlier cluster", SOC} or a \emph{"compound oulier cluster", COC}. Column \emph{"Merge.at"} specfies the LD threshold for cluster merger. "Median.LD" gives the average LD of all pairwise values between loci in a cluster, and "MAD.LD" gives the scaled median absolute deviation for these LD values.
 #' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}
 #' @examples
 #' # Simple upper diagonal LD matrix
@@ -39,15 +39,15 @@ summaryLDna <- function(ldna, clusters, LDmat){
   names(lambda) <- ldna$stats$cluster[ldna$stats$cluster %in% names(clusters)]
 
   std.err <- function(x) sd(x)/sqrt(length(x))
-  Mean.LD <- NULL
-  Mean.LD.SE <- NULL
+  Median.LD <- NULL
+  MAD.LD <- NULL
   for(i in 1:length(names(clusters))){
     loci <- as.vector(unlist(clusters[i]))
     temp2 <- LDmat[which(rownames(LDmat) %in% loci), which(colnames(LDmat) %in% loci)]
-    Mean.LD <- c(Mean.LD, signif(mean(na.omit(as.vector(temp2))), digits=3))
-    Mean.LD.SE <- c(Mean.LD.SE, signif(std.err(na.omit(as.vector(temp2))),3))
+    Median.LD <- c(Median.LD, signif(median(na.omit(as.vector(temp2))), digits=3))
+    MAD.LD <- c(MAD.LD, signif(mad(as.vector(temp2), na.rm=TRUE),3))
   }
-  
+  ?mad
   temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %in% names(clusters)]
   nested <- matrix("SOC", ncol(temp), ncol(temp))
   for(i in 1:ncol(temp)){
@@ -69,6 +69,6 @@ summaryLDna <- function(ldna, clusters, LDmat){
   names(Type) <- names(clusters)
   
   lambda[match(names(Type), names(lambda))]
-  summary <- data.frame(Type, Merge.at, nLoci, nE=nE[match(names(Type), names(nE))], lambda=lambda[match(names(Type), names(lambda))], Mean.LD, Mean.LD.SE)
+  summary <- data.frame(Type, Merge.at, nLoci, nE=nE[match(names(Type), names(nE))], lambda=lambda[match(names(Type), names(lambda))], Median.LD, MAD.LD)
   return(summary)
 }

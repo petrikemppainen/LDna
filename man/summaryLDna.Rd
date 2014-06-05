@@ -19,8 +19,10 @@ threshold value at which they are present. Column
 \emph{Type} specifies if a cluster is a \emph{"single
 outlier cluster", SOC} or a \emph{"compound oulier
 cluster", COC}. Column \emph{"Merge.at"} specfies the LD
-threshold for cluster merger. "Mean.LD" gives the average
-LD of all pairwise values between loci in a cluster.
+threshold for cluster merger. "Median.LD" gives the average
+LD of all pairwise values between loci in a cluster, and
+"MAD.LD" gives the scaled median absolute deviation for
+these LD values.
 }
 \description{
 Creates a data frame with summary information of LD

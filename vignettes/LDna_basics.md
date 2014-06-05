@@ -1,6 +1,6 @@
 <!--
 %\VignetteEngine{knitr}
-%\VignetteIndexEntry{An introduction LDna::LDna_basics}
+%\VignetteIndexEntry{An introduction LDna: Basics}
 -->
 
 
@@ -14,7 +14,7 @@ Introduction
 ------------
 This vignette explains the principle of linkage disequilibrium network analyses (LDna) using the R-package **LDna**. LDna uses network analyses to find clusters of loci in high linkage disequilibrium (LD) from population genomic data sets. In LD networks vertices represent loci and edges represent LD values above given thresholds. Starting from a high LD threshold value, only few loci will be connected to each other. As the LD threshold is lowered, more and more edges and loci are added to the network allowing clusters to 'grow' with respect to numbers of loci and edges. Distinct clusters that remain separate across large range of LD thresholds indicate subsets of loci that represent different population genetic signals in the data. At sufficiently low LD threshold values all loci will eventually merge (connect by at least one edge) into a single cluster. Trees are used to visualise the process of cluster merging with decreasing LD threshold. This is *single linkage clustering* (see `?hclust` for details) as only one connection (edge) between clusters is required for them to be considered as 'merged'. In these trees nodes represent the merger of clusters and distance to nodes the LD threshold values at which clusters merge.
 
-Linkage disequilibrium network analysis relies on the premise that 'interesting' clusters remain distinct (i.e. separate) across a wide range of LD thresholds and can be identified/extracted for downstream analyses at an LD threshold value just before they merge. To identify these mergers we record the change in the median LD between all loci in a cluster before and after merger, $\lambda$. This is defined as: $\big(\widetilde{x}_{1}-\widetilde{x}_{2}\big)n$ where $\widetilde{x}_{1}$ is the median of all pairwise intra-cluster LD values within the focal cluster, $\widetilde{x}_{2}$ the median of all pariwise intra-cluster LD values after merger and $n$ is the number of loci in the focal cluster. Thus, the addition of individual loci to an existing cluster or the merging of clusters where only one cluster is large (with respect to numbers of loci) will cause small $\lambda$-values. In contrast, the merging of at least two large and distinct clusters with highly different LD signals will cause high $\lambda$-values for each of the large clusters involved. Clusters with $\lambda$-values that comprise outliers (relative to the median of all values in the data set) are then visually explored and subsequently extracted for downstream analyses.
+Linkage disequilibrium network analysis relies on the premise that 'interesting' clusters remain distinct (i.e. separate) across a wide range of LD thresholds and can be identified/extracted for downstream analyses at an LD threshold value just before they merge. To identify these mergers we record the change in the median LD between all loci in a cluster before and after merger, $\lambda$. This is defined as: $\big(\widetilde{x}_{1}-\widetilde{x}_{2}\big)n$ where $\widetilde{x}_{1}$ is the median of all pairwise intra-cluster LD values within the focal cluster, $\widetilde{x}_{2}$ the median of all pairwise intra-cluster LD values after merger and $n$ is the number of loci in the focal cluster. Thus, the addition of individual loci to an existing cluster or the merging of clusters where only one cluster is large (with respect to numbers of loci) will cause small $\lambda$-values. In contrast, the merging of at least two large and distinct clusters with highly different LD signals will cause high $\lambda$-values for each of the large clusters involved. Clusters with $\lambda$-values that comprise outliers (relative to the median of all values in the data set) are then visually explored and subsequently extracted for downstream analyses.
 
 Installing
 ------------
@@ -126,7 +126,7 @@ ldna$stats
 ```
 
 ### Identify and extract clusters
-Next we proceed with studying the tree and extracting clusters using the function `extractClusters`. In this process we need to decide which clusters are consider as outliers with respect to their $\lambda$-values. An outlier cluster (*OC*) is defined as any cluster with a $\lambda$-value higher than $$\lambda_{lim(\varphi)}=median+mad*\varphi$$ where $mad$ is the *median absolute deviation* (see `?mad` for details) across all $\lambda$-values, and $\varphi$ is a user defined factor (the argument `constant` for the `mad` function). Thus, $\varphi$ (controlled by the argument `phi`) determines how stringent LDna is with respect to considering a cluster an *OC*. This makes the absolute values of $\lambda$ irrelevant as each value is assessed in relation to all other values in the data set/tree. It is also possible to define the minimum number of edges, $|E|_{min}$ (specified by the argument `min.edges`), to restrict which branches are shown in the tree (this is necessary for larger data sets and will be covered in more detialed in the `LDna_advanced` vignette). Here we set `min.edges=0` in order to visualise the entire tree, including branches representing individual loci. We set `phi=1`.
+Next we proceed with studying the tree and extracting clusters using the function `extractClusters`. In this process we need to decide which clusters are consider as outliers with respect to their $\lambda$-values. An outlier cluster (*OC*) is defined as any cluster with a $\lambda$-value higher than $$\lambda_{lim(\varphi)}=median+mad*\varphi$$ where $mad$ is the *median absolute deviation* (see `?mad` for details) across all $\lambda$-values, and $\varphi$ is a user defined factor (the argument `constant` for the `mad` function). Thus, $\varphi$ (controlled by the argument `phi`) determines how stringent LDna is with respect to considering a cluster an *OC*. This makes the absolute values of $\lambda$ irrelevant as each value is assessed in relation to all other values in the data set/tree. It is also possible to define the minimum number of edges, $|E|_{min}$ (specified by the argument `min.edges`), to restrict which branches are shown in the tree (this is necessary for larger data sets and will be covered in more detail in the `LDna_advanced` vignette, accessed through: `vignette("LDna_advanced", package="LDna")`). Here we set `min.edges=0` in order to visualise the entire tree, including branches representing individual loci. We set `phi=1`.
 
 By default, the function `extractClusters` plots two figures. The first shows all $\lambda$-values in increasing order, where the red dashed line indicates $\lambda_{lim}$ above which any value is considered as an outlier (indicated in red). In this analysis two clusters: *2_08* and *5_58*, are outliers. The second figure shows the tree that visualises the cluster merging process. Only tip labels for the two internal branches that comprise *OCs* are shown and the branches leading to these nodes are colored red. Note also the extra tips with zero branch lengths associated with every node. These are added in order to access the nodes as tips by functions from the **ape** package.
 
@@ -179,7 +179,7 @@ $`6_0.48`
 As seen above, *OC 6_0.48* represents the merging of the two previous *OCs* (*2_0.8* and *5_0.68*). To distinguish that an *OC* contains loci from those extracted at an higher LD threshold than itself we denote it as a *"compound outlier cluster"*, *"COC"*, as opposed to a *"single outlier cluster"*, *"SOC"*. Typically we are mainly interested in *SOCs* and thus by default only *SOCs* are considered. However, as in the example above, when `rm.COCs=FALSE` all *OCs* are shown in the figures (and extracted) and any *COCs* are colored blue.
 
 ### Summerise data
-Based on the data produced above (`ldna`, `clusters` and `LDmat`), *OCs* can be further summarized by the function `summaryLDna`. In addition to the information already available from the `ldna` file above, `summaryLDna` outputs a data frame with the following information for each extracted cluster: *"Type"*, which indicates whether an *OC* is a *SOC* or a *COC* (for the given setting for `min.edges` and `phi`); *"Merge.at"*, which indicates at which LD threshold the cluster merges with the next cluster and; *"Mean.LD"* which gives the mean of all intra-cluster pairwise LD values. A large difference between the LD threshold at which a cluster first is present (as indicated by the cluster name, see above) and *"Merge.at"* indicates that the cluster remains the same (with respect to it's loci) for a large range of LD threshold values.
+Based on the data produced above (`ldna`, `clusters` and `LDmat`), *OCs* can be further summarized by the function `summaryLDna`. In addition to the information already available from the `ldna` file above, `summaryLDna` outputs a data frame with the following information for each extracted cluster: *"Type"*, which indicates whether an *OC* is a *SOC* or a *COC* (for the given setting for `min.edges` and `phi`); *"Merge.at"*, which indicates at which LD threshold the cluster merges with the next cluster; *"Median.LD"* which gives the mean of all intra-cluster pairwise LD values and *"MAD.LD"* which gives the scaled median abosulute deviation (see `?mad`) of these LD values. A large difference between the LD threshold at which a cluster first is present (as indicated by the cluster name, see above) and *"Merge.at"* indicates that the cluster remains the same (with respect to it's loci) for a large range of LD threshold values.
 
 ```r
 summary <- summaryLDna(ldna, clusters2, LDmat)
@@ -187,14 +187,14 @@ summary
 ```
 
 ```
-       Type Merge.at nLoci nE lambda Mean.LD Mean.LD.SE
-2_0.8   SOC     0.48     3  2   1.32   0.760     0.0611
-5_0.68  SOC     0.48     4  3   1.04   0.627     0.0481
-6_0.48  COC     0.44     7  9   0.56   0.469     0.0460
+       Type Merge.at nLoci nE lambda Median.LD MAD.LD
+2_0.8   SOC     0.48     3  2   1.32      0.80 0.0593
+5_0.68  SOC     0.48     4  3   1.04      0.64 0.1190
+6_0.48  COC     0.44     7  9   0.56      0.44 0.2370
 ```
 
-### Visual inspection of netoworks
-Lastly the function `plotLDcluster` is used to visually inspect the extracted clusters. This function is based on functions from the package **igraph** and always also needs the original LD matrix as input. First we can plot the full network at a given threshold by setting `option=1` and specifying the threshold. This can be done without any additional information besides the LD matrixand gives an instant impression of how much clustering exists. Thus, when explring new data sets this should be the first analysis to do, see `LDna_advanced` for details. At LD `threshold=0.6` the two *OCs* (corresponding to *2_0.08* and *5_0.68*) are still separate, i.e. not connect by any edge.
+### Visual inspection of networks
+Lastly the function `plotLDcluster` is used to visually inspect the extracted clusters. This function is based on functions from the package **igraph** and always also needs the original LD matrix as input. First we can plot the full network at a given threshold by setting `option=1` and specifying the threshold. This can be done without any additional information besides the LD matrix and gives an instant impression of how much clustering exists in the data. Thus, when exploring new data sets this should be the first analysis to do, see `LDna_advanced` for details. At LD `threshold=0.6` the two *OCs* (corresponding to *2_0.08* and *5_0.68*) are still separate, i.e. not connect by any edge.
 
 ```r
 plotLDnetwork(LDmat = LDmat, option = 1, threshold = 0.6)
@@ -210,7 +210,7 @@ plotLDnetwork(LDmat = LDmat, option = 1, threshold = 0.4)
 
 ![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15.png) 
 
-At the core `extractClusters` lie two functions from the package **igraph**: `graph.adjacency` and `plot.igraph`. The below example is used to show how these functions can be used ro produce custom networks, in our case to show the locus names as well as the LD values connecting each of these loci. Igraph is highly flexible and `?igraph` is a good place to start.
+At the core `extractClusters` lie two functions from the package **igraph**: `graph.adjacency` and `plot.igraph`. The below example is used to show how these functions can be used ro produce custom networks, in our case to show the locus names as well as the LD values connecting each of these loci. **Igraph** is highly flexible and `?igraph` is a good place to start.
 
 ```r
 # Creates a 'weighted' graph object from our lower diagonal LD matrix
