@@ -21,8 +21,7 @@ outlier cluster", SOC} or a \emph{"compound oulier
 cluster", COC}. Column \emph{"Merge.at"} specfies the LD
 threshold for cluster merger. "Median.LD" gives the average
 LD of all pairwise values between loci in a cluster, and
-"MAD.LD" gives the scaled median absolute deviation for
-these LD values.
+"MAD.LD" gives their unscaled median absolute deviation.
 }
 \description{
 Creates a data frame with summary information of LD
