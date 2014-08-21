@@ -99,7 +99,7 @@ At LD threshold=0.4 all loci are connected to a single cluster by at least one e
 ```{r fig.width=3, fig.height=3}
 plotLDnetwork(LDmat=LDmat, option=1, threshold=0.40)
 ```
-At the core `extractClusters` lie two functions from the package **igraph**: `graph.adjacency` and `plot.igraph`. The below example is used to show how these functions can be used ro produce custom networks, in our case to show the locus names as well as the LD values connecting each of these loci. **Igraph** is highly flexible and `?igraph` is a good place to start.
+At the core `extractClusters` lie two functions from the package **igraph**: `graph.adjacency` and `plot.igraph`. The below example is used to show how these functions can be used to produce custom networks, in our case to show the locus names as well as the LD values connecting each of these loci. **Igraph** is highly flexible and `?igraph` is a good place to start.
 ```{r fig.width=10, fig.height=5}
 # Creates a 'weighted' graph object from our lower diagonal LD matrix
 g <- graph.adjacency(LDmat, mode="lower", diag=FALSE, weighted=T)
