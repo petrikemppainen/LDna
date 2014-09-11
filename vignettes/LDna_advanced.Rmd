@@ -10,7 +10,7 @@ library(LDna)
 
 An introduction **LDna**: Advanced
 =======================================
-#### Petri kemppainen, April 5, 2014
+#### Petri kemppainen, September 11, 2014
 
 Introduction
 ------------
