@@ -10,7 +10,7 @@ summaryLDna(ldna, clusters, LDmat)
   \item{clusters}{Output from
   \code{\link{extractClusters}}}
 
-  \item{LDmat}{Lower diagonal matrix of pairwise LD values}
+  \item{LDmat}{a matrix of pairwise LD values}
 }
 \value{
 Returns a data frame with each row corresponding to a

@@ -8,7 +8,7 @@
 #' @param ldna Output from \code{\link{LDnaRaw}}
 #' @param clusters Output from \code{\link{extractClusters}}.
 #' @param summary Output from \code{\link{summaryLDna}}.
-#' @param LDmat Lower diagonal LD matrix
+#' @param LDmat a matrix of pairwise LD values
 #' @param option \code{option=1} prints a full LD network from and edge list (\code{LDmat}) and a specified LD threshold (\code{threshold}). \code{option=2} prints LD networks based on the files \code{clusters} and \code{summary} that contains information of extracted clusters.
 #' @param threshold Specifies the LD threshold at which an LD network is plotted. Only required for option=1.
 #' @param exl A list of locus names to be excluded from the LD networks (default is \code{NULL}).
@@ -56,6 +56,7 @@
 
 plotLDnetwork <- function(ldna, LDmat, option, threshold, clusters, summary,
 exl=NULL, full.network=TRUE, include.parent=FALSE, after.merger=FALSE, graph.object=FALSE){
+    if(is.na(LDmat[2,1])) LDmat <- t(LDmat)
     if(option==1) g <- option1(LDmat, threshold, exl);
     if(option==2) option2(ldna, LDmat, clusters, summary, exl, full.network, include.parent, after.merger)
     if(option==1 && graph.object) return(g)

@@ -14,7 +14,7 @@ plotLDnetwork(ldna, LDmat, option, threshold, clusters, summary, exl = NULL,
 
   \item{summary}{Output from \code{\link{summaryLDna}}.}
 
-  \item{LDmat}{Lower diagonal LD matrix}
+  \item{LDmat}{a matrix of pairwise LD values}
 
   \item{option}{\code{option=1} prints a full LD network
   from and edge list (\code{LDmat}) and a specified LD
