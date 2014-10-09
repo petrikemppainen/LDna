@@ -4,7 +4,7 @@
 #'
 #' @param ldna Output from \code{\link{LDnaRaw}}
 #' @param clusters Output from \code{\link{extractClusters}}
-#' @param LDmat Lower diagonal matrix of pairwise LD values
+#' @param LDmat a matrix of pairwise LD values
 #' @keywords summaryLDna
 #' @seealso \code{\link{extractClusters}}, \code{\link{LDnaRaw}} and \code{\link{plotLDnetwork}}
 #' @return Returns a data frame with each row corresponding to a cluster, in decreasing order with respect to highest LD threshold value at which they are present. Column \emph{Type} specifies if a cluster is a \emph{"single outlier cluster", SOC} or a \emph{"compound oulier cluster", COC}. Column \emph{"Merge.at"} specfies the LD threshold for cluster merger. "Median.LD" gives the average LD of all pairwise values between loci in a cluster, and "MAD.LD" gives their unscaled median absolute deviation.
@@ -19,7 +19,7 @@
 #' summary <- summaryLDna(ldna, clusters, LDmat)
 
 summaryLDna <- function(ldna, clusters, LDmat){
-  
+  if(is.na(LDmat[2,1])) LDmat <- t(LDmat)
   p <- NULL
   for(i in 1:length(clusters)){
     fc <- names(clusters)[i]
