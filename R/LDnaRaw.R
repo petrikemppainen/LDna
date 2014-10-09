@@ -25,6 +25,7 @@
 #' ldna <- LDnaRaw(r2.baimaii_subs, mc.cores=4)
 
 LDnaRaw <- function(LDmat, mc.cores=NULL){
+  if(is.na(LDmat[2,1])) LDmat <- t(LDmat)
   LDmat1 <- round(LDmat, 2)
   temp2 <- hclust(as.dist(1-LDmat1), method="single")
   tree <- as.phylo(temp2)
