@@ -83,7 +83,8 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
     
     if(plot.graph){
       col <- lambda_ord <- lambda_new[order(lambda_new)]
-      if(length(clusters.out)>1) col[which(names(lambda_ord) %in% COCs)] <- "blue"
+      #if(length(clusters.out)>1) 
+      col[which(names(lambda_ord) %in% COCs)] <- "blue"
       col[which(names(lambda_ord) %in% SOCs)] <- "red"
       col[which(!col %in% c("red","blue"))] <- "black"
       plot(lambda_ord, col=col, ylab=expression(lambda))
@@ -106,7 +107,7 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
     # plot tree
     if(plot.tree){
       col <- rep("grey", length(tree$edge))
-      if(rm.COCs==FALSE && length(clusters.out)>1){
+      if(rm.COCs==FALSE){
         distances <- tree$edge.length[tree$edge[,2] %in% which(tree$tip.label %in% clusters.out)]
         clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %in% which(tree$tip.label %in% clusters.out)]]
         keep.col <- clusters.temp[distances > 0]
@@ -145,12 +146,19 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
       }else{out <- SOCs[order(-as.numeric(do.call('rbind', strsplit(SOCs, "_"))[,2]))]}
       
       temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %in% out]
-      temp <- temp[,order(as.numeric(do.call('rbind', strsplit(colnames(temp), "_", fixed=T))[,1]))]
-      loci <- apply(temp, 2, function(x) rownames(temp)[x])    
+      if(is.matrix(temp)){
+        temp <- temp[,order(as.numeric(do.call('rbind', strsplit(colnames(temp), "_", fixed=T))[,1]))]
+        loci <- apply(temp, 2, function(x) rownames(temp)[x])          
+      }else{
+        loci <- list(names(temp)[temp])
+      }
     }else{
       temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %in% out]
       loci <- list(names(temp)[temp])
     }
+    
+    #rm(out)
+    #rm(loci)
     return(loci)
     
   }else{
