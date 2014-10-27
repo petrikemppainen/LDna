@@ -24,16 +24,19 @@ With **devtools** (accessible from CRAN) the R-package **LDna** can be installed
 ```{r, message=FALSE, eval=FALSE}
 devtools::install_github("petrikemppainen/LDna")
 ```
+
 This downloads the source directly from **github** and builds the vignettes and thus requires LaTeX to be installed on your computer.
 
 Alternatively, download the source file from [the LDna github repository](https://github.com/petrikemppainen/LDna) an install by:
 ```{r, message=FALSE, eval=FALSE}
 install.packages("/path_to/source_file", repos = NULL, type = "source")
 ```
+
 and then load the package:
 ```{r, message=FALSE}
 library(LDna)
 ```
+
 Linkage disequilibrium network analysis
 ------------
 
@@ -54,14 +57,17 @@ The first step in LDna is to build a *single linkage clustering* tree from an LD
 ```{r}
 ldna <- LDnaRaw(LDmat)
 ```
+
 As seen from the object `ldna$clusterfile` this data set includes seven unique clusters of which *"7_0.44"* includes all loci. The number after the underscore for each cluster-name indicates the highest LD threshold at which it is present.
 ```{r, comment=NA}
 ldna$clusterfile
 ```
+
 In the object `ldna$stats` each row represents a cluster with the following information for each: name for the focal cluster, name for the parent cluster (cluster after merger), distance between nodes from when a cluster first appears until it merges again (in units of LD), the number of edges, *nE*, number of vertices (loci), *nV*, and $\lambda$.
 ```{r, comment=NA}
 ldna$stats
 ```
+
 ### Identify and extract clusters
 Next we proceed with studying the tree and extracting clusters using the function `extractClusters`. In this process we need to decide which clusters are consider as outliers with respect to their $\lambda$-values. An outlier cluster (*OC*) is defined as any cluster with a $\lambda$-value higher than $$\lambda_{lim(\varphi)}=median+mad*\varphi$$ where $mad$ is the *median absolute deviation* (see `?mad` for details) across all $\lambda$-values, and $\varphi$ is a user defined factor (the argument `constant` for the `mad` function). Thus, $\varphi$ (controlled by the argument `phi`) determines how stringent LDna is with respect to considering a cluster an *OC*. This makes the absolute values of $\lambda$ irrelevant as each value is assessed in relation to all other values in the data set/tree. It is also possible to define the minimum number of edges, $|E|_{min}$ (specified by the argument `min.edges`), to restrict which branches are shown in the tree (this is necessary for larger data sets and will be covered in more detail in the `LDna_advanced` vignette, accessed through: `vignette("LDna_advanced", package="LDna")`). Here we set `min.edges=0` in order to visualise the entire tree, including branches representing individual loci. We set `phi=1`.
 
@@ -70,10 +76,12 @@ By default, the function `extractClusters` plots two figures. The first shows al
 par(mfcol=c(1,2))
 clusters1 <- extractClusters(ldna, min.edges = 0, phi = 1)
 ```
+
 `extractClusters` outputs a list with all OCs and their loci.
 ```{r, comment=NA}
 clusters1
 ```
+
 If `phi` is lowered to 0.25 one additional cluster, *6_0.48*, becomes an outlier.
 ```{r fig.width=10, fig.height=5}
 par(mfcol=c(1,2))
@@ -82,6 +90,7 @@ clusters2 <- extractClusters(ldna, min.edges = 0, phi = 0.25, rm.COCs=FALSE)
 ```{r, comment=NA}
 clusters2
 ```
+
 As seen above, *OC 6_0.48* represents the merging of the two previous *OCs* (*2_0.8* and *5_0.68*). To distinguish that an *OC* contains loci from those extracted at an higher LD threshold than itself we denote it as a *"compound outlier cluster"*, *"COC"*, as opposed to a *"single outlier cluster"*, *"SOC"*. Typically we are mainly interested in *SOCs* and thus by default only *SOCs* are considered. However, as in the example above, when `rm.COCs=FALSE` all *OCs* are shown in the figures (and extracted) and any *COCs* are colored blue.
 
 ### Summerise data
@@ -90,15 +99,18 @@ Based on the data produced above (`ldna`, `clusters` and `LDmat`), *OCs* can be 
 summary <- summaryLDna(ldna, clusters2, LDmat)
 summary
 ```
+
 ### Visual inspection of networks
 Lastly the function `plotLDcluster` is used to visually inspect the extracted clusters. This function is based on functions from the package **igraph** and always also needs the original LD matrix as input. First we can plot the full network at a given threshold by setting `option=1` and specifying the threshold. This can be done without any additional information besides the LD matrix and gives an instant impression of how much clustering exists in the data. Thus, when exploring new data sets this should be the first analysis to do, see `LDna_advanced` for details. At LD `threshold=0.6` the two *OCs* (corresponding to *2_0.08* and *5_0.68*) are still separate, i.e. not connect by any edge.
 ```{r fig.width=3, fig.height=3}
 plotLDnetwork(LDmat=LDmat, option=1, threshold=0.6)
 ```
+
 At LD threshold=0.4 all loci are connected to a single cluster by at least one edge. If the LD threshold is lowered even further more edges will be added to the network but the loci will remain the same (a cluster is defined by its unique set of loci not its set of edges).
 ```{r fig.width=3, fig.height=3}
 plotLDnetwork(LDmat=LDmat, option=1, threshold=0.40)
 ```
+
 At the core `extractClusters` lie two functions from the package **igraph**: `graph.adjacency` and `plot.igraph`. The below example is used to show how these functions can be used to produce custom networks, in our case to show the locus names as well as the LD values connecting each of these loci. **Igraph** is highly flexible and `?igraph` is a good place to start.
 ```{r fig.width=10, fig.height=5}
 # Creates a 'weighted' graph object from our lower diagonal LD matrix
@@ -110,18 +122,22 @@ g <- delete.vertices(g, which(degree(g) < 1))
 # plots graph, 'edge.label' is used to add the LD values for each edge
 plot.igraph(g, edge.label=E(g)$weight)
 ```
+
 With `option=2`, by default `plotLDnetwork` plots a network for each *OC* at an LD threshold just before it merges. For this the outputs from `LDnaRaw` and `extractClusters` and `summaryLDna` also need to be included. The title gives the cluster name in question and the LD threshold at which the network is drawn and any loci from the *OC* in question is indicated in red (*SOC*) or blue (*COC*).
 ```{r fig.width=9, fig.height=3}
 par(mfcol=c(1,3))
 plotLDnetwork(ldna, LDmat, option=2, clusters=clusters2, summary=summary)
 ```
+
 By setting the argument `after.merger` to `TRUE`, the network is printed at an LD threshold just after merger. Note thus that the networks (below) are plotted at different LD thresholds compared to above. Overall `extractClusters` is a highly customizable functions which will be further demonstrated in `LDna:advanced`. 
 ```{r fig.width=9, fig.height=3}
 par(mfcol=c(1,3))
 plotLDnetwork(ldna, LDmat, option=2, clusters=clusters2, summary=summary, after.merger=TRUE)
 ```
+
 Lastly, there is also a possibility to use a fixed value of $\lambda_{lim}$ via the `lambda.lim` option in `excractClusters` as follows:
 ```{r, fig.width=4, fig.height=4, tidy=TRUE}
 clusters3 <- extractClusters(ldna, min.edges = 0, lambda.lim=0.5, rm.COCs=FALSE)
 ```
+
 This will gives the same outcome as having `phi=0.25` (as this gives $\lambda_{lim}$=0.48)

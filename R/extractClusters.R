@@ -125,15 +125,15 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
         if(length(clusters.out)>1) col.tip[tree$tip.label %in% clusters.out] <- "blue"
       }
       col.tip[tree$tip.label %in% SOCs] <- "black"
-      plot(tree, show.tip.label=T, edge.width=3, edge.color=col, cex=1, tip.color=col.tip, root.edge=TRUE, underscore=T)
-      if(min.edges==0){
+      plot(tree, show.tip.label=T, edge.width=3, edge.color=col, cex=1, tip.color=col.tip, root.edge=TRUE, underscore=T,x.lim=1)
+      #if(min.edges==0){
         axis(1, at=c(0,(1:10)*0.1))
-      }else{
-        temp <- as.vector(ldna$stats[ldna$stats$nE > min.edges,2][-1])
-        x <- round(10*max(as.numeric(do.call('rbind', strsplit(temp, "_", fixed=TRUE))[,2])),0)+1
-        if(x>10) x <- 10
-        axis(1, at=c(0,(1:x)*0.1))
-      }
+      #}else{
+      #  temp <- as.vector(ldna$stats[ldna$stats$nE > min.edges,2][-1])
+      #  x <- round(10*max(as.numeric(do.call('rbind', strsplit(temp, "_", fixed=TRUE))[,2])),0)+1
+      #  if(x>10) x <- 10
+      #  axis(1, at=c(0,(1:x)*0.1))
+      #}
       if(!is.null(lambda.lim)){
         title(xlab="LD threshold", main=as.expression(bquote(lambda[lim]*plain("=")*.(lambda.lim)*"," ~~ "|E|"[min]*plain("=")* .(min.edges))))
       }else{
@@ -162,7 +162,7 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
     return(loci)
     
   }else{
-    plot(tree, edge.width=3,show.tip.label=F,edge.color="grey", cex=1,  root.edge=TRUE)
+    plot(tree, edge.width=3,show.tip.label=F,edge.color="grey", cex=1,  root.edge=TRUE, x.lim=1)
     axis(1, at=c(0,(1:10)*0.1))
     title(xlab="LD threshold", main=as.expression(bquote("|E|"[min]*plain("=")* .(min.edges))))
   }
