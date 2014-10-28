@@ -92,8 +92,8 @@ summary_final
 par(mfcol=c(2,2))
 plotLDnetwork(ldna, LDmat, option=2, clusters=clusters_final, summary=summary_final)
 ############### extra tutorial ################
-# here we use the file "r2.sim" it should alreayd exist if you excecuted "load(LDna)" above
-# a few function to explore this file
+# here we use file "r2.sim". It should already exist if you executed "load(LDna)" above
+# a few functions to explore this file
 is(r2.sim)
 length(r2.sim)
 r2.sim[[1]][1:10, 1:10]
