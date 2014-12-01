@@ -4,7 +4,7 @@
 \usage{
 plotLDnetwork(ldna, LDmat, option, threshold, clusters, summary, exl = NULL,
   full.network = TRUE, include.parent = FALSE, after.merger = FALSE,
-  graph.object = FALSE)
+  graph.object = FALSE, col = "grey", pos = NULL)
 }
 \arguments{
   \item{ldna}{Output from \code{\link{LDnaRaw}}}
@@ -45,6 +45,16 @@ plotLDnetwork(ldna, LDmat, option, threshold, clusters, summary, exl = NULL,
 
   \item{graph.object}{Whether to output \code{graph object}
   when \code{option=1} (default=\code{FALSE}).}
+
+  \item{col}{Color of vertices when using \code{option=1},
+  default is "grey"}
+
+  \item{pos}{A numeric vector giving the position of loci
+  along each chromosome. This is converted into red-green
+  color space such that within each cluster it is possible
+  to infer if vertex position reflexts its physical
+  position in the chromosome. Currently works only for
+  \code{option=1}.}
 }
 \value{
 If \code{option=1} and \code{graph.object=TRUE} the output
@@ -62,6 +72,7 @@ See examples for more details
 ### Example with option=1
 data(LDna)
 plotLDnetwork(LDmat=r2.baimaii_subs, option=1, threshold=0.4)
+plotLDnetwork(LDmat=r2.baimaii_subs, option=1, threshold=0.4, col="red") # for more color
 ### Examples with option 2
 par(mfcol=c(1,2))
 ldna <- LDnaRaw(r2.baimaii_subs)

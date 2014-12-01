@@ -16,6 +16,8 @@
 #' @param include.parent If \code{full.network=FALSE} and \code{include.parent=TRUE} all loci from the parent cluster (after merger) are included. If \code{include.parent=FALSE} only the focal cluster is shown.
 #' @param after.merger Whether to show LD networks at an LD threshold just before (\code{FALSE}) or just after (\code{TRUE}) merger.
 #' @param graph.object Whether to output \code{graph object} when \code{option=1} (default=\code{FALSE}).
+#' @param col Color of vertices when using \code{option=1}, default is "grey"
+#' @param pos A numeric vector giving the position of loci along each chromosome. This is converted into red-green color space such that within each cluster it is possible to infer if vertex position reflexts its physical position in the chromosome. Currently works only for \code{option=1}.
 #' @seealso \code{\link{LDnaRaw}}, \code{\link{extractClusters}} and \code{\link{summaryLDna}}
 #' @return If \code{option=1} and \code{graph.object=TRUE} the output is an igraph.object that can further be manipulated for custom networks (see \code{\link{igraph}} for details).
 #' @export
@@ -24,6 +26,7 @@
 #' ### Example with option=1
 #' data(LDna)
 #' plotLDnetwork(LDmat=r2.baimaii_subs, option=1, threshold=0.4)
+#' plotLDnetwork(LDmat=r2.baimaii_subs, option=1, threshold=0.4, col="red") # for more color
 #' ### Examples with option 2
 #' par(mfcol=c(1,2))
 #' ldna <- LDnaRaw(r2.baimaii_subs)
@@ -55,23 +58,30 @@
 
 
 plotLDnetwork <- function(ldna, LDmat, option, threshold, clusters, summary,
-exl=NULL, full.network=TRUE, include.parent=FALSE, after.merger=FALSE, graph.object=FALSE){
+exl=NULL, full.network=TRUE, include.parent=FALSE, after.merger=FALSE, graph.object=FALSE, col="grey", pos=NULL){
     if(is.na(LDmat[2,1])) LDmat <- t(LDmat)
-    if(option==1) g <- option1(LDmat, threshold, exl);
+    if(option==1) g <- option1(LDmat, threshold, exl, pos, col);
     if(option==2) option2(ldna, LDmat, clusters, summary, exl, full.network, include.parent, after.merger)
     if(option==1 && graph.object) return(g)
 }
 
-option1 <- function(LDmat, threshold, exl){
+option1 <- function(LDmat, threshold, exl, pos, col){
     
     LDmat <- LDmat[!(rownames(LDmat) %in% exl),!(rownames(LDmat) %in% exl)]
-    
     g <- graph.adjacency(LDmat, mode="lower", diag=FALSE, weighted=T)
+    if(!is.null(pos)){
+      V(g)$color <- rgb(pos, max(pos)-pos, 0, maxColorValue = max(pos))  
+      V(g)$frame.color <- V(g)$color
+    }else{
+      V(g)$color <- col
+      V(g)$frame.color <- V(g)$color
+    }
+    
     E(g)$weight <- round(E(g)$weight, 2)
     g <- delete.edges(g, which(E(g)$weight<=threshold))
     g <- delete.vertices(g, which(degree(g) == 0))
     
-    plot.igraph(g, layout=layout.fruchterman.reingold, vertex.size=3, vertex.label.dist=NULL, vertex.color="grey", edge.width=1, vertex.label=NA, vertex.frame.color="grey")
+    plot.igraph(g, layout=layout.fruchterman.reingold, vertex.size=3, vertex.label.dist=NULL, edge.width=1, vertex.label=NA)
     title(main=paste(" @", threshold, sep=""))
     return(g)
 }
