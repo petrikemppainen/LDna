@@ -1,28 +1,33 @@
 Package: LDna
 Type: Package
 Title: Linkage disequilibrum network analysis (LDna)
-Version: 0.58
+Version: 0.59
 Date: 2014-03-19
 Author: Petri Kemppainen <petrikemppainen2@gmail.com>
-Maintainer:  Petri Kemppainen <petrikemppainen2@gmail.com>
-Depends: R (>= 3.0.2), ape, igraph
-Imports: parallel
-Description: R package for linkage disequilibrium (LD) network analysis (LDna). In 
-            LD networks nodes represent loci and connections between nodes represent 
-            LD values a given thresholds. Distinct clusters visible across a wide range
-            of LD thresholds are expected to be associated with distinct evolutionary
-            events or forces. By monitoring change in LD as clusters successively
-            merge with decreasing LD threshold, such distinct clusters can be
-            identified and extracted at appropriate LD thresholds. Cluster merging
-            is visualized using trees, where nodes represent clusters and node distance
-            distance indicates lowest LD threshold at which the cluster is present. 
-            Functions are provided to: produce necessary data files for LDna from a 
-            matrix of pairwise LD values; calculate lambda, which measured the change 
-            in LD before and after cluster merging and is used to identify distinct 
-            clusters; extract clusters based on user defined parameters; summerize 
-            data and visualise results, both when extracting clusers and when 
-            exploring the extracted clusters.
+Maintainer: Petri Kemppainen <petrikemppainen2@gmail.com>
+Depends:
+    R (>= 3.0.2),
+    ape,
+    igraph
+Imports:
+    parallel
+Description: R package for linkage disequilibrium (LD) network analysis (LDna).
+    In LD networks nodes represent loci and connections between nodes represent
+    LD values a given thresholds. Distinct clusters visible across a wide range
+    of LD thresholds are expected to be associated with distinct evolutionary
+    events or forces. By monitoring change in LD as clusters successively merge
+    with decreasing LD threshold, such distinct clusters can be identified and
+    extracted at appropriate LD thresholds. Cluster merging is visualized using
+    trees, where nodes represent clusters and node distance distance indicates
+    lowest LD threshold at which the cluster is present. Functions are provided
+    to: produce necessary data files for LDna from a matrix of pairwise LD
+    values; calculate lambda, which measured the change in LD before and after
+    cluster merging and is used to identify distinct clusters; extract clusters
+    based on user defined parameters; summerize data and visualise results,
+    both when extracting clusers and when exploring the extracted clusters.
 License: GPL (>= 2)
-URL: http://ldnetworkanalysis.wordpress.com, http://www.github.com/petrikemppainen/LDna
-VignetteBuilder: knitr 
-Suggests: knitr 
+URL: http://ldnetworkanalysis.wordpress.com,
+    http://www.github.com/petrikemppainen/LDna
+VignetteBuilder: knitr
+Suggests:
+    knitr
