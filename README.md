@@ -5,6 +5,8 @@ Linkage disequilibrium (LD) network analysis (LDna) can be used to find clusters
 
 Current beta version is 0.58.
 
+Any questions or suggestions may be posted at: https://groups.google.com/forum/#!forum/ld-network-analysis
+
 ###Installing
 
 With **devtools** (accessible from CRAN) **LDna** can be installed by:
