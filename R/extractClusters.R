@@ -142,6 +142,7 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
     }
     
     if(length(clusters.out)>1){
+      
       if(rm.COCs==FALSE){out <- clusters.out[order(-as.numeric(do.call('rbind', strsplit(clusters.out, "_"))[,2]))]
       }else{out <- SOCs[order(-as.numeric(do.call('rbind', strsplit(SOCs, "_"))[,2]))]}
       
@@ -153,7 +154,7 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
         loci <- list(names(temp)[temp])
       }
     }else{
-      temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %in% out]
+      temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %in% clusters.out]
       loci <- list(names(temp)[temp])
     }
     
