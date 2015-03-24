@@ -62,7 +62,7 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
     #get outlier clusters
     clusters.out <- names(lambda_new)[which(lambda_new >= threshold)]
     if(identical(clusters.out, character(0))) stop("No outlier clusters, please decrease phi or lambda.lim")
-      
+    
     
     # get SOCs and COCs
     temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %in% clusters.out]
@@ -79,7 +79,10 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
       nested[lower.tri(nested)] <- NA    
       COCs <- as.vector(na.omit(colnames(temp)[apply(nested, 1, function(x) any(x=="COC"))]))
       SOCs <- colnames(temp)[!colnames(temp) %in% COCs]
-    }else{SOCs <- clusters.out}
+    }else{
+      SOCs <- clusters.out
+      COCs <- NA
+    }
     
     if(plot.graph){
       col <- lambda_ord <- lambda_new[order(lambda_new)]
@@ -127,7 +130,7 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
       col.tip[tree$tip.label %in% SOCs] <- "black"
       plot(tree, show.tip.label=T, edge.width=3, edge.color=col, cex=1, tip.color=col.tip, root.edge=TRUE, underscore=T,x.lim=1)
       #if(min.edges==0){
-        axis(1, at=c(0,(1:10)*0.1))
+      axis(1, at=c(0,(1:10)*0.1))
       #}else{
       #  temp <- as.vector(ldna$stats[ldna$stats$nE > min.edges,2][-1])
       #  x <- round(10*max(as.numeric(do.call('rbind', strsplit(temp, "_", fixed=TRUE))[,2])),0)+1
@@ -168,7 +171,6 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
     title(xlab="LD threshold", main=as.expression(bquote("|E|"[min]*plain("=")* .(min.edges))))
   }
 }
-
 clusterPhylo <-  function(ldna, min.edges=0){
   d <- ldna$stats[ldna$stats$nE>=min.edges,]
   
