@@ -5,7 +5,7 @@ Linkage disequilibrium (LD) network analysis (LDna) can be used to find clusters
 
 Reference: http://onlinelibrary.wiley.com/doi/10.1111/1755-0998.12369/abstract
 
-Current beta version is 0.59.
+Current beta version is 0.60.
 
 Any questions or suggestions may be posted at: https://groups.google.com/forum/#!forum/ld-network-analysis
 
@@ -17,7 +17,7 @@ devtools::install_github("petrikemppainen/LDna")
 ```
 This downloads the source directly from **github** and builds the vignettes and thus requires LaTeX to be installed on your computer.
 
-Alternatively, download the source file (LDna_0.59.tar.gz) directly and install by:
+Alternatively, download the source file (LDna_0.60.tar.gz) directly and install by:
 ```r
 install.packages("/path_to/source_file", repos = NULL, type = "source")
 ```
