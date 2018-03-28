@@ -14,6 +14,7 @@
 #' @param lambda.lim If not \code{NULL} gives a fixed value for \eqn{\lambda_{lim}}. Overrides any value passed by \code{phi}.
 #' @param LD_threshold1 Extracts clusters that have a minimum pair wise LD value above this threshold. Used for LD binning (clustering method for LDnaRAW shold be other than 'single').
 #' @param LD_threshold2 Extracts clusters that have a mean pair wise LD value above this threshold. Used for LD binning (clustering method for LDnaRAW shold be other than 'single').
+#' @param extract.fun Only used internally
 #' @keywords extractClusters
 #' @seealso \code{\link{LDnaRaw}}, \code{\link{summaryLDna}} and \code{\link{plotLDnetwork}}
 #' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}, Christopher Knight \email{Chris.Knight@@manchester.ac.uk}

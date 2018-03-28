@@ -10,6 +10,7 @@
 #' @param digits Number of digits for rounding r2 values. 
 #' @param method Specifies clustering medhod (see \code{\link{hclust}}), defaults to 'single'.
 #' @param mc.cores Specifies number of cores for \code{\link{mclapply}}. \code{NULL} (default) uses \code{\link{lapply}}.
+#' @param fun Only used internally
 #' @keywords LDnaRaw
 #' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}, Christopher Knight \email{Chris.Knight@@manchester.ac.uk}
 #' @return A list with two objects: \code{clusterfile} and \code{stats}. \code{Clusterfile} is a matrix with all unique clusters as columns and loci as rows, where \code{TRUE} indicates the presense of a locus in a specific cluster (else \code{FALSE} is given). \code{Stats} is a data frame that gives all edges for the \code{single linkage clustering tree} along with the following information for each edge: cluster (focal cluster), parent cluster (cluster efter merger), and the corresponding \code{nV}, \code{nE}, and \eqn{\lambda} for each cluster (cluster). Each cluster is given a unique name which indicates the highest LD threshold at which it is present.

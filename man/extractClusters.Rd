@@ -30,6 +30,8 @@ extractClusters(ldna, min.edges = 20, phi = 2, lambda.lim = NULL,
 \item{LD_threshold1}{Extracts clusters that have a minimum pair wise LD value above this threshold. Used for LD binning (clustering method for LDnaRAW shold be other than 'single').}
 
 \item{LD_threshold2}{Extracts clusters that have a mean pair wise LD value above this threshold. Used for LD binning (clustering method for LDnaRAW shold be other than 'single').}
+
+\item{extract.fun}{Only used internally}
 }
 \value{
 If extract=TRUE a named list of vectors giving the loci for the extracted clusters; otherwise returns plots of the tree (if plot.tree=TRUE) and the distribution of \eqn{\lambda} values (if plot.graph=TRUE and extract=TRUE)

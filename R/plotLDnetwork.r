@@ -18,6 +18,8 @@
 #' @param graph.object Whether to output \code{graph object} when \code{option=1} (default=\code{FALSE}).
 #' @param col Color of vertices when using \code{option=1}, default is "grey"
 #' @param pos A numeric vector giving the position of loci along each chromosome. This is converted into red-green color space such that within each cluster it is possible to infer if vertex position reflexts its physical position in the chromosome. Currently works only for \code{option=1}.
+#' @param frame.color Used by \code{\link{LDnBin}}
+#' @param digits Needs to be the same as used \code{\link{LDnaRaw}} and \code{\link{extractClusters}}, if not default (2)
 #' @seealso \code{\link{LDnaRaw}}, \code{\link{extractClusters}} and \code{\link{summaryLDna}}
 #' @return If \code{option=1} and \code{graph.object=TRUE} the output is an igraph.object that can further be manipulated for custom networks (see \code{\link{igraph}} for details).
 #' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}

@@ -22,6 +22,8 @@ plotLDnetwork(ldna, LDmat, option, threshold, clusters, summary, digits = 2,
 
 \item{summary}{Output from \code{\link{summaryLDna}}.}
 
+\item{digits}{Needs to be the same as used \code{\link{LDnaRaw}} and \code{\link{extractClusters}}, if not default (2)}
+
 \item{exl}{A list of locus names to be excluded from the LD networks (default is \code{NULL}).}
 
 \item{full.network}{If \code{TRUE} (default), includes all loci in the LD networks, not recommended for large data sets.}
@@ -33,6 +35,8 @@ plotLDnetwork(ldna, LDmat, option, threshold, clusters, summary, digits = 2,
 \item{graph.object}{Whether to output \code{graph object} when \code{option=1} (default=\code{FALSE}).}
 
 \item{col}{Color of vertices when using \code{option=1}, default is "grey"}
+
+\item{frame.color}{Used by \code{\link{LDnBin}}}
 
 \item{pos}{A numeric vector giving the position of loci along each chromosome. This is converted into red-green color space such that within each cluster it is possible to infer if vertex position reflexts its physical position in the chromosome. Currently works only for \code{option=1}.}
 }
