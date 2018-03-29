@@ -1,9 +1,9 @@
 R-package: LDna
 -------------
 
-### Note: this is a beta version 0.63 which was used for 'Linkage disequilibrium cluster-based approach for association mapping with tightly linked genome-wide data' in review for Mol Ecol Res. 
+### Note: this is a beta version 0.63 which was used for 'Linkage disequilibrium clustering-based approach for association mapping with tightly linked genome-wide data' in review for Mol Ecol Res. 
 
-It works well with code provided with this publication (available from dryad), but has not properly been tested with other data. Documentation is also not yet complete, I aim to add a tutorial specifically for the LDn-binning approach, in the near future. I also need to make sure existing users of LDna can continue using it as before.
+It works well with code provided with this publication (available from dryad), but has not properly been tested with other data. Documentation is also not yet complete, I aim to add a tutorial specifically for the LDn-clustering approach, in the near future. I also need to make sure existing users of LDna can continue using it as before.
 
 Linkage disequilibrium (LD) network analysis (LDna) can be used to find clusters of loci in high LD from population genomic data sets using network analysis. It provides a means to partition population genomics data into sets of loci that bear similar population genetic signals. It can for instance be used to *in silico* identify inversion polymorphism and loci involved in local adaptation. As it only requires a matrix of pair-wise LD values it is particularly useful for non-model species where closely related and well-characterized reference genomes are not available.
 

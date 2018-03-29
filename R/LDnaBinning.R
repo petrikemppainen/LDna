@@ -6,9 +6,9 @@
 #'
 #' @param snp A matrix with individuals as rows and bi-allelic SNP genotypes as columns. SNPs must be coded as 0,1 or 2 for the number of alleles of the reference nucleotide.
 #' @param mapsnp A matrix with each row correspoinding a column in \code{snp}, column one corresponding to chromosome or linkage group and column two corresponding to physical position in the genome.
-#' @param nSNPs Desired number of SNPs per bin.
+#' @param nSNPs Desired number of SNPs per window.
 #' @param w1 Window size for defining putative recombination hotspots.
-#' @param w2 Window size for estimating LD values.
+#' @param w2 Window size for estimating LD values (smaller is faster but may break up large clusters, e.g. if thre is an inversion).
 #' @param LD_threshold1 Minimum LD value within a cluster
 #' @param LD_threshold2 Minimum median LD within each cluster, and for the second step of clustering
 #' @param PC_threshold Minimum cummulative amount of genetic variation explained by extracted PCs
@@ -20,21 +20,20 @@
 #' @keywords LDnB
 #' @seealso \code{\link{LDnaRaw}}, \code{\link{summaryLDna}} and \code{\link{extractClusters}}
 #' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}, zitong.li
-#' @return Returns a list of three objects. \code{mapbin} contains map information for each PC extracted from the data, PCbin=PCbin, bin_snps=bin_snps \cr
-#' test
+#' @return Returns a list of three objects. \code{map_cl} contains most of the relvant informaton for each cluster, inluding summary statistics (Median LD, MAD etc).\cr The second object, \code{PC_cl} includes a matrix of individuals (rows) and PCs (columns) corresponding to each row in map_pc. This is what you use for subsequent GWAS analyses.\cr The third object contains a list of locus names (each entry corresponding to a row in map_pc) 
 #' @examples
 #' # To come
 
-LDnBin <- function(snp, mapsnp, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0.1, LD_threshold2 = 0.3, PC_threshold=0.8, verbose=FALSE, plot.tree=FALSE, mc.cores=1, plot.network=NULL, threshold_net=0.9){
+LDnClustering <- function(snp, mapsnp, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0.1, LD_threshold2 = 0.3, PC_threshold=0.8, verbose=FALSE, plot.tree=FALSE, mc.cores=1, plot.network=NULL, threshold_net=0.9){
   
   out <- list()
-  #for each chromosome
-  # i <- 12
   
   snp.id <- 1:nrow(mapsnp)
   
   snp.pos.org <- mapsnp[,2]
   
+  #for each chromosome
+  # i <- 12
   for(i in unique(mapsnp[,1])){
     cat('Finding windows \n')
     snp.pos <- snp.pos.org[mapsnp[,1]==i]
@@ -80,12 +79,11 @@ LDnBin <- function(snp, mapsnp, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0.1, 
       Windows <- list(snp.id[mapsnp[,1]==i])
     }
     
-    ## for each bin on a chromosome
-    #b = 1
     cat(paste0('Number of windows: ', length(Windows), '; window  sizes: ', paste(sapply(Windows, length), collapse=':'), '\n'))
     
-    #if(any(sapply(Windows, length)<300)) stop('Number of SNPs in bins <300, nSNPs should be lowered')
-    #b <- 1
+    
+    ## note that we initially called clusters for bins in the below code and have not changed this.
+    
     out[[i]] <- mclapply(1:length(Windows), function(b){
       cat(paste('Working on chromosome', i ,', window', b, '\n'))
       Window <- Windows[[b]]
@@ -115,9 +113,6 @@ LDnBin <- function(snp, mapsnp, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0.1, 
       diag(LDmat) <- NA
       colnames(LDmat) <- snp.id.bin
       rownames(LDmat) <- snp.id.bin
-      
-      
-      #cat(LDmat[1:10, 1:10])
       
       ## get raw data for LDna, using 'complete' linkage clustering and extracting mean and minium LD for each cluster (and its parent)
       if(verbose) cat('Preparing data for LDna \n')
@@ -374,16 +369,7 @@ LDnBin <- function(snp, mapsnp, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0.1, 
   
   PCbin <- do.call(cbind, bin_PCs)
   
-  ## order data by position
-  # PCbin=PCbin[,order(mapbin$Chr, mapbin$Window, mapbin$Pos)]
-  # 
-  # temp <- mapbin[PC==1,]
-  # 
-  # bin_snps=bin_snps[order(temp$Chr,temp$Window, temp$Pos)]
-  # 
-  # mapbin=mapbin[order(mapbin$Chr, mapbin$Window, mapbin$Pos),] 
-  # 
-  return(list(mapbin=mapbin, PCbin=PCbin, bin_snps=bin_snps))
+  return(list(map_cl=mapbin, PC_cl=PCbin, cl_snps=bin_snps))
   
 }
 

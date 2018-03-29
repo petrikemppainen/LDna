@@ -1,3 +1,3 @@
 importFrom(parallel, "mclapply")
 importFrom(igraph, "graph.adjacency")
-export(LDnaRaw, extractClusters, summaryLDna, plotLDnetwork, LDnBin)
+export(LDnaRaw, extractClusters, summaryLDna, plotLDnetwork, LDnClustering)
