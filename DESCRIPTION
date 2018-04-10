@@ -1,7 +1,7 @@
 Package: LDna
 Type: Package
 Title: Linkage disequilibrum network analysis (LDna)
-Version: 0.63
+Version: 0.64
 Date: 2014-03-19
 Author: Petri Kemppainen <petrikemppainen2@gmail.com>
 Maintainer: Petri Kemppainen <petrikemppainen2@gmail.com>

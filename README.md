@@ -8,7 +8,7 @@ Linkage disequilibrium (LD) network analysis (LDna) can be used to find clusters
 LDna also includes a function that can be used to find cluster of loci connected by high LD along non-overlapping windows and uses Principal Component Analysis to summerise the information from the clusters, to increase power (less conservative multiple correction) in Genome Wide Association Studies (GWAS). 
 Reference: http://onlinelibrary.wiley.com/doi/10.1111/1755-0998.12369/abstract
 
-Current beta version is 0.63.
+Current beta version is 0.64.
 
 Any questions or suggestions may be posted at: https://groups.google.com/forum/#!forum/ld-network-analysis
 
@@ -16,11 +16,11 @@ Any questions or suggestions may be posted at: https://groups.google.com/forum/#
 
 With **devtools** (accessible from CRAN) **LDna** can be installed by:
 ```r
-devtools::install_github("petrikemppainen/LDna", ref = 'v.63')
+devtools::install_github("petrikemppainen/LDna", ref = 'v.64')
 ```
 This downloads the source directly from **github** and builds the vignettes and thus requires LaTeX to be installed on your computer.
 
-Alternatively, download the source file (LDna_0.63.tar.gz) directly and install by:
+Alternatively, download the source file (LDna_0.64.tar.gz) directly and install by:
 ```r
 install.packages("/path_to/source_file", repos = NULL, type = "source")
 ```
