@@ -2,7 +2,7 @@
 % Please edit documentation in R/LDnaBinning.R
 \name{LDnClustering}
 \alias{LDnClustering}
-\title{Linkage disequilibrium (LD) network binning}
+\title{Linkage disequilibrium (LD) network clustering}
 \usage{
 LDnClustering(snp, mapsnp, nSNPs = 1000, w1 = 10, w2 = 100,
   LD_threshold1 = 0.1, LD_threshold2 = 0.3, PC_threshold = 0.8,
@@ -26,27 +26,48 @@ LDnClustering(snp, mapsnp, nSNPs = 1000, w1 = 10, w2 = 100,
 
 \item{PC_threshold}{Minimum cummulative amount of genetic variation explained by extracted PCs}
 
-\item{verbose}{More detailed information of progress is outputted}
+\item{verbose}{More detailed information of progress is printed on screen}
 
-\item{plot.tree}{Plot tree. Default \code{FALSE}}
+\item{plot.tree}{Plot complete linkage tree.}
 
-\item{mc.cores}{number of cores for mclapply}
+\item{mc.cores}{Number of cores for mclapply}
 
 \item{plot.network}{File name for plotting network. If \code{NULL} (default) no network is plotted.}
 
 \item{threshold_net}{Threshold for edges when plotting network.}
 }
 \value{
-Returns a list of three objects. \code{map_cl} contains most of the relvant informaton for each cluster, inluding summary statistics (Median LD, MAD etc).\cr The second object, \code{PC_cl} includes a matrix of individuals (rows) and PCs (columns) corresponding to each row in map_pc. This is what you use for subsequent GWAS analyses.\cr The third object contains a list of locus names (each entry corresponding to a row in map_pc)
+Returns a list of three objects. \code{map_cl} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). 
+\code{PC_cl} includes a matrix of individuals (rows) and PCs (columns) corresponding to each row in map_pc. This is what you use for subsequent GWAS analyses.
+The third object (\code{cl_snps} contains a list of locus indexes (each entry corresponding to a row in map_pc for entries where PC=1).\cr
+\cr
+The columns in file \code{map_cl} are:
+\item{Chr}{Chromosome or LG identifer}
+\item{Window}{Window identifier, recycled among chromosomes)}
+\item{Pos}{Mean position of SNPs in a cluster}
+\item{Min}{Most downstream position of SNPs in a cluster}
+\item{Max}{Most upstream position of SNPs in a cluster}
+\item{Range}{Max-Min}
+\item{nSNPs}{Number of SNPs in the cluster}
+\item{Median}{Median pair wise LD between loci in a cluster}
+\item{MAD}{Median absolute deviation among pair wise LD-values between loci in a cluster}
+\item{PC}{PC identifier (first PC explaining most of the genetic variation)}
+\item{PVE}{Cummulative proportion of variation explained by each PC}
+\item{Grp}{Unique group identifier for PCs extracted from each cluster. Used by the emmax group algorithm.}
 }
 \description{
-Finds clusters of loci connected by high LD within a sliding window summerizes genetic variation using principal component analyses
+Finds clusters of loci connected by high LD within non-overlapping windows and summerises this information using Principal Component Analyses, to be used in downstram GWAS analyses.
 }
 \details{
-If \code{plot.tree} and \code{plot.graph} are set to \code{TRUE}, \code{extractClusters} plots two graphs (default). The first shows all \eqn{\lambda}-values oredered from low to high and indicates which values are above \eqn{\lambda_{lim}}. Values corresponding to \emph{"selected outlier clusters", SOCs} are indicated in red and values corresponding to \emph{COCs} are indiced in blue. A \emph{COC} is defined as any \emph{OC} that contains loci from an \emph{OC} already extracted at a higher LD threshold. The second graph gives the tree illustrating cluster merger with decreasing LD threshold where nodes represent and node distance gives the LD threholds at which these events occur. Branches corresponding to \emph{SOCs} are indicated in red and those corresponding to \emph{COCs} are indiced in blue (if \code{rm.COCs=FALSE}).
+Uses complete linkage clustering within non-overlapping windows of SNPs to find clusters of SNPs connected by high LD. Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by \code{w1}) is below \code{LD_threshold1}.
 }
 \examples{
 # To come
+}
+\references{
+Kemppainen, P., Knight, C. G., Sarma, D. K., Hlaing, T., Prakash, A., Maung Maung, Y. N., … Walton, C. (2015). Linkage disequilibrium network analysis (LDna) gives a global view of chromosomal inversions, local adaptation and geographic structure. Molecular Ecology Resources, 15(5), 1031–1045. https://doi.org/10.1111/1755-0998.12369\cr
+\cr
+Li, Z., Kemppainen, P., Rastas, P., Merila, J. Linkage disequilibrium clustering-based approach for association mapping with tightly linked genome-wide data. Accepted to Molecular Ecology Resources.
 }
 \seealso{
 \code{\link{LDnaRaw}}, \code{\link{summaryLDna}} and \code{\link{extractClusters}}
