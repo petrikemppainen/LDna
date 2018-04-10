@@ -26,7 +26,7 @@
 #' \cr
 #' The columns in file \code{map_cl} are:
 #' \item{Chr}{Chromosome or LG identifer}
-#' \item{Window}{Window identifier, recycled among chromosomes)}
+#' \item{Window}{Window identifier, recycled among chromosomes}
 #' \item{Pos}{Mean position of SNPs in a cluster}
 #' \item{Min}{Most downstream position of SNPs in a cluster}
 #' \item{Max}{Most upstream position of SNPs in a cluster}
