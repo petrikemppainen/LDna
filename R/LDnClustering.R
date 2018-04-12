@@ -382,8 +382,8 @@ PC_score <- function(x_A, PC_threshold){
   eigen_A <- eigen(var(x_A))
   scores_A <- x_A %*% eigen_A$vectors
   percentage_A = (cumsum(eigen_A$values))/sum(eigen_A$values)
-  a = percentage_A >= PC_threshold
-  a[which(a)[-1]] <-FALSE
+  a = percentage_A < PC_threshold
+  a[which(!a)[1]] <- TRUE
   a[1] = TRUE
   zeta = as.matrix(scores_A[, a])
   colnames(zeta) <- paste(1:length(percentage_A[a]), percentage_A[a], sep=':')
