@@ -1,47 +1,4 @@
-#' Linkage disequilibrium (LD) network clustering
-#'
-#' Finds clusters of loci connected by high LD within non-overlapping windows and summerises this information using Principal Component Analysis, to be used in downstream Genome Wide Association (GWA) analyses.
-#' 
-#' Uses complete linkage clustering within non-overlapping windows of SNPs to find clusters of SNPs connected by high LD. Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by \code{w1}) is below \code{LD_threshold1}. 
-#'
-#' @param snp A matrix with individuals as rows and bi-allelic SNP genotypes as columns. SNPs must be coded as 0,1 or 2 for the number of alleles of the reference nucleotide.
-#' @param mapsnp A matrix with each row correspoinding a column in \code{snp}, column one corresponding to chromosome or linkage group and column two corresponding to physical position in the genome.
-#' @param nSNPs Desired number of SNPs per window.
-#' @param w1 Window size for defining putative recombination hotspots.
-#' @param w2 Window size for estimating LD values (smaller is faster but may break up large clusters, e.g. if thre is an inversion).
-#' @param LD_threshold1 Minimum LD value within a cluster
-#' @param LD_threshold2 Minimum median LD within each cluster, and for the second step of clustering
-#' @param PC_threshold Minimum cummulative amount of genetic variation explained by extracted PCs
-#' @param verbose More detailed information of progress is printed on screen
-#' @param plot.tree Plot complete linkage tree. 
-#' @param mc.cores Number of cores for mclapply
-#' @param plot.network File name for plotting network. If \code{NULL} (default) no network is plotted.
-#' @param threshold_net Threshold for edges when plotting network.
-#' @keywords LDnB
-#' @seealso \code{\link{LDnaRaw}}, \code{\link{summaryLDna}} and \code{\link{extractClusters}}
-#' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}, zitong.li
-#' @return Returns a list of three objects. \code{map_cl} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). 
-#' \code{PC_cl} includes a matrix of individuals (rows) and PCs (columns) corresponding to each row in map_pc. This is what you use for subsequent GWA analyses.
-#' The third object (\code{cl_snps} contains a list of locus indexes (each entry corresponding to a row in map_pc for entries where PC=1).\cr
-#' \cr
-#' The columns in file \code{map_cl} are:
-#' \item{Chr}{Chromosome or LG identifer}
-#' \item{Window}{Window identifier, recycled among chromosomes}
-#' \item{Pos}{Mean position of SNPs in a cluster}
-#' \item{Min}{Most downstream position of SNPs in a cluster}
-#' \item{Max}{Most upstream position of SNPs in a cluster}
-#' \item{Range}{Max-Min}
-#' \item{nSNPs}{Number of SNPs in the cluster}
-#' \item{Median}{Median pair wise LD between loci in a cluster}
-#' \item{MAD}{Median absolute deviation among pair wise LD-values between loci in a cluster}
-#' \item{PC}{PC identifier (first PC explaining most of the genetic variation)}
-#' \item{PVE}{Cummulative proportion of variation explained by each PC}
-#' \item{Grp}{Unique group identifier for PCs extracted from each cluster. Used by the emmax group algorithm.}
-#' @references Kemppainen, P., Knight, C. G., Sarma, D. K., Hlaing, T., Prakash, A., Maung Maung, Y. N., … Walton, C. (2015). Linkage disequilibrium network analysis (LDna) gives a global view of chromosomal inversions, local adaptation and geographic structure. Molecular Ecology Resources, 15(5), 1031–1045. https://doi.org/10.1111/1755-0998.12369\cr
-#' \cr
-#' Li, Z., Kemppainen, P., Rastas, P., Merila, J. Linkage disequilibrium clustering-based approach for association mapping with tightly linked genome-wide data. Accepted to Molecular Ecology Resources.
-#' @examples
-#' # To come
+
 
 LDnClustering <- function(snp, mapsnp, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0.1, LD_threshold2 = 0.3, PC_threshold=0.8, verbose=FALSE, plot.tree=FALSE, mc.cores=1, plot.network=NULL, threshold_net=0.9){
   
@@ -320,7 +277,7 @@ LDnClustering <- function(snp, mapsnp, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 
     })
   }))
   
-
+  
   Pos <-  unlist(sapply(out, function(chromosome){
     sapply(chromosome, function(window){
       rep(sapply(window[[2]], function(x) mean(mapsnp[as.numeric(x),2])), sapply(window[[3]], function(bin) ifelse(is.matrix(bin), ncol(bin), 1)))
@@ -382,15 +339,13 @@ PC_score <- function(x_A, PC_threshold){
   eigen_A <- eigen(var(x_A))
   scores_A <- x_A %*% eigen_A$vectors
   percentage_A = (cumsum(eigen_A$values))/sum(eigen_A$values)
-  a = percentage_A < PC_threshold
-  a[which(!a)[1]] <- TRUE
+  a = percentage_A >= PC_threshold
+  a[which(a)[-1]] <-FALSE
   a[1] = TRUE
   zeta = as.matrix(scores_A[, a])
   colnames(zeta) <- paste(1:length(percentage_A[a]), percentage_A[a], sep=':')
   return(zeta)
 }
-
-
 
 slideFunct <- function(data, window, step){
   total <- length(data)
