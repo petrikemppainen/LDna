@@ -12,7 +12,8 @@ Depends:
     data.table,
     SNPRelate,
     formatR,
-    stats
+    stats,
+    scalreg
 Imports:
     parallel
 Description: R package for linkage disequilibrium (LD) network analysis (LDna).

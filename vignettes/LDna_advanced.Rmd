@@ -1,3 +1,8 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
 <!--
 %\VignetteEngine{knitr}
 %\VignetteIndexEntry{An introduction LDna: Advanced}
@@ -10,7 +15,7 @@ library(LDna)
 
 An introduction **LDna**: Advanced
 =======================================
-#### Petri kemppainen, October 7, 2014
+#### Petri Kemppainen, April, 2018
 
 Introduction
 ------------

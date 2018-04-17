@@ -18,7 +18,7 @@
 #' @keywords extractClusters
 #' @seealso \code{\link{LDnaRaw}}, \code{\link{summaryLDna}} and \code{\link{plotLDnetwork}}
 #' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}, Christopher Knight \email{Chris.Knight@@manchester.ac.uk}
-#' @return If extract=TRUE a named list of vectors giving the loci for the extracted clusters; otherwise returns plots of the tree (if plot.tree=TRUE) and the distribution of \eqn{\lambda} values (if plot.graph=TRUE and extract=TRUE)
+#' @return If extract=TRUE s list with two objects (1) a named list of vectors giving the loci for the extracted clusters and (2) a matrix indicating which 'single outlicer clusters' (\emph{SOCs}) are nested within which 'compound outlier clusters (\emph{COCs}). Else returns plots of the tree (if plot.tree=TRUE) and the distribution of \eqn{\lambda} values (if plot.graph=TRUE and extract=TRUE)
 #' @examples
 #' # Simple upper diagonal LD matrix
 #' LDmat <- structure(c(NA, 0.84, 0.64, 0.24, 0.2, 0.16, 0.44, 0.44, NA, NA, 0.8, 0.28, 0.4, 0.36, 0.36, 0.24, NA, NA, NA, 0.48, 0.32, 0.2, 0.36, 0.2, NA, NA, NA, NA, 0.76, 0.56, 0.6, 0.2, NA, NA, NA, NA, NA, 0.72, 0.68, 0.24, NA, NA, NA, NA, NA, NA, 0.44, 0.24, NA, NA, NA, NA, NA, NA, NA, 0.2, NA, NA, NA, NA, NA, NA, NA, NA), .Dim = c(8L, 8L), .Dimnames = list(c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"), c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8")))
@@ -43,6 +43,12 @@
 #' clusters <- extractClusters(ldna, min.edges=15, phi=5, plot.tree=FALSE, plot.graph=FALSE)
 #' # Set fixed value for lambda.lim
 #' clusters <- extractClusters(ldna, min.edges=15, lambda.lim=2)
+#' # object 'clusters' includes two objects
+#' str(clusters)
+#' # clusters are here 
+#' clusters[[1]]
+#' # matrix indicating nesting here 
+#' clusters[[2]]
 
 extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=TRUE, extract=TRUE, plot.tree=TRUE, plot.graph=TRUE, LD_threshold1=NULL, LD_threshold2=NULL, extract.fun=function(ldna, LD_threshold1){colnames(ldna$clusterfile)[c(0,ldna$lambda_min$V1)>LD_threshold1 & c(0,ldna$lambda_min$V2)<LD_threshold1]}){
   # Get file for tree and clusters above min.edges and their lambda values
@@ -91,6 +97,7 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
         nested[lower.tri(nested)] <- NA
         COCs <- as.vector(na.omit(colnames(temp)[apply(nested, 1, function(x) any(x=="COC"))]))
         SOCs <- colnames(temp)[!colnames(temp) %in% COCs]
+        diag(nested) <- NA
         
       }else{
         SOCs <- clusters.out
@@ -102,6 +109,8 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
       
       print('No clusters to extract')
     } 
+    
+    dimnames(nested) <- list(clusters.out,clusters.out)
     
     
     if(plot.graph){
@@ -174,7 +183,7 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
       loci <- list(names(temp)[temp])
     }
     
-    return(list(loci, nested))
+    return(list(clusters=loci, nested=nested))
     
   }else{
     plot(tree, edge.width=3,show.tip.label=F,edge.color="grey", cex=1,  root.edge=TRUE, x.lim=1)
