@@ -17,7 +17,7 @@
 #' Li, Z., Kemppainen, P., Rastas, P., Merila, J. Linkage disequilibrium clustering-based approach for association mapping with tightly linked genome-wide data. Accepted to Molecular Ecology Resources.
 #' @examples
 #' ## using
-
+#' @export
 emmax_group <- function(Y,X,Grp,K,B=NULL) {
   
   n<-length(Y)

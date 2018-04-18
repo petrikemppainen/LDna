@@ -7,15 +7,12 @@ Author: Petri Kemppainen <petrikemppainen2@gmail.com>
 Maintainer: Petri Kemppainen <petrikemppainen2@gmail.com>
 Depends:
     R (>= 3.0.2),
-    ape,
     igraph,
-    data.table,
-    SNPRelate,
-    formatR,
-    stats,
-    scalreg
+    data.table
 Imports:
-    parallel
+    SNPRelate,
+    parallel,
+    ape
 Description: R package for linkage disequilibrium (LD) network analysis (LDna).
     In LD networks nodes represent loci and connections between nodes represent
     LD values a given thresholds. Distinct clusters visible across a wide range

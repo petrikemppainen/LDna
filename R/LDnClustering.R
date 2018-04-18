@@ -20,9 +20,9 @@
 #' @keywords Linkage disequilibrium network clustering, complexity reduction
 #' @seealso \code{\link{emmax_group}}
 #' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}, zitong.li \email{lizitong1985@@gmail.com}
-#' @return Returns a list of three objects. \code{map_cl} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). 
-#' \code{PC_cl} includes a matrix of individuals (rows) and PCs (columns) corresponding to each row in map_pc. This is what you use for subsequent GWA analyses.
-#' The third object (\code{cl_snps} contains a list of locus indexes (each entry corresponding to a row in map_pc for entries where PC=1).\cr
+#' @return Returns a list of three objects. \code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). 
+#' \code{cluster_PCs} includes a matrix of individuals (rows) and PCs (columns) corresponding to each row in \code{cluster_summary}. This is what you use for subsequent GWA analyses.
+#' The third object (\code{clusters}) contains a list of locus indexes (each entry corresponding to a row in \code{cluster_summary} for entries where PC=1).\cr
 #' \cr
 #' The columns in file \code{map_cl} are:
 #' \item{Chr}{Chromosome or LG identifer}
@@ -36,56 +36,31 @@
 #' \item{MAD}{Median absolute deviation among pair wise LD-values between loci in a cluster}
 #' \item{PC}{PC identifier (first PC explaining most of the genetic variation)}
 #' \item{PVE}{Cummulative proportion of variation explained by each PC}
-#' \item{Grp}{Unique group identifier for PCs extracted from each cluster. Used by the emmax group algorithm.}
-#' @references Kemppainen, P., Knight, C. G., Sarma, D. K., Hlaing, T., Prakash, A., Maung Maung, Y. N., … Walton, C. (2015). Linkage disequilibrium network analysis (LDna) gives a global view of chromosomal inversions, local adaptation and geographic structure. Molecular Ecology Resources, 15(5), 1031–1045. https://doi.org/10.1111/1755-0998.12369\cr
+#' \item{Grp}{Unique group identifier for PCs extracted from each cluster. Used by \code{\link{emmax_group}}
+#' @references Kemppainen, P., Knight, C. G., Sarma, D. K., Hlaing, T., Prakash, A., Maung Maung, Y. N., Walton, C. (2015). Linkage disequilibrium network analysis (LDna) gives a global view of chromosomal inversions, local adaptation and geographic structure. Molecular Ecology Resources, 15(5), 1031-1045. https://doi.org/10.1111/1755-0998.12369\cr
 #' \cr
 #' Li, Z., Kemppainen, P., Rastas, P., Merila, J. Linkage disequilibrium clustering-based approach for association mapping with tightly linked genome-wide data. Accepted to Molecular Ecology Resources.
 #' @examples
 #' ## Arabidopsis sample data (1000 first SNPs, Chr 1)
 #' data(LDna)
 #' 
-#' t1 <- Sys.time()
-#' data_0.1_0.3_old <- LDnClusteringOld(snp=snp_ara, 
-#'                                      map=map_ara, 
-#'                                      nSNPs = 1000, 
-#'                                      w2 = 100, 
-#'                                      LD_threshold1 = 0.1, 
-#'                                      LD_threshold2 = 0.3, 
-#'                                      verbose = TRUE)
-#' t2 <- Sys.time()
-#' data_0.1_0.3_new <- LDnClustering(snp=snp_ara, 
+#' data_0.1_0.3 <- LDnClustering(snp=snp_ara, 
 #'                                   map=map_ara, 
 #'                                   nSNPs = 1000, 
 #'                                   w2 = 100, 
 #'                                   LD_threshold1 = 0.1, 
 #'                                   LD_threshold2 = 0.3, 
 #'                                   verbose = TRUE)
-#' t3 <- Sys.time()
-#' 
-#' difftime(t3, t2)[[1]]/difftime(t2, t1)[[1]]
-#' 
-#' t1 <- Sys.time()
-#' data_0.3_0.5_old <- LDnClusteringOld(snp=snp_ara, 
-#'                                      map=map_ara, 
-#'                                      nSNPs = 1000, 
-#'                                      w2 = 100, 
-#'                                      LD_threshold1 = 0.3, 
-#'                                      LD_threshold2 = 0.5, 
-#'                                      verbose = TRUE)
-#' t2 <- Sys.time()
-#' data_0.3_0.5_new <- LDnClustering(snp=snp_ara, 
+#' data_0.3_0.5 <- LDnClustering(snp=snp_ara, 
 #'                                   map=map_ara, 
 #'                                   nSNPs = 1000, 
 #'                                   w2 = 100, 
 #'                                   LD_threshold1 = 0.3, 
 #'                                   LD_threshold2 = 0.5, 
 #'                                   verbose = TRUE)
-#' t3 <- Sys.time()
-#' difftime(t3, t2)[[1]]/difftime(t2, t1)[[1]]
-#' 
-
+#' @export
 LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0.1, LD_threshold2 = 0.3, PC_threshold=0.8, verbose=TRUE, plot.tree=FALSE, mc.cores=1, plot.network=NULL, threshold_net=0.9){
-  
+
   out <- list()
   
   snp.id <- 1:nrow(map)
@@ -102,10 +77,10 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
     
     ## use snpGDS to estiamte r^2
     gds_name <- paste0(gsub(" ", "", Sys.time()), ".gds")
-    snpgdsCreateGeno(gds_name, genmat = snp[, Chr], sample.id = 1:nrow(snp), snp.pos = snp.id.chr, snpfirstdim = FALSE)
-    file <- snpgdsOpen(gds_name)
-    LDmat <- snpgdsLDMat(file, method = "r", slide = 1, verbose = FALSE)$LD^2
-    snpgdsClose(file)
+    SNPRelate::snpgdsCreateGeno(gds_name, genmat = snp[, Chr], sample.id = 1:nrow(snp), snp.pos = snp.id.chr, snpfirstdim = FALSE)
+    file <- SNPRelate::snpgdsOpen(gds_name)
+    LDmat <- SNPRelate::snpgdsLDMat(file, method = "r", slide = 1, verbose = FALSE)$LD^2
+    SNPRelate::snpgdsClose(file)
     system(paste0("rm ", gds_name))
     
     
@@ -135,7 +110,7 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
     
     ## for each window
     #w <- 1
-    out[[i]] <- mclapply(1:length(Windows), function(w){
+    out[[i]] <- parallel::mclapply(1:length(Windows), function(w){
       cat(paste('Working on chromosome', i ,', window', w, '\n'))
       
       Window <- Windows[[w]]
@@ -143,14 +118,14 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
       snp_bin  <- snp[,which(snp.id%in%Window)]
       
       
-      snpgdsCreateGeno(paste0(w,gds_name), genmat = snp_bin, sample.id = 1: nrow(snp) , snp.id = snp.id.bin, snpfirstdim=FALSE) ### sample ID should be 1: how many individuals you have
-      file <- snpgdsOpen(paste0(w,gds_name))
+      SNPRelate::snpgdsCreateGeno(paste0(w,gds_name), genmat = snp_bin, sample.id = 1: nrow(snp) , snp.id = snp.id.bin, snpfirstdim=FALSE) ### sample ID should be 1: how many individuals you have
+      file <- SNPRelate::snpgdsOpen(paste0(w,gds_name))
       
       # estimate LD within a sliding window
       if(w2>length(snp.id.bin)) w2 = -1 ## if window size longer that number of snps, estiamte LD for all pairwise comparisons
       
-      MAT <- snpgdsLDMat(file, method="r",slide=w2, verbose=FALSE)
-      snpgdsClose(file)
+      MAT <- SNPRelate::snpgdsLDMat(file, method="r",slide=w2, verbose=FALSE)
+      SNPRelate::snpgdsClose(file)
       system(paste0('rm ', paste0(w,gds_name)))
       
       
@@ -185,7 +160,7 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
         lapply(clade, function(x){
           
           if(x>ntips){
-            cl <- extract.clade(tree, x)$tip.label
+            cl <- ape::extract.clade(tree, x)$tip.label
           }else{
             cl <- tree$tip.label[x]
           }
@@ -217,7 +192,7 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
         loci <- V(d_g[[y]])$name
         if(length(loci)>1){
           LDmat.part <- LDmat[loci, loci]
-          tree <- as.phylo(hclust(as.dist(1-LDmat.part), method='complete'))
+          tree <- ape::as.phylo(hclust(as.dist(1-LDmat.part), method='complete'))
           tree$tip.label <- loci
           
           ntips <- length(tree$tip.label)

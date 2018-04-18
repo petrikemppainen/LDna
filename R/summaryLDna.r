@@ -17,7 +17,7 @@
 #' # Extract clusters and plot graphs, for this small example min.edges is set to zero such that each tip clade corresponds to an individual locus
 #' clusters <- extractClusters(ldna, min.edges=0, phi=0.25, rm.COCs=FALSE)
 #' summary <- summaryLDna(ldna, clusters, LDmat)
-
+#' @export
 summaryLDna <- function(ldna, clusters, LDmat){
   if(is.na(LDmat[2,1])) LDmat <- t(LDmat)
   p <- NULL

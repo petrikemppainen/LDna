@@ -56,7 +56,7 @@
 #' lapply(1:length(clusters), fun)
 #' # a multicore version of this
 #' mclapply(1:length(clusters), fun, mc.cores=4, mc.preschedule=TRUE)}
-
+#' @export
 
 plotLDnetwork <- function(ldna, LDmat, option, threshold, clusters, summary, digits=2,
 exl=NULL, full.network=TRUE, include.parent=FALSE, after.merger=FALSE, graph.object=FALSE, col="grey", frame.color='grey', pos=NULL){

@@ -5,10 +5,7 @@
 \title{Extracts LD clusters for linkage disequilibrium network analysis (LDna)}
 \usage{
 extractClusters(ldna, min.edges = 20, phi = 2, lambda.lim = NULL,
-  rm.COCs = TRUE, extract = TRUE, plot.tree = TRUE, plot.graph = TRUE,
-  LD_threshold1 = NULL, LD_threshold2 = NULL, extract.fun = function(ldna,
-  LD_threshold1) {     colnames(ldna$clusterfile)[c(0, ldna$lambda_min$V1) >
-  LD_threshold1 & c(0, ldna$lambda_min$V2) < LD_threshold1] })
+  rm.COCs = TRUE, extract = TRUE, plot.tree = TRUE, plot.graph = TRUE)
 }
 \arguments{
 \item{ldna}{Output from \code{\link{LDnaRaw}}}
@@ -26,12 +23,6 @@ extractClusters(ldna, min.edges = 20, phi = 2, lambda.lim = NULL,
 \item{plot.tree}{If \code{TRUE} (default), plots tree. Has no effect if \code{extract=FALSE}.}
 
 \item{plot.graph}{If \code{TRUE} (default), plots all \eqn{\lambda} ordered from low to high and indicates which values are above \eqn{\lambda_{lim}}.}
-
-\item{LD_threshold1}{Extracts clusters that have a minimum pair wise LD value above this threshold. Used for LD binning (clustering method for LDnaRAW shold be other than 'single').}
-
-\item{LD_threshold2}{Extracts clusters that have a mean pair wise LD value above this threshold. Used for LD binning (clustering method for LDnaRAW shold be other than 'single').}
-
-\item{extract.fun}{Only used internally}
 }
 \value{
 If extract=TRUE s list with two objects (1) a named list of vectors giving the loci for the extracted clusters and (2) a matrix indicating which 'single outlicer clusters' (\emph{SOCs}) are nested within which 'compound outlier clusters (\emph{COCs}). Else returns plots of the tree (if plot.tree=TRUE) and the distribution of \eqn{\lambda} values (if plot.graph=TRUE and extract=TRUE)

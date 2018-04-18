@@ -140,6 +140,7 @@ clusters_final <- extractClusters(ldna, min.edges = 18, phi=4)
 ```{r, comment=NA}
 clusters_final
 ```
+Note that the second slot *nested* contains information about which clusters are nested in which other clusters (this is visible also from the tree, if rm.COCs = FALSE).
 ```{r, fig.width=8, fig.height=8, comment=NA, fig.show='hold'}
 summary_final <- summaryLDna(ldna, clusters_final, LDmat)
 summary_final

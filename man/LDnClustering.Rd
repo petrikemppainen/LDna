@@ -36,25 +36,6 @@ LDnClustering(snp, map, nSNPs = 1000, w1 = 10, w2 = 100,
 
 \item{threshold_net}{Threshold for edges when plotting network.}
 }
-\value{
-Returns a list of three objects. \code{map_cl} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). 
-\code{PC_cl} includes a matrix of individuals (rows) and PCs (columns) corresponding to each row in map_pc. This is what you use for subsequent GWA analyses.
-The third object (\code{cl_snps} contains a list of locus indexes (each entry corresponding to a row in map_pc for entries where PC=1).\cr
-\cr
-The columns in file \code{map_cl} are:
-\item{Chr}{Chromosome or LG identifer}
-\item{Window}{Window identifier, recycled among chromosomes}
-\item{Pos}{Mean position of SNPs in a cluster}
-\item{Min}{Most downstream position of SNPs in a cluster}
-\item{Max}{Most upstream position of SNPs in a cluster}
-\item{Range}{Max-Min}
-\item{nSNPs}{Number of SNPs in the cluster}
-\item{Median}{Median pair wise LD between loci in a cluster}
-\item{MAD}{Median absolute deviation among pair wise LD-values between loci in a cluster}
-\item{PC}{PC identifier (first PC explaining most of the genetic variation)}
-\item{PVE}{Cummulative proportion of variation explained by each PC}
-\item{Grp}{Unique group identifier for PCs extracted from each cluster. Used by the emmax group algorithm.}
-}
 \description{
 Finds clusters of loci connected by high LD within non-overlapping windows and summerises this information using Principal Component Analysis, to be used in Genome Wide Association (GWA) analyses.
 }
@@ -65,48 +46,23 @@ Uses complete linkage clustering within non-overlapping windows of SNPs to find 
 ## Arabidopsis sample data (1000 first SNPs, Chr 1)
 data(LDna)
 
-t1 <- Sys.time()
-data_0.1_0.3_old <- LDnClusteringOld(snp=snp_ara, 
-                                     map=map_ara, 
-                                     nSNPs = 1000, 
-                                     w2 = 100, 
-                                     LD_threshold1 = 0.1, 
-                                     LD_threshold2 = 0.3, 
-                                     verbose = TRUE)
-t2 <- Sys.time()
-data_0.1_0.3_new <- LDnClustering(snp=snp_ara, 
+data_0.1_0.3 <- LDnClustering(snp=snp_ara, 
                                   map=map_ara, 
                                   nSNPs = 1000, 
                                   w2 = 100, 
                                   LD_threshold1 = 0.1, 
                                   LD_threshold2 = 0.3, 
                                   verbose = TRUE)
-t3 <- Sys.time()
-
-difftime(t3, t2)[[1]]/difftime(t2, t1)[[1]]
-
-t1 <- Sys.time()
-data_0.3_0.5_old <- LDnClusteringOld(snp=snp_ara, 
-                                     map=map_ara, 
-                                     nSNPs = 1000, 
-                                     w2 = 100, 
-                                     LD_threshold1 = 0.3, 
-                                     LD_threshold2 = 0.5, 
-                                     verbose = TRUE)
-t2 <- Sys.time()
-data_0.3_0.5_new <- LDnClustering(snp=snp_ara, 
+data_0.3_0.5 <- LDnClustering(snp=snp_ara, 
                                   map=map_ara, 
                                   nSNPs = 1000, 
                                   w2 = 100, 
                                   LD_threshold1 = 0.3, 
                                   LD_threshold2 = 0.5, 
                                   verbose = TRUE)
-t3 <- Sys.time()
-difftime(t3, t2)[[1]]/difftime(t2, t1)[[1]]
-
 }
 \references{
-Kemppainen, P., Knight, C. G., Sarma, D. K., Hlaing, T., Prakash, A., Maung Maung, Y. N., … Walton, C. (2015). Linkage disequilibrium network analysis (LDna) gives a global view of chromosomal inversions, local adaptation and geographic structure. Molecular Ecology Resources, 15(5), 1031–1045. https://doi.org/10.1111/1755-0998.12369\cr
+Kemppainen, P., Knight, C. G., Sarma, D. K., Hlaing, T., Prakash, A., Maung Maung, Y. N., Walton, C. (2015). Linkage disequilibrium network analysis (LDna) gives a global view of chromosomal inversions, local adaptation and geographic structure. Molecular Ecology Resources, 15(5), 1031-1045. https://doi.org/10.1111/1755-0998.12369\cr
 \cr
 Li, Z., Kemppainen, P., Rastas, P., Merila, J. Linkage disequilibrium clustering-based approach for association mapping with tightly linked genome-wide data. Accepted to Molecular Ecology Resources.
 }

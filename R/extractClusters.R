@@ -12,9 +12,6 @@
 #' @param plot.tree If \code{TRUE} (default), plots tree. Has no effect if \code{extract=FALSE}.
 #' @param plot.graph If \code{TRUE} (default), plots all \eqn{\lambda} ordered from low to high and indicates which values are above \eqn{\lambda_{lim}}.
 #' @param lambda.lim If not \code{NULL} gives a fixed value for \eqn{\lambda_{lim}}. Overrides any value passed by \code{phi}.
-#' @param LD_threshold1 Extracts clusters that have a minimum pair wise LD value above this threshold. Used for LD binning (clustering method for LDnaRAW shold be other than 'single').
-#' @param LD_threshold2 Extracts clusters that have a mean pair wise LD value above this threshold. Used for LD binning (clustering method for LDnaRAW shold be other than 'single').
-#' @param extract.fun Only used internally
 #' @keywords extractClusters
 #' @seealso \code{\link{LDnaRaw}}, \code{\link{summaryLDna}} and \code{\link{plotLDnetwork}}
 #' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}, Christopher Knight \email{Chris.Knight@@manchester.ac.uk}
@@ -49,8 +46,8 @@
 #' clusters[[1]]
 #' # matrix indicating nesting here 
 #' clusters[[2]]
-
-extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=TRUE, extract=TRUE, plot.tree=TRUE, plot.graph=TRUE, LD_threshold1=NULL, LD_threshold2=NULL, extract.fun=function(ldna, LD_threshold1){colnames(ldna$clusterfile)[c(0,ldna$lambda_min$V1)>LD_threshold1 & c(0,ldna$lambda_min$V2)<LD_threshold1]}){
+#' @export
+extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=TRUE, extract=TRUE, plot.tree=TRUE, plot.graph=TRUE){
   # Get file for tree and clusters above min.edges and their lambda values
   tree <- clusterPhylo(ldna, min.edges)
   if(extract){
@@ -70,15 +67,8 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
     
     Ntips <- length(ldna$tree$tip.label)
     ## get outlier clusters
-    if(!is.null(LD_threshold1)){
-      
-      
-      clusters.out <- extract.fun(ldna, LD_threshold1, LD_threshold2)
-      
-    }else{
       clusters.out <- names(lambda_new)[which(lambda_new >= threshold)]
       if(identical(clusters.out, character(0))) stop("No outlier clusters, please decrease phi or lambda.lim")
-    }
     
     if(length(clusters.out)!=0){
       loci <- ldna$tree$tip.label
@@ -193,7 +183,6 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
   
 }
 
-
 clusterPhylo <-  function(ldna, min.edges=0){
   d <- ldna$stats[ldna$stats$nE>=min.edges,]
   
@@ -251,5 +240,5 @@ clusterPhylo <-  function(ldna, min.edges=0){
       row<-d$ancestor[row]
       next}
   }  
-  tree <- read.tree(text=newick)
+  tree <- ape::read.tree(text=newick)
 }

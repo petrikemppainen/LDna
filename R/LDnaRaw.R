@@ -27,13 +27,13 @@
 #' ldna <- LDnaRaw(r2.baimaii_subs)
 #' # With multicore, in this case only slightly faster. 
 #' ldna <- LDnaRaw(r2.baimaii_subs, mc.cores=4)
-
+#' @export
 LDnaRaw <- function(LDmat, digits=2, method='single', mc.cores=NULL, fun=function(x){min(x, na.rm=TRUE)}){
   if(is.na(LDmat[2,1])) LDmat <- t(LDmat)
   LDmat[LDmat<0] <- 0
   LDmat <- round(LDmat, digits)
-  tree <- as.phylo(hclust(as.dist(1-LDmat), method=method))
-  tree <- di2multi(tree)
+  tree <- ape::as.phylo(hclust(as.dist(1-LDmat), method=method))
+  tree <- ape::di2multi(tree)
   Ntips <- length(tree$tip.label)
   
   if(!is.null(mc.cores)){
@@ -101,7 +101,7 @@ lambda.fun <- function(tree, LDmat, clusterfile, Ntips, x){
 }
 
 stats.fun <- function(tree, LDmat, x){
-  tree.temp <- extract.clade(tree, x)
+  tree.temp <- ape::extract.clade(tree, x)
   loci <- colnames(LDmat) %in% tree.temp$tip.label
   LDmat.temp <- LDmat[loci, loci]
   
