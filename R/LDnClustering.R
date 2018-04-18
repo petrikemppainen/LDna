@@ -64,7 +64,7 @@ LDnClustering <- function(snp, mapsnp, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 
     snpgdsCreateGeno(gds_name, genmat = snp[, mapsnp[, 1] == i], sample.id = 1:nrow(snp), snp.pos = snp.id.chr, snpfirstdim = FALSE)
     file <- snpgdsOpen(gds_name)
     LDmat <- snpgdsLDMat(file, method = "r", slide = 1, verbose = FALSE)$LD^2
-    nL-length(unlist(Windows))
+   
     snpgdsClose(file)
     system(paste0("rm ", gds_name))
     
