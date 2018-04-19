@@ -5,9 +5,8 @@
 \title{Linkage disequilibrium (LD) network clustering}
 \usage{
 LDnClustering(snp, map, nSNPs = 1000, w1 = 10, w2 = 100,
-  LD_threshold1 = 0.1, LD_threshold2 = 0.3, PC_threshold = 0.8,
-  verbose = TRUE, plot.tree = FALSE, mc.cores = 1, plot.network = NULL,
-  threshold_net = 0.9)
+  LD_threshold1 = 0.5, LD_threshold2 = 0.7, PC_threshold = 0.8,
+  mc.cores = 1, plot.network = NULL, threshold_net = 0.9)
 }
 \arguments{
 \item{snp}{A matrix with individuals as rows and bi-allelic SNP genotypes as columns. SNPs must be coded as 0,1 or 2 for the number of alleles of the reference nucleotide.}
@@ -26,40 +25,98 @@ LDnClustering(snp, map, nSNPs = 1000, w1 = 10, w2 = 100,
 
 \item{PC_threshold}{Minimum cummulative amount of genetic variation explained by extracted PCs}
 
-\item{verbose}{More detailed information of progress is printed on screen}
-
-\item{plot.tree}{Plot complete linkage tree.}
-
 \item{mc.cores}{Number of cores for mclapply}
 
 \item{plot.network}{File name for plotting network. If \code{NULL} (default) no network is plotted.}
 
 \item{threshold_net}{Threshold for edges when plotting network.}
 }
+\value{
+Returns a list of three objects. \code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). \code{cluster_PCs} includes a matrix of individuals (rows) and PCs (columns) corresponding to each row in \code{cluster_summary}. This is what you use for subsequent GWA analyses. The third object (\code{clusters}) contains a list of locus indexes (each entry corresponding to a row in \code{cluster_summary} for entries where PC=1).
+The columns in file \code{map_cl} are:
+\item{Chr}{Chromosome or linkage group identifer}
+\item{Window}{Window identifier, recycled among chromosomes}
+\item{Pos}{Mean position of SNPs in a cluster}
+\item{Min}{Most downstream position of SNPs in a cluster}
+\item{Max}{Most upstream position of SNPs in a cluster}
+\item{Range}{Max-Min}
+\item{nSNPs}{Number of SNPs in the cluster}
+\item{Median}{Median pair wise LD between loci in a cluster}
+\item{MAD}{Median absolute deviation among pair wise LD-values between loci in a cluster}
+\item{PC}{PC identifier (first PC explaining most of the genetic variation)}
+\item{PVE}{Cummulative proportion of variation explained by each PC}
+\item{Grp}{Unique group identifier for PCs extracted from each cluster. Used by \code{\link{emmax_group}}}
+}
 \description{
 Finds clusters of loci connected by high LD within non-overlapping windows and summerises this information using Principal Component Analysis, to be used in Genome Wide Association (GWA) analyses.
 }
 \details{
-Uses complete linkage clustering within non-overlapping windows of SNPs to find clusters of SNPs connected by high LD. Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by \code{w1}) is below \code{LD_threshold1}.
+Uses complete linkage clustering within non-overlapping windows of SNPs to find clusters of SNPs connected by high LD. \cr
+\cr
+Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by \code{w1}) is below \code{LD_threshold1}. \code{nSNPs} determines the goal size for each window; smaller windows will produce faster compuation times. \cr
+\cr
+First, a graph object is created using all pairwise r^2 values between SNPs within each window, and edges (representing r^2 values) < LD_threshold1 are removed. 
+To increase compuational speed for large windows, or if a physical limit to how large clusters one is intrested in, window size (\code{w2}) for estimating r^2 can also be set to something less than the window size. 
+For the remaining sub-clusters a \code{complete} linkage clustering algorithim is performed. Sub-clades within these trees, with median LD>\code{LD_threshold2} are kept (this is done recursively). Thus \code{LD_threshold1} is typically set to lower than \code{LD_threshold1} and aims to break the initial tree into sub-clusters, thus increasing compuational speed (i.e. it would also be possible to produce a hirearcical clustering tree for the whole window and then recursively find the relevant clades to extract).
+From each cluster as many Principal Components (\code{PCs}) as is required to explain >= \code{PC_threshold} are extracted. 
+This algorithm is performed by chromosome and window, and can thus be parallelized (\code{mc.cores}).\cr
+\cr
+It is also possible to plot LD-networks for different cluster solutions. For this you can specify a path for where the figure will be saved (\code{plot.network}). The parameter \code{threshold_net} determines the minimum value for each edge that is allowed in the network.
 }
 \examples{
 ## Arabidopsis sample data (1000 first SNPs, Chr 1)
 data(LDna)
+# this will first remove all edges with r^2>0.5, then within each resulting sub-cluster will recursively find clades where median LD>0.7. Will then extract PCs based on these SNPs such that at least 80\% of the varitation is explained 
+data_0.5_0.7 <- LDnClustering(snp=snp_ara, 
+                                  map=map_ara, 
+                                  nSNPs = 1000, 
+                                  w2 = 100, 
+                                  LD_threshold1 = 0.5, 
+                                  LD_threshold2 = 0.7,
+                                  PC_threshold = 0.8)
+## this groups the original 1000 SNPs into 508 clusters                                 
+length(data_0.5_0.7$clusters) 
+## with the following distribution of SNPs in each cluster
+table(data_0.5_0.7$cluster_summary$nSNPs)
 
-data_0.1_0.3 <- LDnClustering(snp=snp_ara, 
-                                  map=map_ara, 
-                                  nSNPs = 1000, 
-                                  w2 = 100, 
-                                  LD_threshold1 = 0.1, 
-                                  LD_threshold2 = 0.3, 
-                                  verbose = TRUE)
-data_0.3_0.5 <- LDnClustering(snp=snp_ara, 
-                                  map=map_ara, 
-                                  nSNPs = 1000, 
-                                  w2 = 100, 
-                                  LD_threshold1 = 0.3, 
-                                  LD_threshold2 = 0.5, 
-                                  verbose = TRUE)
+## test with simulated phenotypes ##
+\dontrun{
+data <- data_0.5_0.7
+library(MASS)
+
+## samplesize
+n=nrow(snp_ara)
+
+## generate multinomial global variance taking into accont the global relatedness tructure, "K" (part of LDna data) estimated using the full data set (200Kbp)
+sig2 <- 2 # global variance, the bigger this value is, the less heritability
+u <- mvrnorm(n = 1, mu=rep(0,n), Sigma=sig2*K)
+## environmental variance
+e <- rnorm(n, mean = 0, sd = 1) 
+## randomly select a single QTL
+Qtl <- sample(1:ncol(snp_ara), 1)
+y <- snp_ara[,Qtl]
+Y=y+e+u
+
+## heritablity for this Qtl is:
+var(y)/var(Y)
+
+## use 'emmax_group' to perform GWAS
+pvals_PC <- emmax_group(Y, X=data$cluster_PCs, Grp=data$cluster_summary$Grp, K, B=NULL)
+
+## compare to when performing tests independently for each SNP
+pvals_snp <- emmax_group(Y, X=snp_ara, Grp=1:ncol(snp_ara),K, B=NULL)
+
+## plot results ##
+par(mfcol=c(2,1))
+col <- sapply(data$clusters, function(x) ifelse(any(x==Qtl), 'red', 'black'))
+plot(data$cluster_summary$Pos, -log10(pvals_PC), pch=20, col=col)
+## Bonferroni significance threshold
+abline(h=-log10(0.05/length(data$clusters)), lty=2)
+plot(map_ara[,2], -log10(pvals_snp), pch=20)
+points(map_ara[,2][Qtl], -log10(pvals_snp)[Qtl], pch=20, col='red')
+## Bonferroni significance threshold
+abline(h=-log10(0.05/ncol(snp_ara)), lty=2)
+}
 }
 \references{
 Kemppainen, P., Knight, C. G., Sarma, D. K., Hlaing, T., Prakash, A., Maung Maung, Y. N., Walton, C. (2015). Linkage disequilibrium network analysis (LDna) gives a global view of chromosomal inversions, local adaptation and geographic structure. Molecular Ecology Resources, 15(5), 1031-1045. https://doi.org/10.1111/1755-0998.12369\cr
