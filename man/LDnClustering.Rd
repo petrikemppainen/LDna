@@ -68,6 +68,84 @@ This algorithm is performed by chromosome and window, and can thus be paralleliz
 \cr
 It is also possible to plot LD-networks for different cluster solutions. For this you can specify a path for where the figure will be saved (\code{plot.network}). The parameter \code{threshold_net} determines the minimum value for each edge that is allowed in the network (i.e is equivalent to a single linkage clustering network). Each LD-cluster has a unique (arbitrary) color combination and black vertices reprsent loci that are not part of any cluster, i.e. should be considered independently in GWA analsyes. Minimum for \code{plot.network} is './', which exports figure to the working directory. Only works for data sets with up to 1000 SNPs and it is recommended that \code{threshold_net} is ~LD2.
 }
+\examples{
+## Arabidopsis sample data (1000 first SNPs, Chr 1)
+data(LDna)
+# this will first remove all edges with r^2>0.5, then within each resulting sub-cluster will recursively find clades where median LD>0.7. Will then extract PCs based on these SNPs such that at least 80\% of the varitation is explained 
+data_0.5_0.7 <- LDnClustering(snp=snp_ara, 
+                                  map=map_ara, 
+                                  nSNPs = 1000, 
+                                  w2 = 100, 
+                                  LD_threshold1 = 0.5, 
+                                  LD_threshold2 = 0.7,
+                                  PC_threshold = 0.8)
+## this groups the original 1000 SNPs into 508 clusters                                 
+length(data_0.5_0.7$clusters) 
+## with the following distribution of SNPs in each cluster
+table(data_0.5_0.7$cluster_summary$nSNPs)
+
+## Plot graphs, only edges above \\code{threshold_net} are shown. Lower LD-threhsold settings produce larger and 'less' connected clusters.
+\dontrun{
+a <- LDnClustering(snp=snp_ara, 
+                  map=map_ara, 
+                  nSNPs = 1000, 
+                  w2 = 100, 
+                  LD_threshold1 = 0.3, 
+                  LD_threshold2 = 0.5, 
+                  PC_threshold = 0.8,
+                  plot.network = './',
+                  threshold_net = 0.5)
+
+b <- LDnClustering(snp=snp_ara, 
+                  map=map_ara, 
+                  nSNPs = 1000, 
+                  w2 = 100, 
+                  LD_threshold1 = 0.5, 
+                  LD_threshold2 = 0.7, 
+                  PC_threshold = 0.8,
+                  plot.network = './',
+                  threshold_net = 0.5)
+}
+                  
+## test with simulated phenotypes ##
+\dontrun{
+data <- data_0.5_0.7
+library(MASS)
+
+## samplesize
+n=nrow(snp_ara)
+
+## generate multinomial global variance taking into accont the global relatedness tructure, "K" (part of LDna data) estimated using the full data set (200Kbp)
+sig2 <- 2 # global variance, the bigger this value is, the less heritability
+u <- mvrnorm(n = 1, mu=rep(0,n), Sigma=sig2*K)
+## environmental variance
+e <- rnorm(n, mean = 0, sd = 1) 
+## randomly select a single QTL
+Qtl <- sample(1:ncol(snp_ara), 1)
+y <- snp_ara[,Qtl]
+Y=y+e+u
+
+## heritablity for this Qtl is:
+var(y)/var(Y)
+
+## use 'emmax_group' to perform GWAS
+pvals_PC <- emmax_group(Y, X=data$cluster_PCs, Grp=data$cluster_summary$Grp, K, B=NULL)
+
+## compare to when performing tests independently for each SNP
+pvals_snp <- emmax_group(Y, X=snp_ara, Grp=1:ncol(snp_ara),K, B=NULL)
+
+## plot results ##
+par(mfcol=c(2,1))
+col <- sapply(data$clusters, function(x) ifelse(any(x==Qtl), 'red', 'black'))
+plot(data$cluster_summary$Pos, -log10(pvals_PC), pch=20, col=col)
+## Bonferroni significance threshold
+abline(h=-log10(0.05/length(data$clusters)), lty=2)
+plot(map_ara[,2], -log10(pvals_snp), pch=20)
+points(map_ara[,2][Qtl], -log10(pvals_snp)[Qtl], pch=20, col='red')
+## Bonferroni significance threshold
+abline(h=-log10(0.05/ncol(snp_ara)), lty=2)
+}
+}
 \references{
 Kemppainen, P., Knight, C. G., Sarma, D. K., Hlaing, T., Prakash, A., Maung Maung, Y. N., Walton, C. (2015). Linkage disequilibrium network analysis (LDna) gives a global view of chromosomal inversions, local adaptation and geographic structure. Molecular Ecology Resources, 15(5), 1031-1045. https://doi.org/10.1111/1755-0998.12369\cr
 \cr
