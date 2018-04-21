@@ -66,17 +66,29 @@
 #' ## with the following distribution of SNPs in each cluster
 #' table(data_0.5_0.7$cluster_summary$nSNPs)
 #' 
-#' ## Plot graph
+#' ## Plot graphs, only edges above \code{threshold_net} are shown. Lower LD-threhsold settings produce larger and 'less' connected clusters.
 #' \dontrun{
-#' LDnClustering(snp=snp_ara, 
-#'                                   map=map_ara, 
-#'                                   nSNPs = 1000, 
-#'                                   w2 = 100, 
-#'                                   LD_threshold1 = 0.5, 
-#'                                   LD_threshold2 = 0.7,
-#'                                   PC_threshold = 0.8)
-#'                                   
-#'  
+#' a <- LDnClustering(snp=snp_ara, 
+#'                   map=map_ara, 
+#'                   nSNPs = 1000, 
+#'                   w2 = 100, 
+#'                   LD_threshold1 = 0.3, 
+#'                   LD_threshold2 = 0.5, 
+#'                   PC_threshold = 0.8,
+#'                   plot.network = './',
+#'                   threshold_net = 0.5)
+#'
+#' b <- LDnClustering(snp=snp_ara, 
+#'                   map=map_ara, 
+#'                   nSNPs = 1000, 
+#'                   w2 = 100, 
+#'                   LD_threshold1 = 0.5, 
+#'                   LD_threshold2 = 0.7, 
+#'                   PC_threshold = 0.8,
+#'                   plot.network = './',
+#'                   threshold_net = 0.5)
+#' }
+#'                   
 #' ## test with simulated phenotypes ##
 #' \dontrun{
 #' data <- data_0.5_0.7
