@@ -2,17 +2,22 @@
 #'
 #' Finds clusters of loci connected by high LD within non-overlapping windows and summerises this information using Principal Component Analysis, to be used in Genome Wide Association (GWA) analyses.
 #' 
-#' Uses complete linkage clustering within non-overlapping windows of SNPs to find clusters of SNPs connected by high LD. \cr
+#' Uses complete linkage clustering within non-overlapping windows of SNPs (within chromosomes) to find groups of correlated SNPs connected by high LD. \cr
 #' \cr
 #' Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by \code{w1}) is below \code{LD_threshold1}. \code{nSNPs} determines the goal size for each window; smaller windows will produce faster compuation times. \cr
 #' \cr
-#' First, a graph object is created using all pairwise r^2 values between SNPs within each window, and edges (representing r^2 values) < LD_threshold1 are removed. 
-#' To increase compuational speed for large windows, or if a physical limit to how large clusters one is intrested in, window size (\code{w2}) for estimating r^2 can also be set to something less than the window size. 
-#' For the remaining sub-clusters a \code{complete} linkage clustering algorithim is performed. Sub-clades within these trees, with median LD>\code{LD_threshold2} are kept (this is done recursively). Thus \code{LD_threshold1} is typically set to lower than \code{LD_threshold1} and aims to break the initial tree into sub-clusters, thus increasing compuational speed (i.e. it would also be possible to produce a hirearcical clustering tree for the whole window and then recursively find the relevant clades to extract).
+#' First, a graph object is created using all pairwise r^2 values between SNPs within each window, and edges (representing r^2 values) < LD_threshold1 are removed. This breaks the initial graph into sub-graphs. 
+#' Removing edges like this and decomposing the graph is equivalent to a \code{sinlge linkage} clustering algorithm, with the draw back that clusters formed via single linkage clustering may be forced together due to single elements being close to each other, even though many of the elements in each cluster may be very distant to each other ('chaining-phenomenon').
+#' For the (potentially long and elongated) sub-clusters produced in step one, a \code{complete linkage clustering} algorithim is performed (all edged need to be connected by a threshold value of r^2, resulting in more compact and highly connected clusters). \cr
+#' \cr
+#' With the \code{complete linkage clustering} trees clades with median LD>\code{LD_threshold2} are are recursively found. 
+#' Thus \code{LD_threshold1} is typically set to lower than \code{LD_threshold1} and aims to break the initial network into sub-clusters, thus increasing compuational speed (i.e. it would also be possible to produce a complete linkage clustering tree for the whole window and then recursively find the relevant clades to extract). \cr
+#' \cr
 #' From each cluster as many Principal Components (\code{PCs}) as is required to explain >= \code{PC_threshold} are extracted. 
+#' To increase compuational speed for large windows, or if a physical limit to how large clusters one is intrested in, window size (\code{w2}) for estimating r^2 can also be set to something less than the window size. This will in practice limit size of the clusters to (\code{w2}).
 #' This algorithm is performed by chromosome and window, and can thus be parallelized (\code{mc.cores}).\cr
 #' \cr
-#' It is also possible to plot LD-networks for different cluster solutions. For this you can specify a path for where the figure will be saved (\code{plot.network}). The parameter \code{threshold_net} determines the minimum value for each edge that is allowed in the network.
+#' It is also possible to plot LD-networks for different cluster solutions. For this you can specify a path for where the figure will be saved (\code{plot.network}). The parameter \code{threshold_net} determines the minimum value for each edge that is allowed in the network (i.e is equivalent to a single linkage clustering network). Each LD-cluster has a unique (arbitrary) color combination and black vertices reprsent loci that are not part of any cluster, i.e. should be considered independently in GWA analsyes. Minimum for \code{plot.network} is './', which exports figure to the working directory. Only works for data sets with up to 1000 SNPs and it is recommended that \code{threshold_net} is ~LD2.
 #' 
 #' @param snp A matrix with individuals as rows and bi-allelic SNP genotypes as columns. SNPs must be coded as 0,1 or 2 for the number of alleles of the reference nucleotide.
 #' @param map A matrix with each row correspoinding a column in \code{snp}, column one corresponding to chromosome or linkage group and column two corresponding to physical position in the genome.
@@ -61,6 +66,17 @@
 #' ## with the following distribution of SNPs in each cluster
 #' table(data_0.5_0.7$cluster_summary$nSNPs)
 #' 
+#' ## Plot graph
+#' \dontrun{
+#' LDnClustering(snp=snp_ara, 
+#'                                   map=map_ara, 
+#'                                   nSNPs = 1000, 
+#'                                   w2 = 100, 
+#'                                   LD_threshold1 = 0.5, 
+#'                                   LD_threshold2 = 0.7,
+#'                                   PC_threshold = 0.8)
+#'                                   
+#'  
 #' ## test with simulated phenotypes ##
 #' \dontrun{
 #' data <- data_0.5_0.7
@@ -270,29 +286,40 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
         ## plot network 
         cat('plotting network \n')
         
-        clusters.temp <- clusters[sapply(clusters, length) != 1]
         nClust <- length(clusters)
         
         temp1 <- sample(rep(col_vector, ceiling(nClust/length((col_vector)))))
         
-        Col <- unlist(lapply(1:length(clusters.temp), function(x) {
-          ifelse(sapply(clusters.temp, length)[x]==1, return('black'),  return(rep(temp1[1:nClust][x], sapply(clusters.temp, length)[x])))
-        }))[match(colnames(LDmat), unlist(clusters.temp) )]
+        
+        Col <- unlist(lapply(1:length(clusters), function(x) {
+          ifelse(sapply(clusters, length)[x]==1, return('black'),  return(rep(temp1[1:nClust][x], sapply(clusters, length)[x])))
+        }))[match(colnames(LDmat), unlist(clusters) )]
         
         
         temp2 <- sample(rep(col_vector[-1], ceiling(nClust/length((col_vector)))))
         
-        frame.col <- unlist(lapply(1:length(clusters.temp), function(x) {
-          ifelse(sapply(clusters.temp, length)[x]==1, return('black'),  return(rep(temp2[1:nClust][x], sapply(clusters.temp, length)[x])))
-        }))[match(colnames(LDmat), unlist(clusters.temp) )]
+        frame.col <- unlist(lapply(1:length(clusters), function(x) {
+          ifelse(sapply(clusters, length)[x]==1, return('black'),  return(rep(temp2[1:nClust][x], sapply(clusters, length)[x])))
+        }))[match(colnames(LDmat), unlist(clusters) )]
+        
+        g <- graph.adjacency(LDmat, mode="lower", diag=FALSE, weighted=TRUE)
+        
+        V(g)$color <- Col
+        V(g)$frame.color <- frame.col
+        
+        E(g)$weight <- round(E(g)$weight, 5)
+        g <- delete.edges(g, which(E(g)$weight<=threshold_net))
+        g <- delete.vertices(g, which(degree(g) == 0))
         
         par(mar=c(0,0,2,0))
-        png(paste0(paste(plot.network, i, b, sep='_'), '.png'), res = 300, width = 6, height=6, units = 'in')
-        plotLDnetwork(ldna,LDmat,option=1, threshold=threshold_net, col=Col, frame.color = frame.col)
+        png(paste0(paste0(plot.network, 'Chr', i, '_window',w, '_LD2:', LD_threshold2), '.png'), res = 300, width = 6, height=6, units = 'in')
+        plot.igraph(g, layout=layout.fruchterman.reingold, vertex.size=3, vertex.label.dist=NULL, edge.width=1, vertex.label=NA)
+        title(main=paste(" @", threshold_net, sep="", '; Chr', i, '; window',w, '; LD2=', LD_threshold2))
         dev.off()
+      
       }
       
-      cat(paste0(length(PCs),' clusters and ', sum(sapply(PCs, ncol)), ' PCs extracted from of ', ncol(LDmat), ' original SNPs, on average explaining ', signif(mean(sapply(PVE, max)), 2), '% of the variation \n' ))
+      cat(paste0(length(PCs),' clusters and ', sum(sapply(PCs, ncol)), ' PCs extracted from of ', ncol(LDmat), ' original SNPs, on average explaining ', signif(mean(sapply(PVE, max)), 2)*100, '% of the variation \n' ))
       
       return(list(clusters=clusters, PCs=PCs, PVE=PVE, stats=stats))
       
@@ -397,8 +424,13 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
 }
 
 PC_score <- function(x_A, PC_threshold){
-  cMean_A <- colMeans(x_A)
+  cMean_A <- colMeans(x_A, na.rm = TRUE)
   for (i in 1:dim(x_A)[2]) x_A[, i] <- x_A[, i] - cMean_A[i]
+  if(any(is.na(x_A))){
+    invisible(lapply(1:ncol(x_A), function(k){
+      x_A[is.na(x_A[,k]),k] <<- mean(x_A[,k], na.rm = TRUE)
+    }))
+  }
   eigen_A <- eigen(var(x_A))
   scores_A <- x_A %*% eigen_A$vectors
   percentage_A = (cumsum(eigen_A$values))/sum(eigen_A$values)
@@ -407,7 +439,6 @@ PC_score <- function(x_A, PC_threshold){
   zeta = as.matrix(scores_A[, a])
   return(list(zeta, percentage_A[a]))
 }
-
 
 
 slideFunct <- function(data, window, step){

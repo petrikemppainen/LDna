@@ -1,8 +1,8 @@
 #' Modification of Emmax to be used for Genome Wide Association (GWA) analyses using Groups of SNPs connected by high LD.
 #'
-#' To come
+#' This function is not meant to be a part of LDna but is provided here to show an example of how output from \code{\link{LDnClustering}} can be used for GWA studies. Potentially there will be a separate R-package in the future that focuses on GWA. For now we refer to code provided with the reference, see below.
 #' 
-#' to come
+#' See reference
 #'
 #' @param Grp Index indicating which LD-cluster SNPs belong to. Produced by \code{\link{LDnClustering}}.
 #' @param Y Phenotypic value
@@ -12,11 +12,11 @@
 #' @keywords Genome wide association analyses, GWAS, Linkage disequilibrium, network, clustering
 #' @seealso \code{\link{LDnClustering}}
 #' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}, zitong.li \email{lizitong1985@@gmail.com}
-#' @return to come
+#' @return See reference
 #' @references 
 #' Li, Z., Kemppainen, P., Rastas, P., Merila, J. Linkage disequilibrium clustering-based approach for association mapping with tightly linked genome-wide data. Accepted to Molecular Ecology Resources.
 #' @examples
-#' ## using
+#' ## see \code{\link{LDnClustering}}
 #' @export
 emmax_group <- function(Y,X,Grp,K,B=NULL) {
   

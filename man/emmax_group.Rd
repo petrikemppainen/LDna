@@ -18,16 +18,16 @@ emmax_group(Y, X, Grp, K, B = NULL)
 \item{B}{Number of permutations. If \code{NULL}, permutation is not performed}
 }
 \value{
-to come
+See reference
 }
 \description{
-To come
+This function is not meant to be a part of LDna but is provided here to show an example of how output from \code{\link{LDnClustering}} can be used for GWA studies. Potentially there will be a separate R-package in the future that focuses on GWA. For now we refer to code provided with the reference, see below.
 }
 \details{
-to come
+See reference
 }
 \examples{
-## using
+## see \\code{\\link{LDnClustering}}
 }
 \references{
 Li, Z., Kemppainen, P., Rastas, P., Merila, J. Linkage disequilibrium clustering-based approach for association mapping with tightly linked genome-wide data. Accepted to Molecular Ecology Resources.
