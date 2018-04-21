@@ -1,3 +1,5 @@
+###Note: feel free to try v.64 if you are intrested in the new LDnClustering implementation (Li, Z., Kemppainen, P., Rastas, P., Merila, J. Linkage disequilibrium clustering-based approach for association mapping with tightly linked genome-wide data. Accepted to Molecular Ecology Resources)
+
 R-package: LDna
 -------------
 
