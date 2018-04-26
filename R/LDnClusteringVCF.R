@@ -66,6 +66,7 @@
 #'                   
 #' ## test with simulated phenotypes ##
 #' @export
+#' 
 LDnClusteringVCF <- function(vcf_folder = "./vcf", ld_measure = '--geno-r2', nSNPs=1000, w1=10, w2=100 ,
                              LD_threshold1 = 0.5, LD_threshold2 = 0.7, PC_threshold=0.8, maf=0.05, mc.cores=1, plot.network=NULL, threshold_net=0.9){
   
@@ -399,4 +400,53 @@ LDnClusteringVCF <- function(vcf_folder = "./vcf", ld_measure = '--geno-r2', nSN
   cat('Done')
   return(list(cluster_summary=cluster_summary, cluster_PCs=cluster_PCs, clusters=clusters, MCL=MCL, Cons=Cons))
 }
+
+
+PC_score <- function(x_A, PC_threshold){
+  cMean_A <- colMeans(x_A, na.rm = TRUE)
+  for (i in 1:dim(x_A)[2]) x_A[, i] <- x_A[, i] - cMean_A[i]
+  if(any(is.na(x_A))){
+    invisible(lapply(1:ncol(x_A), function(k){
+      x_A[is.na(x_A[,k]),k] <<- mean(x_A[,k], na.rm = TRUE)
+    }))
+  }
+  eigen_A <- eigen(var(x_A))
+  scores_A <- x_A %*% eigen_A$vectors
+  percentage_A = (cumsum(eigen_A$values))/sum(eigen_A$values)
+  a = percentage_A < PC_threshold
+  a[which(!a)[1]] <- TRUE
+  zeta = as.matrix(scores_A[, a])
+  return(list(zeta, percentage_A[a]))
+}
+
+
+slideFunct <- function(data, window, step){
+  total <- length(data)
+  spots <- seq(from=1, to=(total-window), by=step)
+  result <- vector(length = length(spots))
+  for(i in 1:length(spots)){
+    result[i] <- mean(data[spots[i]:(spots[i]+window)])
+  }
+  return(result)
+}
+
+flatten <- function(x) {
+  if (!inherits(x, "list")) return(list(x))
+  else return(unlist(c(lapply(x, flatten)), recursive = FALSE))
+}
+
+col_vector <- c("#7FC97F", "#BEAED4", "#FDC086", "#FFFF99", "#386CB0", "#F0027F", 
+                "#BF5B17", "#666666", "#1B9E77", "#D95F02", "#7570B3", "#E7298A", 
+                "#66A61E", "#E6AB02", "#A6761D", "#666666", "#A6CEE3", "#1F78B4", 
+                "#B2DF8A", "#33A02C", "#FB9A99", "#E31A1C", "#FDBF6F", "#FF7F00", 
+                "#CAB2D6", "#6A3D9A", "#FFFF99", "#B15928", "#FBB4AE", "#B3CDE3", 
+                "#CCEBC5", "#DECBE4", "#FED9A6", "#FFFFCC", "#E5D8BD", "#FDDAEC", 
+                "#F2F2F2", "#B3E2CD", "#FDCDAC", "#CBD5E8", "#F4CAE4", "#E6F5C9", 
+                "#FFF2AE", "#F1E2CC", "#CCCCCC", "#E41A1C", "#377EB8", "#4DAF4A", 
+                "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999", 
+                "#66C2A5", "#FC8D62", "#8DA0CB", "#E78AC3", "#A6D854", "#FFD92F", 
+                "#E5C494", "#B3B3B3", "#8DD3C7", "#FFFFB3", "#BEBADA", "#FB8072", 
+                "#80B1D3", "#FDB462", "#B3DE69", "#FCCDE5", "#D9D9D9", "#BC80BD", 
+                "#CCEBC5", "#FFED6F")
+
 
