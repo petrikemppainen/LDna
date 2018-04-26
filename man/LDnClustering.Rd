@@ -32,8 +32,8 @@ LDnClustering(snp, map, nSNPs = 1000, w1 = 10, w2 = 100,
 \item{threshold_net}{Threshold for edges when plotting network.}
 }
 \value{
-Returns a list of three objects. \code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). \code{cluster_PCs} includes a matrix of individuals (rows) and PCs (columns) corresponding to each row in \code{cluster_summary}. This is what you use for subsequent GWA analyses. The third object (\code{clusters}) contains a list of locus indexes (each entry corresponding to a row in \code{cluster_summary} for entries where PC=1).
-The columns in file \code{map_cl} are:
+Returns a list of five objects. \code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). \code{cluster_PCs} includes a matrix of individuals (rows) and PCs (columns) corresponding to each row in \code{cluster_summary}. This is what you use for subsequent GWA analyses. The third object (\code{clusters}) contains a list of locus indexes (each entry corresponding to a row in \code{cluster_summary} for entries where PC=1). The fourth and fifth objects are files matrixes similar to \code{cluster_PCs} except there will be one column per cluster with the either the SNP with the highest intra cluster median LD ('maximally connected SNP', MCL) or the consensus SNP (Cons), respectively. See example code for details. These last two files are expected to work better when LD thresholds are higher and SNPs in clusters or more strongly correlated, but no simualtions have been done to test this yet.
+The columns in file \code{cluster_summary} are:
 \item{Chr}{Chromosome or linkage group identifer}
 \item{Window}{Window identifier, recycled among chromosomes}
 \item{Pos}{Mean position of SNPs in a cluster}
@@ -109,42 +109,64 @@ b <- LDnClustering(snp=snp_ara,
                   
 ## test with simulated phenotypes ##
 \dontrun{
-data <- data_0.5_0.7
+data <- data_0.5_0.7 ## try also with lower threshold settins for LD, see above
 library(MASS)
 
 ## samplesize
 n=nrow(snp_ara)
 
 ## generate multinomial global variance taking into accont the global relatedness tructure, "K" (part of LDna data) estimated using the full data set (200Kbp)
-sig2 <- 2 # global variance, the bigger this value is, the less heritability
+sig2 <- 20 # global variance, the bigger this value is, the less heritability
 u <- mvrnorm(n = 1, mu=rep(0,n), Sigma=sig2*K)
 ## environmental variance
 e <- rnorm(n, mean = 0, sd = 1) 
 ## randomly select a single QTL
 Qtl <- sample(1:ncol(snp_ara), 1)
 y <- snp_ara[,Qtl]
+## the phenotype
 Y=y+e+u
 
-## heritablity for this Qtl is:
-var(y)/var(Y)
-
 ## use 'emmax_group' to perform GWAS
+#' # based on PCs
 pvals_PC <- emmax_group(Y, X=data$cluster_PCs, Grp=data$cluster_summary$Grp, K, B=NULL)
+# based on the locus with the highest median LD among loci in the cluster
+pvals_MCL <- emmax_group(Y, X=apply(data$MCL, 2, as.numeric), Grp=1:length(data$clusters), K, B=NULL)
+# based on consensus sequence of the SNPs in a cluster
+pvals_Cons <- emmax_group(Y, X=apply(data$Cons, 2, as.numeric), Grp=1:length(data$clusters), K, B=NULL)
 
 ## compare to when performing tests independently for each SNP
 pvals_snp <- emmax_group(Y, X=snp_ara, Grp=1:ncol(snp_ara),K, B=NULL)
 
 ## plot results ##
-par(mfcol=c(2,1))
-col <- sapply(data$clusters, function(x) ifelse(any(x==Qtl), 'red', 'black'))
-plot(data$cluster_summary$Pos, -log10(pvals_PC), pch=20, col=col)
-## Bonferroni significance threshold
-abline(h=-log10(0.05/length(data$clusters)), lty=2)
-plot(map_ara[,2], -log10(pvals_snp), pch=20)
-points(map_ara[,2][Qtl], -log10(pvals_snp)[Qtl], pch=20, col='red')
+par(mfcol=c(4,1))
+par(mar=c(4,4,1,1))
+
+# snps treated individually
+plot(map_ara[,2], -log10(pvals_snp), pch=20, main='Each SNP tested independently', xlab='Position (Mb)')
+points(map_ara[,2][Qtl], -log10(pvals_snp)[Qtl], pch=20, col='red') 
 ## Bonferroni significance threshold
 abline(h=-log10(0.05/ncol(snp_ara)), lty=2)
+
+# emmax based PC(s) from each cluster
+col <- sapply(data$clusters, function(x) ifelse(any(x==Qtl), 'red', 'black'))
+plot(unique(data$cluster_summary$Pos), -log10(pvals_PC), pch=20, col=col, xlab='Position (Mb)', main='Based on PCs')
+## Bonferroni significance threshold
+abline(h=-log10(0.05/length(data$clusters)), lty=2)
+
+# emmax based on most connected locus from each cluster
+plot(unique(data$cluster_summary$Pos), -log10(pvals_MCL), pch=20, col=col, xlab='Position (Mb)',  main='Based on highest LD locus')
+## Bonferroni significance threshold
+abline(h=-log10(0.05/length(data$clusters)), lty=2)
+
+# emmax based on consensus sequence from each cluster
+plot(unique(data$cluster_summary$Pos), -log10(pvals_Cons), pch=20, col=col, xlab='Position (Mb)',  main='Based on consensus SNP')
+## Bonferroni significance threshold
+abline(h=-log10(0.05/length(data$clusters)), lty=2)
+
+## heritablity for this Qtl is:
+var(y)/var(Y)
 }
+
 }
 \references{
 Kemppainen, P., Knight, C. G., Sarma, D. K., Hlaing, T., Prakash, A., Maung Maung, Y. N., Walton, C. (2015). Linkage disequilibrium network analysis (LDna) gives a global view of chromosomal inversions, local adaptation and geographic structure. Molecular Ecology Resources, 15(5), 1031-1045. https://doi.org/10.1111/1755-0998.12369\cr

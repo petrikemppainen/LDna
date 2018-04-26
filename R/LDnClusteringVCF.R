@@ -1,8 +1,8 @@
-#' Linkage disequilibrium (LD) network clustering
+#' Linkage disequilibrium (LD) network clustering, with vcf files as imput
 #'
-#' Finds clusters of loci connected by high LD within non-overlapping windows and summerises this information using Principal Component Analysis, to be used in Genome Wide Association (GWA) analyses.
+#' Finds clusters of loci connected by high LD within non-overlapping windows and summerises this information using Principal Component Analysis, to be use in Genome Wide Association (GWA) analyses. Takes .vcf files as imput.
 #' 
-#' Uses complete linkage clustering within non-overlapping windows of SNPs (within chromosomes) to find groups of correlated SNPs connected by high LD. \cr
+#' Uses complete linkage clustering within non-overlapping windows of SNPs (within chromosomes) to find groups of correlated SNPs connected by high LD. This version used .vcf files as imput and uses \code{vcftools} to estimate LD. Assumes that vcftools can be called from command line as 'vcftools', make sure that it has the correct permissions (chmod 755) \cr
 #' \cr
 #' Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by \code{w1}) is below \code{LD_threshold1}. \code{nSNPs} determines the goal size for each window; smaller windows will produce faster compuation times. \cr
 #' \cr
@@ -19,8 +19,9 @@
 #' \cr
 #' It is also possible to plot LD-networks for different cluster solutions. For this you can specify a path for where the figure will be saved (\code{plot.network}). The parameter \code{threshold_net} determines the minimum value for each edge that is allowed in the network (i.e is equivalent to a single linkage clustering network). Each LD-cluster has a unique (arbitrary) color combination and black vertices reprsent loci that are not part of any cluster, i.e. should be considered independently in GWA analsyes. Minimum for \code{plot.network} is './', which exports figure to the working directory. Only works for data sets with up to 1000 SNPs and it is recommended that \code{threshold_net} is ~LD2.
 #' 
-#' @param snp A matrix with individuals as rows and bi-allelic SNP genotypes as columns. SNPs must be coded as 0,1 or 2 for the number of alleles of the reference nucleotide.
-#' @param map A matrix with each row correspoinding a column in \code{snp}, column one corresponding to chromosome or linkage group and column two corresponding to physical position in the genome.
+#' @param vcf_folder Path to folder (only) containg relevant vcf files (one per chromosome).
+#' @param ld_measure Either '--geno-r2' or '--hap-r2', depending if you have phased data or not.
+#' @param maf Minor allele frequency; SNPs need to be bi-allellic.
 #' @param nSNPs Desired number of SNPs per window.
 #' @param w1 Window size for defining putative recombination hotspots. Default is 10.
 #' @param w2 Window size for estimating LD values (smaller is faster but may break up large clusters caused e.g. by inversion polymorphism).
@@ -33,7 +34,8 @@
 #' @keywords Linkage disequilibrium network clustering, complexity reduction
 #' @seealso \code{\link{emmax_group}}
 #' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}, zitong.li \email{lizitong1985@@gmail.com}
-#' @return Returns a list of five objects. \code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). \code{cluster_PCs} includes a matrix of individuals (rows) and PCs (columns) corresponding to each row in \code{cluster_summary}. This is what you use for subsequent GWA analyses. The third object (\code{clusters}) contains a list of locus indexes (each entry corresponding to a row in \code{cluster_summary} for entries where PC=1). The fourth and fifth objects are files matrixes similar to \code{cluster_PCs} except there will be one column per cluster with the either the SNP with the highest intra cluster median LD ('maximally connected SNP', MCL) or the consensus SNP (Cons), respectively. See example code for details. These last two files are expected to work better when LD thresholds are higher and SNPs in clusters or more strongly correlated, but no simualtions have been done to test this yet.
+#' @return Returns a list of five objects. \code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). \code{cluster_PCs} includes a matrix individuals (rows) and PCs (columns) corresponding to each row in \code{cluster_summary}. This is what you use for subsequent GWA analyses. The third object (\code{clusters}) contains a list of locus names (chr:position; each entry corresponding to a row in \code{cluster_summary} for entries where PC=1). The fourth and fifth objects are files matrixes similar to \code{cluster_PCs} except there will be one column per cluster with either the SNP with the highest intra cluster median LD ('maximally connected SNP', MCL) or the consensus SNP (Cons), respectively. See example code for details. These last two files are expected to work better when LD thresholds are higher and SNPs in clusters or more strongly correlated, but no simualtions have been done to test this yet. \cr
+#' \cr
 #' The columns in file \code{cluster_summary} are:
 #' \item{Chr}{Chromosome or linkage group identifer}
 #' \item{Window}{Window identifier, recycled among chromosomes}
@@ -51,204 +53,104 @@
 #' \cr
 #' Li, Z., Kemppainen, P., Rastas, P., Merila, J. Linkage disequilibrium clustering-based approach for association mapping with tightly linked genome-wide data. Accepted to Molecular Ecology Resources.
 #' @examples
-#' ## Arabidopsis sample data (1000 first SNPs, Chr 1)
-#' data(LDna)
-#' # this will first remove all edges with r^2>0.5, then within each resulting sub-cluster will recursively find clades where median LD>0.7. Will then extract PCs based on these SNPs such that at least 80% of the varitation is explained 
-#' data_0.5_0.7 <- LDnClustering(snp=snp_ara, 
-#'                                   map=map_ara, 
+#' ## example run, works basically the same as \code{\link{LDnClustering}} but instead of defining \code{snp} and \code{map} files, you have to specify the path to a folder with .vcf files.
+#' \dontrun{
+#' data_0.3_0.5 <- LDnClustering(vcf_folder="./", 
+#'                                   ld_measure='--geno-r2',
 #'                                   nSNPs = 1000, 
 #'                                   w2 = 100, 
-#'                                   LD_threshold1 = 0.5, 
-#'                                   LD_threshold2 = 0.7,
+#'                                   LD_threshold1 = 0.3, 
+#'                                   LD_threshold2 = 0.5,
 #'                                   PC_threshold = 0.8)
-#' ## this groups the original 1000 SNPs into 508 clusters                                 
-#' length(data_0.5_0.7$clusters) 
-#' ## with the following distribution of SNPs in each cluster
-#' table(data_0.5_0.7$cluster_summary$nSNPs)
-#' 
-#' ## Plot graphs, only edges above \code{threshold_net} are shown. Lower LD-threhsold settings produce larger and 'less' connected clusters.
-#' \dontrun{
-#' a <- LDnClustering(snp=snp_ara, 
-#'                   map=map_ara, 
-#'                   nSNPs = 1000, 
-#'                   w2 = 100, 
-#'                   LD_threshold1 = 0.3, 
-#'                   LD_threshold2 = 0.5, 
-#'                   PC_threshold = 0.8,
-#'                   plot.network = './',
-#'                   threshold_net = 0.5)
-#'
-#' b <- LDnClustering(snp=snp_ara, 
-#'                   map=map_ara, 
-#'                   nSNPs = 1000, 
-#'                   w2 = 100, 
-#'                   LD_threshold1 = 0.5, 
-#'                   LD_threshold2 = 0.7, 
-#'                   PC_threshold = 0.8,
-#'                   plot.network = './',
-#'                   threshold_net = 0.5)
 #' }
 #'                   
 #' ## test with simulated phenotypes ##
-#' \dontrun{
-#' data <- data_0.5_0.7 ## try also with lower threshold settins for LD, see above
-#' library(MASS)
-#' 
-#' ## samplesize
-#' n=nrow(snp_ara)
-#' 
-#' ## generate multinomial global variance taking into accont the global relatedness tructure, "K" (part of LDna data) estimated using the full data set (200Kbp)
-#' sig2 <- 20 # global variance, the bigger this value is, the less heritability
-#' u <- mvrnorm(n = 1, mu=rep(0,n), Sigma=sig2*K)
-#' ## environmental variance
-#' e <- rnorm(n, mean = 0, sd = 1) 
-#' ## randomly select a single QTL
-#' Qtl <- sample(1:ncol(snp_ara), 1)
-#' y <- snp_ara[,Qtl]
-#' ## the phenotype
-#' Y=y+e+u
-#' 
-#' ## use 'emmax_group' to perform GWAS
-#' #' # based on PCs
-#' pvals_PC <- emmax_group(Y, X=data$cluster_PCs, Grp=data$cluster_summary$Grp, K, B=NULL)
-#' # based on the locus with the highest median LD among loci in the cluster
-#' pvals_MCL <- emmax_group(Y, X=apply(data$MCL, 2, as.numeric), Grp=1:length(data$clusters), K, B=NULL)
-#' # based on consensus sequence of the SNPs in a cluster
-#' pvals_Cons <- emmax_group(Y, X=apply(data$Cons, 2, as.numeric), Grp=1:length(data$clusters), K, B=NULL)
-#' 
-#' ## compare to when performing tests independently for each SNP
-#' pvals_snp <- emmax_group(Y, X=snp_ara, Grp=1:ncol(snp_ara),K, B=NULL)
-#' 
-#' ## plot results ##
-#' par(mfcol=c(4,1))
-#' par(mar=c(4,4,1,1))
-#' 
-#' # snps treated individually
-#' plot(map_ara[,2], -log10(pvals_snp), pch=20, main='Each SNP tested independently', xlab='Position (Mb)')
-#' points(map_ara[,2][Qtl], -log10(pvals_snp)[Qtl], pch=20, col='red') 
-#' ## Bonferroni significance threshold
-#' abline(h=-log10(0.05/ncol(snp_ara)), lty=2)
-#' 
-#' # emmax based PC(s) from each cluster
-#' col <- sapply(data$clusters, function(x) ifelse(any(x==Qtl), 'red', 'black'))
-#' plot(unique(data$cluster_summary$Pos), -log10(pvals_PC), pch=20, col=col, xlab='Position (Mb)', main='Based on PCs')
-#' ## Bonferroni significance threshold
-#' abline(h=-log10(0.05/length(data$clusters)), lty=2)
-#' 
-#' # emmax based on most connected locus from each cluster
-#' plot(unique(data$cluster_summary$Pos), -log10(pvals_MCL), pch=20, col=col, xlab='Position (Mb)',  main='Based on highest LD locus')
-#' ## Bonferroni significance threshold
-#' abline(h=-log10(0.05/length(data$clusters)), lty=2)
-#' 
-#' # emmax based on consensus sequence from each cluster
-#' plot(unique(data$cluster_summary$Pos), -log10(pvals_Cons), pch=20, col=col, xlab='Position (Mb)',  main='Based on consensus SNP')
-#' ## Bonferroni significance threshold
-#' abline(h=-log10(0.05/length(data$clusters)), lty=2)
-#' 
-#' ## heritablity for this Qtl is:
-#' var(y)/var(Y)
-#' }
-#' 
 #' @export
-
-LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0.5, LD_threshold2 = 0.7, PC_threshold=0.8, mc.cores=1, plot.network=NULL, threshold_net=0.9){
+LDnClusteringVCF <- function(vcf_folder = "./vcf", ld_measure = '--geno-r2', nSNPs=1000, w1=10, w2=100 ,
+                             LD_threshold1 = 0.5, LD_threshold2 = 0.7, PC_threshold=0.8, maf=0.05, mc.cores=1, plot.network=NULL, threshold_net=0.9){
   
   out <- list()
-  
-  snp.id <- 1:nrow(map)
-  
-  snp.pos.org <- map[,2]
-  #for each chromosome
-  for(i in unique(map[,1])){
-    
+  vcf_files <- list.files(vcf_folder)
+  #t1 <- Sys.time()
+  #i <- 2
+  for(i in 1:length(vcf_files)){
     cat("Finding windows \n")
-    Chr <- map[, 1] == i
-    snp.pos <- snp.pos.org[Chr]
-    snp.id.chr <- snp.id[Chr]
+    
+    temp <- list.files()
+    if(any(grepl('ldchr', temp))) system(paste0("rm ", paste0("./", temp[grep('ldchr', temp)])))
+    
+    
+    ## get bi-allelic loci
+    system(paste0("vcftools --vcf ", vcf_folder, vcf_files[[i]], " ", "--maf ", maf, " --max-alleles 2 --min-alleles 2 --recode --recode-INFO-all"), ignore.stderr = TRUE)
+    system(paste0("vcftools --vcf  out.recode.vcf --ld-window 1 ", ld_measure, " --out ldchr"), ignore.stderr = TRUE)
+    
+    ## get ld between adjacent pairs of loci
+    
+    ## get LD within chromosome to determine windows
+    temp <- list.files()
+    ld <- fread(paste0("./", temp[grep('ldchr', temp)]))
+    system(paste0("rm ", paste0("./", temp[grep('ldchr', temp)])))
+    
+    chr <- unlist(ld[1,1])
+    snp.pos <- as.vector(unlist(ld[,2]))
+    snp.pos <- c(snp.pos, as.vector(unlist(ld[nrow(ld),3])))
+    
     nL <- length(snp.pos)
+    LDmat <- ld$`R^2`
+    nWindows <- as.integer(nL/nSNPs)+1
     
-    ## use snpGDS to estiamte r^2
-    gds_name <- paste0(gsub(" ", "", Sys.time()), ".gds")
-    SNPRelate::snpgdsCreateGeno(gds_name, genmat = snp[, Chr], sample.id = 1:nrow(snp), snp.pos = snp.id.chr, snpfirstdim = FALSE)
-    file <- SNPRelate::snpgdsOpen(gds_name)
-    LDmat <- SNPRelate::snpgdsLDMat(file, method = "r", slide = 1, verbose = FALSE)$LD^2
-    SNPRelate::snpgdsClose(file)
-    system(paste0("rm ", gds_name))
+    temp <- which(slideFunct(LDmat, w1) < LD_threshold1)
+    hotspots <- sapply(seq(1, nL, length.out = nWindows + 1), function(i) {which.min(abs(i - temp))})
     
+    hotspots <- temp[hotspots]
+    hotspots[length(hotspots)] <- nL
+    hotspots[1] <- 0
     
-    ## find hotspots and windows
-    nWindows <- as.integer(nL/nSNPs)
-    
-    
-    if (nWindows > 1) {
-      temp <- which(slideFunct(LDmat[1, ], w1) < LD_threshold1)
-      
-      hotspots <- sapply(seq(1, nL, length.out = nWindows + 1), function(i) {which.min(abs(i - temp))})
-      
-      hotspots <- temp[hotspots]
-      hotspots[length(hotspots)] <- nL
-      hotspots[1] <- 0
-      
-      Windows <- lapply(1:(length(hotspots) - 1), function(x) {
-        snp.id.chr[(hotspots[x]+1):(hotspots[x + 1])]
-      })
-      
-    }else {
-      Windows <- list(snp.id.chr)
-    }
-    
+    Windows <- lapply(1:(length(hotspots) - 1), function(x) {
+      (1:nL)[(hotspots[x]+1):(hotspots[x + 1])]
+    })
     cat(paste0("Number of windows: ", length(Windows), "; window  sizes: ", 
                paste(sapply(Windows, length), collapse = ":"), "\n"))
     
-    ## for each window
-    #w <- 1
-    out[[i]] <- parallel::mclapply(1:length(Windows), function(w){
+    #w <- 66
+    out[[i]] <- parallel::mclapply((1:length(Windows)), function(w){
       cat(paste('Working on chromosome', i ,', window', w, '\n'))
+      ## remove previous files, if present
+      temp <- list.files()
+      if(any(grepl('ldw', temp))) system(paste0("rm ", paste0("./", temp[grep('ldw', temp)])))
       
       Window <- Windows[[w]]
-      snp.id.bin <- snp.id[which(snp.id%in%Window)]
-      snp_bin  <- snp[,which(snp.id%in%Window)]
       
+      system(paste0("vcftools --vcf  out.recode.vcf ", " --from-bp ",  snp.pos[Window[1]], " --to-bp ", snp.pos[Window[length(Window)]], " --chr ", chr," --out subs --recode --recode-INFO-all"), ignore.stderr = TRUE)
+      system(paste0("vcftools --vcf  subs.recode.vcf --ld-window ", w2, "  --out ldw ",ld_measure), ignore.stderr = TRUE)
+      system("vcftools --vcf subs.recode.vcf --012 --out data", ignore.stderr = TRUE)
       
-      SNPRelate::snpgdsCreateGeno(paste0(w,gds_name), genmat = snp_bin, sample.id = 1: nrow(snp) , snp.id = snp.id.bin, snpfirstdim=FALSE) ### sample ID should be 1: how many individuals you have
-      file <- SNPRelate::snpgdsOpen(paste0(w,gds_name))
+      system("sed -i -e 's/-1/NA/g' data.012")
+      snp_w <- as.matrix(fread('data.012',header=FALSE))[,-1]
+      snp.pos_w <-  snp.pos[Window]
       
-      # estimate LD within a sliding window
-      if(w2>length(snp.id.bin)) w2 = -1 ## if window size longer that number of snps, estiamte LD for all pairwise comparisons
+      temp <- list.files()
+      ldw <- fread(paste0("./", temp[grep('ldw', temp)]))
       
-      MAT <- SNPRelate::snpgdsLDMat(file, method="r",slide=w2, verbose=FALSE)
-      SNPRelate::snpgdsClose(file)
-      system(paste0('rm ', paste0(w,gds_name)))
+      ldw$`R^2`[which(is.na(ldw$`R^2`))] <- 0
       
+      system(paste0("vcftools --vcf  out.recode.vcf ", " --from-bp ",  snp.pos[Window[1]], " --to-bp ", snp.pos[Window[length(Window)]], " --chr ", chr," --out subs --recode --recode-INFO-all"), ignore.stderr = TRUE)
       
-      if(w2!=-1){
-        LDmat <- data.table(remove=rep(NA, length(MAT$snp.id)))
-        for(x in 1:(length(MAT$snp.id))){
-          LDmat[(1:w2+x)[!is.nan(MAT$LD[,x])],as.character(x) := MAT$LD[!is.nan(MAT$LD[,x]),x]^2]
-        }
-        LDmat <- as.matrix(LDmat)
-        LDmat <- LDmat[,-1]
-      }else{
-        for(x in 1:(length(MAT$snp.id))){
-          LDmat <- MAT$LD^2
-        }
-      }
+      system(paste0("rm ", paste0("./", temp[grep('ldw', temp)])))
       
-      ## preparare LDmat
-      LDmat[is.na(LDmat)]<- 0
-      LDmat[upper.tri(LDmat)] <- NA
-      diag(LDmat) <- NA
-      colnames(LDmat) <- snp.id.bin
-      rownames(LDmat) <- snp.id.bin
+      el <- as.matrix(ldw[,.(POS1, POS2, `R^2`)])
+      g <- graph.edgelist(apply(el[,1:2],2, as.character), directed = FALSE)
+      E(g)$weight <- as.numeric(el[,3])
       
-      ## pre-clustering of network; remove edges below LD_threshold1
-      g <- graph.adjacency(LDmat, mode="lower", diag=FALSE, weighted=TRUE)
-      g <- delete_edges(g, which(E(g)$weight<LD_threshold1))
+      g <- delete_edges(g, which(E(g)$weight<LD_threhold1))
       d_g <- decompose.graph(g)
       
-      ## the recursive function; finds the clades where median LD is above LD_threshold2
-      # x <- clade <- tree$edge[1,1]
-      # x <- tree$edge[,2][tree$edge[,1]==x][[1]]
+      
+      LDmat <- get.adjacency(g,attr = 'weight',names = TRUE,sparse = FALSE)
+      diag(LDmat) <- NA
+      LDmat <- t(LDmat)
+      LDmat[upper.tri(LDmat)] <- NA
+      
       PC_recursive <- function(clade){
         lapply(clade, function(x){
           
@@ -259,15 +161,15 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
           }
           
           if(length(cl)>1){
-            LDmat.part <- LDmat[which(snp.id.bin %in% cl), which(snp.id.bin %in% cl)]
+            LDmat.part <- LDmat[which(snp.pos_w %in% cl), which(snp.pos_w %in% cl)]
             LDmat.part[upper.tri(LDmat.part)] <- t(LDmat.part)[upper.tri(LDmat.part)]
             
             Median.temp <- median(LDmat.part, na.rm  = TRUE)
             if(Median.temp > LD_threshold2){
-              snp_cl <- snp_bin[,which(snp.id.bin %in% cl)]
+              snp_cl <- snp_w[,which(snp.pos_w %in% cl)]
               
-              clusters.sub[[x]] <<- cl
-              PC_sc <- PC_score(snp_bin[,snp.id.bin %in% cl], PC_threshold)
+              clusters.sub[[x]] <<- paste(chr, cl, sep=":")
+              PC_sc <- PC_score(snp_w[,snp.pos_w %in% cl], PC_threshold)
               PVE.sub[[x]] <<- PC_sc[[2]]
               PCs.sub[[x]] <<- PC_sc[[1]]
               MCL.sub[[x]] <<- snp_cl[,which.max(apply(LDmat.part, 1, function(h) median(h, na.rm = TRUE)))]
@@ -279,10 +181,10 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
                   if(cor.test(snp_cl[,1], snp_cl[,h])$estimate<0){
                     return(ifelse(snp_cl[,h]==2, 0,2))
                   }else{
-                    return(snp_cl[,h])
+                    return(rev(snp_cl[,h]))
                   }
                 }else{
-                  return(snp_cl[,h])
+                  return(rev(snp_cl[,h]))
                 }
                 
               }))
@@ -293,9 +195,9 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
               PC_recursive(tree$edge[,2][tree$edge[,1]==x])
             }
           }else{
-            clusters.sub[[x]] <<- cl
+            clusters.sub[[x]] <<- paste(chr, cl, sep=":")
             PVE.sub[[x]] <<- 1
-            Cons.sub[[x]] <<- MCL.sub[[x]] <<- PCs.sub[[x]] <<- as.matrix(snp_bin[,snp.id.bin %in% cl])
+            Cons.sub[[x]] <<- MCL.sub[[x]] <<- PCs.sub[[x]] <<- as.matrix(snp_w[,snp.pos_w %in% cl])
             Median.sub[[x]] <<- Mad.sub[[x]] <<- NA
           }
         })
@@ -310,11 +212,10 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
       Median <- list()
       Mad <- list()
       
-      y <- 26
       for(y in 1:length(d_g)){
         loci <- V(d_g[[y]])$name
         if(length(loci)>1){
-          LDmat.part <- LDmat[which(snp.id.bin %in% loci), which(snp.id.bin %in% loci)]
+          LDmat.part <- LDmat[which(snp.pos_w %in% loci), which(snp.pos_w %in% loci)]
           
           tree <- ape::as.phylo(hclust(as.dist(1-LDmat.part), method='complete'))
           tree$tip.label <- loci
@@ -328,7 +229,7 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
           Median.sub <- list()
           Mad.sub <- list()
           
-          invisible(PC_recursive(tree$edge[1,1]))
+          invisible(PC_recursive(tree$edge[,2][tree$edge[,1]==tree$edge[1,1]]))
           Keep <- !sapply(clusters.sub, is.null)
           clusters[[y]] <- clusters.sub[Keep]
           PVE[[y]] <- PVE.sub[Keep]
@@ -339,9 +240,9 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
           Mad[[y]] <- Mad.sub[Keep]
           
         }else{
-          clusters[[y]] <- loci
+          clusters[[y]] <- paste(chr, loci, sep=":")
           PVE[[y]] <- 1
-          Cons[[y]] <- MCL[[y]] <- PCs[[y]] <- as.matrix(snp_bin[,snp.id.bin %in% loci])
+          Cons[[y]] <- MCL[[y]] <- PCs[[y]] <- as.matrix(snp_w[,snp.pos_w %in% loci])
           Median[[y]] <- NA
           Mad[[y]] <- NA
           
@@ -370,7 +271,7 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
         
         Col <- unlist(lapply(1:length(clusters), function(x) {
           ifelse(sapply(clusters, length)[x]==1, return('black'),  return(rep(temp1[1:nClust][x], sapply(clusters, length)[x])))
-        }))[match(colnames(LDmat), unlist(clusters) )]
+        }))[match(snp.pos_w, unlist(clusters) )]
         
         
         temp2 <- sample(rep(col_vector[-1], ceiling(nClust/length((col_vector)))))
@@ -397,7 +298,8 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
       }
       
       cat(paste0(length(PCs),' clusters and ', sum(sapply(PCs, ncol)), ' PCs extracted from of ', ncol(LDmat), ' original SNPs, on average explaining ', signif(mean(sapply(PVE, max)), 2)*100, '% of the variation \n' ))
-      return(list(clusters=clusters, PCs=PCs, PVE=PVE, MCL=MCL, Cons=Cons, Median=Median, Mad=Mad, chr=i))
+      
+      return(list(clusters=clusters, PCs=PCs, PVE=PVE, MCL=MCL, Cons=Cons, Median=Median, Mad=Mad, chr=chr))
     }, mc.cores=mc.cores)
   }
   
@@ -417,8 +319,6 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
     })
   }))
   
-  clusters <- lapply(clusters, as.numeric)
-  
   MCL <- do.call(cbind, flatten(lapply(out, function(chromosome){
     lapply(chromosome, function(window){
       window[[4]]
@@ -431,12 +331,12 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
     })
   })))
   
-  
   cluster_PCs <- do.call(cbind, flatten(lapply(out, function(chromosome){
     lapply(chromosome, function(window){
       window[[2]]
     })
   })))
+  
   
   Window <- unlist(lapply(1:length(out), function(chromosome){
     lapply(1:length(out[[chromosome]]), function(window){
@@ -486,13 +386,11 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
     })
   }))[Grp]
   
-  
-  Pos <-  sapply(clusters, function(x) mean(map[x,2]))[Grp]
-  Min <-  sapply(clusters, function(x) min(map[x,2]))[Grp]
-  Max <-  sapply(clusters, function(x) max(map[x,2]))[Grp]
-  Range <- abs(Min-Max)
-  
   nSNPs <- sapply(clusters, function(x) length(x))[Grp]
+  Pos <- round(sapply(clusters, function(x) mean(as.numeric(sapply(strsplit(x, ":", fixed = TRUE), function(y) y[2])))))[Grp]
+  Min <- round(sapply(clusters, function(x) min(as.numeric(sapply(strsplit(x, ":", fixed = TRUE), function(y) y[2])))))[Grp]
+  Max <- round(sapply(clusters, function(x) max(as.numeric(sapply(strsplit(x, ":", fixed = TRUE), function(y) y[2])))))[Grp]
+  
   Range <- abs(Min-Max)
   
   cluster_summary <- data.frame(Chr, Window, Pos=Pos, Min, Max, Range, nSNPs=nSNPs, Median=Median, MAD=MAD, PC=PC, PVE, Grp)
@@ -502,49 +400,3 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
   return(list(cluster_summary=cluster_summary, cluster_PCs=cluster_PCs, clusters=clusters, MCL=MCL, Cons=Cons))
 }
 
-PC_score <- function(x_A, PC_threshold){
-  cMean_A <- colMeans(x_A, na.rm = TRUE)
-  for (i in 1:dim(x_A)[2]) x_A[, i] <- x_A[, i] - cMean_A[i]
-  if(any(is.na(x_A))){
-    invisible(lapply(1:ncol(x_A), function(k){
-      x_A[is.na(x_A[,k]),k] <<- mean(x_A[,k], na.rm = TRUE)
-    }))
-  }
-  eigen_A <- eigen(var(x_A))
-  scores_A <- x_A %*% eigen_A$vectors
-  percentage_A = (cumsum(eigen_A$values))/sum(eigen_A$values)
-  a = percentage_A < PC_threshold
-  a[which(!a)[1]] <- TRUE
-  zeta = as.matrix(scores_A[, a])
-  return(list(zeta, percentage_A[a]))
-}
-
-
-slideFunct <- function(data, window, step){
-  total <- length(data)
-  spots <- seq(from=1, to=(total-window), by=step)
-  result <- vector(length = length(spots))
-  for(i in 1:length(spots)){
-    result[i] <- mean(data[spots[i]:(spots[i]+window)])
-  }
-  return(result)
-}
-
-flatten <- function(x) {
-  if (!inherits(x, "list")) return(list(x))
-  else return(unlist(c(lapply(x, flatten)), recursive = FALSE))
-}
-
-col_vector <- c("#7FC97F", "#BEAED4", "#FDC086", "#FFFF99", "#386CB0", "#F0027F", 
-                "#BF5B17", "#666666", "#1B9E77", "#D95F02", "#7570B3", "#E7298A", 
-                "#66A61E", "#E6AB02", "#A6761D", "#666666", "#A6CEE3", "#1F78B4", 
-                "#B2DF8A", "#33A02C", "#FB9A99", "#E31A1C", "#FDBF6F", "#FF7F00", 
-                "#CAB2D6", "#6A3D9A", "#FFFF99", "#B15928", "#FBB4AE", "#B3CDE3", 
-                "#CCEBC5", "#DECBE4", "#FED9A6", "#FFFFCC", "#E5D8BD", "#FDDAEC", 
-                "#F2F2F2", "#B3E2CD", "#FDCDAC", "#CBD5E8", "#F4CAE4", "#E6F5C9", 
-                "#FFF2AE", "#F1E2CC", "#CCCCCC", "#E41A1C", "#377EB8", "#4DAF4A", 
-                "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999", 
-                "#66C2A5", "#FC8D62", "#8DA0CB", "#E78AC3", "#A6D854", "#FFD92F", 
-                "#E5C494", "#B3B3B3", "#8DD3C7", "#FFFFB3", "#BEBADA", "#FB8072", 
-                "#80B1D3", "#FDB462", "#B3DE69", "#FCCDE5", "#D9D9D9", "#BC80BD", 
-                "#CCEBC5", "#FFED6F")
