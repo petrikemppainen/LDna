@@ -143,7 +143,7 @@ LDnClusteringVCF <- function(vcf_folder = "./vcf", ld_measure = '--geno-r2', nSN
       g <- graph.edgelist(apply(el[,1:2],2, as.character), directed = FALSE)
       E(g)$weight <- as.numeric(el[,3])
       
-      g <- delete_edges(g, which(E(g)$weight<LD_threhold1))
+      g <- delete_edges(g, which(E(g)$weight<LD_threshold1))
       d_g <- decompose.graph(g)
       
       
