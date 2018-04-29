@@ -7,7 +7,7 @@
 LDnClusteringVCF(vcf_folder = "./vcf", ld_measure = "--geno-r2",
   nSNPs = 1000, w1 = 10, w2 = 100, LD_threshold1 = 0.5,
   LD_threshold2 = 0.7, PC_threshold = 0.8, maf = 0.05, mc.cores = 1,
-  plot.network = NULL, threshold_net = 0.9)
+  plot.network = NULL, threshold_net = 0.9, to_do = to_do)
 }
 \arguments{
 \item{vcf_folder}{Path to folder (only) containg relevant vcf files (one per chromosome).}
@@ -32,10 +32,15 @@ LDnClusteringVCF(vcf_folder = "./vcf", ld_measure = "--geno-r2",
 
 \item{plot.network}{File name for plotting network. If \code{NULL} (default) no network is plotted.}
 
-\item{threshold_net}{Threshold for edges when plotting network.}
+\item{threshold_net}{Threshold for edges when plotting network}
+
+\item{to_do}{Vector with indexes for files in folder specified by \code{vcf_folder} that still need to be done}
 }
 \value{
-Returns a list of five objects. \code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). \code{cluster_PCs} includes a matrix individuals (rows) and PCs (columns) corresponding to each row in \code{cluster_summary}. This is what you use for subsequent GWA analyses. The third object (\code{clusters}) contains a list of locus names (chr:position; each entry corresponding to a row in \code{cluster_summary} for entries where PC=1). The fourth and fifth objects are files matrixes similar to \code{cluster_PCs} except there will be one column per cluster with either the SNP with the highest intra cluster median LD ('maximally connected SNP', MCL) or the consensus SNP (Cons), respectively. See example code for details. These last two files are expected to work better when LD thresholds are higher and SNPs in clusters or more strongly correlated, but no simualtions have been done to test this yet. \cr
+Returns a list of five objects. These are saved as separate .rds files in the folder "LDnCl_out" (which is created if it does not already exist). If something goes wrong you can specify \code{to_do} with indexes for files in folder specified by \code{vcf_folder} that still need to be done. \code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). \code{cluster_PCs} includes a matrix individuals (rows) and PCs (columns) corresponding to each row in \code{cluster_summary}. This is what you use for subsequent GWA analyses. The third object (\code{clusters}) contains a list of locus names (chr:position; each entry corresponding to a row in \code{cluster_summary} for entries where PC=1). The fourth and fifth objects are files matrixes similar to \code{cluster_PCs} except there will be one column per cluster with either the SNP with the highest intra cluster median LD ('maximally connected SNP', MCL) or the consensus SNP (Cons), respectively. See example code for details. These last two files are expected to work better when LD thresholds are higher and SNPs in clusters or more strongly correlated, but no simualtions have been done to test this yet. 
+\cr 
+\cr
+Each .rds file contains only information for each crhromosome and if you wish to concatenate a data set for the whole genome, this has to be done after, will provide code for this later... 
 \cr
 The columns in file \code{cluster_summary} are:
 \item{Chr}{Chromosome or linkage group identifer}
@@ -75,7 +80,7 @@ It is also possible to plot LD-networks for different cluster solutions. For thi
 \examples{
 ## example run, works basically the same as \\code{\\link{LDnClustering}} but instead of defining \\code{snp} and \\code{map} files, you have to specify the path to a folder with .vcf files.
 \dontrun{
-data_0.3_0.5 <- LDnClustering(vcf_folder="./", 
+data_0.3_0.5 <- LDnClustering(vcf_folder="./vcf", 
                                   ld_measure='--geno-r2',
                                   nSNPs = 1000, 
                                   w2 = 100, 

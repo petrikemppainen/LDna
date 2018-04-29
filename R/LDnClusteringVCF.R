@@ -30,11 +30,15 @@
 #' @param PC_threshold Minimum cummulative amount of genetic variation explained by extracted PCs
 #' @param mc.cores Number of cores for mclapply
 #' @param plot.network File name for plotting network. If \code{NULL} (default) no network is plotted.
-#' @param threshold_net Threshold for edges when plotting network.
+#' @param threshold_net Threshold for edges when plotting network
+#' @param to_do Vector with indexes for files in folder specified by \code{vcf_folder} that still need to be done
 #' @keywords Linkage disequilibrium network clustering, complexity reduction
 #' @seealso \code{\link{emmax_group}}
 #' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}, zitong.li \email{lizitong1985@@gmail.com}
-#' @return Returns a list of five objects. \code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). \code{cluster_PCs} includes a matrix individuals (rows) and PCs (columns) corresponding to each row in \code{cluster_summary}. This is what you use for subsequent GWA analyses. The third object (\code{clusters}) contains a list of locus names (chr:position; each entry corresponding to a row in \code{cluster_summary} for entries where PC=1). The fourth and fifth objects are files matrixes similar to \code{cluster_PCs} except there will be one column per cluster with either the SNP with the highest intra cluster median LD ('maximally connected SNP', MCL) or the consensus SNP (Cons), respectively. See example code for details. These last two files are expected to work better when LD thresholds are higher and SNPs in clusters or more strongly correlated, but no simualtions have been done to test this yet. \cr
+#' @return Returns a list of five objects. These are saved as separate .rds files in the folder "LDnCl_out" (which is created if it does not already exist). If something goes wrong you can specify \code{to_do} with indexes for files in folder specified by \code{vcf_folder} that still need to be done. \code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). \code{cluster_PCs} includes a matrix individuals (rows) and PCs (columns) corresponding to each row in \code{cluster_summary}. This is what you use for subsequent GWA analyses. The third object (\code{clusters}) contains a list of locus names (chr:position; each entry corresponding to a row in \code{cluster_summary} for entries where PC=1). The fourth and fifth objects are files matrixes similar to \code{cluster_PCs} except there will be one column per cluster with either the SNP with the highest intra cluster median LD ('maximally connected SNP', MCL) or the consensus SNP (Cons), respectively. See example code for details. These last two files are expected to work better when LD thresholds are higher and SNPs in clusters or more strongly correlated, but no simualtions have been done to test this yet. 
+#' \cr 
+#' \cr
+#' Each .rds file contains only information for each crhromosome and if you wish to concatenate a data set for the whole genome, this has to be done after, will provide code for this later... 
 #' \cr
 #' The columns in file \code{cluster_summary} are:
 #' \item{Chr}{Chromosome or linkage group identifer}
@@ -55,7 +59,7 @@
 #' @examples
 #' ## example run, works basically the same as \code{\link{LDnClustering}} but instead of defining \code{snp} and \code{map} files, you have to specify the path to a folder with .vcf files.
 #' \dontrun{
-#' data_0.3_0.5 <- LDnClustering(vcf_folder="./", 
+#' data_0.3_0.5 <- LDnClustering(vcf_folder="./vcf", 
 #'                                   ld_measure='--geno-r2',
 #'                                   nSNPs = 1000, 
 #'                                   w2 = 100, 
@@ -67,11 +71,14 @@
 #' ## test with simulated phenotypes ##
 #' @export
 #' 
-LDnClusteringVCF <- function(vcf_folder = "./vcf", ld_measure = '--geno-r2', nSNPs=1000, w1=10, w2=100 ,
-                             LD_threshold1 = 0.5, LD_threshold2 = 0.7, PC_threshold=0.8, maf=0.05, mc.cores=1, plot.network=NULL, threshold_net=0.9){
+LDnClusteringVCF <- LDnClusteringVCF <- function(vcf_folder = "./vcf", ld_measure = '--geno-r2', nSNPs=1000, w1=10, w2=100 ,
+                                                 LD_threshold1 = 0.5, LD_threshold2 = 0.7, PC_threshold=0.8, maf=0.05, mc.cores=1, plot.network=NULL, threshold_net=0.9, to_do = to_do){
   
   out <- list()
-  vcf_files <- list.files(vcf_folder)
+  vcf_files <- list.files(vcf_folder)[to_do]
+  temp <- list.files()
+  if(!any(grepl('LDnCl_out', temp))) system("mkdir LDnCl_out")
+  
   #t1 <- Sys.time()
   #i <- 2
   for(i in 1:length(vcf_files)){
@@ -114,7 +121,7 @@ LDnClusteringVCF <- function(vcf_folder = "./vcf", ld_measure = '--geno-r2', nSN
                paste(sapply(Windows, length), collapse = ":"), "\n"))
     
     #w <- 66
-    out[[i]] <- parallel::mclapply((1:length(Windows)), function(w){
+    out <- lapply((1:length(Windows)), function(w){
       cat(paste('Working on chromosome', i ,', window', w, '\n'))
       ## remove previous files, if present
       temp <- list.files()
@@ -301,106 +308,86 @@ LDnClusteringVCF <- function(vcf_folder = "./vcf", ld_measure = '--geno-r2', nSN
       cat(paste0(length(PCs),' clusters and ', sum(sapply(PCs, ncol)), ' PCs extracted from of ', ncol(LDmat), ' original SNPs, on average explaining ', signif(mean(sapply(PVE, max)), 2)*100, '% of the variation \n' ))
       
       return(list(clusters=clusters, PCs=PCs, PVE=PVE, MCL=MCL, Cons=Cons, Median=Median, Mad=Mad, chr=chr))
-    }, mc.cores=mc.cores)
-  }
-  
-  #saveRDS(out, 'out_multic.rds')
-  #save.image()
-  
-  
-  ### prepare output
-  
-  cat('preparing output \n')
-  if(length(out)==1)out <- c(list(NULL), out)
-  out <- out[sapply(out, length)>0]
-  
-  clusters <- flatten(lapply(out, function(chromosome){
-    lapply(chromosome, function(window){
+    })
+    
+    cat('preparing output \n')
+    
+    length(out)
+    clusters <- flatten(lapply(out, function(window){
       window[[1]]
-    })
-  }))
-  
-  MCL <- do.call(cbind, flatten(lapply(out, function(chromosome){
-    lapply(chromosome, function(window){
-      window[[4]]
-    })
-  })))
-  
-  Cons <- do.call(cbind, flatten(lapply(out, function(chromosome){
-    lapply(chromosome, function(window){
-      window[[5]]
-    })
-  })))
-  
-  cluster_PCs <- do.call(cbind, flatten(lapply(out, function(chromosome){
-    lapply(chromosome, function(window){
+    }))
+    
+    MCL <- do.call(cbind, flatten(
+      lapply(out, function(window){
+        lapply(window[[4]], as.matrix)
+      })
+    ))
+    
+    
+    Cons <-  do.call(cbind, flatten(
+      lapply(out, function(window){
+        lapply(window[[5]], as.matrix)
+      })
+    ))
+    
+    
+    cluster_PCs <- do.call(cbind, flatten(lapply(out, function(window){
       window[[2]]
-    })
-  })))
-  
-  
-  Window <- unlist(lapply(1:length(out), function(chromosome){
-    lapply(1:length(out[[chromosome]]), function(window){
-      rep(window, ncol(do.call(cbind, out[[chromosome]][[window]][[2]])))
-    })
-  }))
-  
-  
-  PC <- unlist(sapply(out, function(chromosome){
-    sapply(chromosome, function(window){
+    })))
+    
+    
+    Window <- unlist(lapply(1:length(out), function(window){
+      rep(window, ncol(do.call(cbind, out[[window]][[2]])))
+    }))
+    
+    
+    PC <- unlist(sapply(out, function(window){
       sapply(sapply(window[[2]], function(bin) ifelse(is.matrix(bin), ncol(bin), 1)), function(bin) 1:bin)
-    })
-  }))
-  
-  PVE <- unlist(lapply(out, function(chromosome){
-    lapply(chromosome, function(window){
+    }))
+    
+    PVE <- unlist(lapply(out, function(window){
       window[[3]]
-    })
-  }))
-  
-  Grp <- rep(NA, length(PC))
-  j <- 0
-  for(x in 1:length(PC)){
-    if(PC[x]==1){
-      j <- j + 1
-      Grp[x] <- j
-    }else{
-      Grp[x] <- j
+    }))
+    
+    Grp <- rep(NA, length(PC))
+    j <- 0
+    for(x in 1:length(PC)){
+      if(PC[x]==1){
+        j <- j + 1
+        Grp[x] <- j
+      }else{
+        Grp[x] <- j
+      }
     }
+    
+    Chr <- unlist(lapply(1:length(out), function(window){
+      rep(out[[window]][[8]], ncol(do.call(cbind, out[[window]][[2]])))
+    }))
+    
+    Median <- unlist(sapply(out, function(window){
+      window[[6]]
+    }))[Grp]
+    
+    MAD <- unlist(sapply(out, function(window){
+      window[[7]]
+    }))[Grp]
+    
+    nSNPs2 <- sapply(clusters, function(x) length(x))[Grp]
+    Pos <- round(sapply(clusters, function(x) mean(as.numeric(sapply(strsplit(x, ":", fixed = TRUE), function(y) y[2])))))[Grp]
+    Min <- round(sapply(clusters, function(x) min(as.numeric(sapply(strsplit(x, ":", fixed = TRUE), function(y) y[2])))))[Grp]
+    Max <- round(sapply(clusters, function(x) max(as.numeric(sapply(strsplit(x, ":", fixed = TRUE), function(y) y[2])))))[Grp]
+    
+    Range <- abs(Min-Max)
+    
+    cluster_summary <- data.frame(Chr, Window, Pos=Pos, Min, Max, Range, nSNPs=nSNPs2, Median=Median, MAD=MAD, PC=PC, PVE, Grp)
+    
+    colnames(cluster_summary) <- c('Chr', 'Window', 'Pos', 'Min', 'Max', 'Range', 'nSNPs', 'Median', 'MAD', 'PC', 'PVE', 'Grp')
+    cat('Done \n')
+    saveRDS(list(cluster_summary=cluster_summary, cluster_PCs=cluster_PCs, clusters=clusters, MCL=MCL, Cons=Cons), file=paste0("./LDnCl_out/LDnCl:", chr, ".rds"))
   }
   
-  Chr <- unlist(lapply(1:length(out), function(chromosome){
-    lapply(1:length(out[[chromosome]]), function(window){
-      rep(out[[chromosome]][[window]][[8]], ncol(do.call(cbind, out[[chromosome]][[window]][[2]])))
-    })
-  }))
-  
-  Median <- unlist(sapply(out, function(chromosome){
-    sapply(chromosome, function(window){
-      window[[6]]
-    })
-  }))[Grp]
-  
-  MAD <- unlist(sapply(out, function(chromosome){
-    sapply(chromosome, function(window){
-      window[[7]]
-    })
-  }))[Grp]
-  
-  nSNPs <- sapply(clusters, function(x) length(x))[Grp]
-  Pos <- round(sapply(clusters, function(x) mean(as.numeric(sapply(strsplit(x, ":", fixed = TRUE), function(y) y[2])))))[Grp]
-  Min <- round(sapply(clusters, function(x) min(as.numeric(sapply(strsplit(x, ":", fixed = TRUE), function(y) y[2])))))[Grp]
-  Max <- round(sapply(clusters, function(x) max(as.numeric(sapply(strsplit(x, ":", fixed = TRUE), function(y) y[2])))))[Grp]
-  
-  Range <- abs(Min-Max)
-  
-  cluster_summary <- data.frame(Chr, Window, Pos=Pos, Min, Max, Range, nSNPs=nSNPs, Median=Median, MAD=MAD, PC=PC, PVE, Grp)
-  
-  colnames(cluster_summary) <- c('Chr', 'Window', 'Pos', 'Min', 'Max', 'Range', 'nSNPs', 'Median', 'MAD', 'PC', 'PVE', 'Grp')
-  cat('Done')
-  return(list(cluster_summary=cluster_summary, cluster_PCs=cluster_PCs, clusters=clusters, MCL=MCL, Cons=Cons))
 }
-
+  
 
 PC_score <- function(x_A, PC_threshold){
   cMean_A <- colMeans(x_A, na.rm = TRUE)
