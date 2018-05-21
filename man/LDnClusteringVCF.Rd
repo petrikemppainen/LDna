@@ -37,10 +37,15 @@ LDnClusteringVCF(vcf_folder = "./vcf", ld_measure = "--geno-r2",
 \item{to_do}{Vector with indexes for files in folder specified by \code{vcf_folder} that still need to be done}
 }
 \value{
-Returns a list of five objects. These are saved as separate .rds files in the folder "LDnCl_out" (which is created if it does not already exist). If something goes wrong you can specify \code{to_do} with indexes for files in folder specified by \code{vcf_folder} that still need to be done. \code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). \code{cluster_PCs} includes a matrix individuals (rows) and PCs (columns) corresponding to each row in \code{cluster_summary}. This is what you use for subsequent GWA analyses. The third object (\code{clusters}) contains a list of locus names (chr:position; each entry corresponding to a row in \code{cluster_summary} for entries where PC=1). The fourth and fifth objects are files matrixes similar to \code{cluster_PCs} except there will be one column per cluster with either the SNP with the highest intra cluster median LD ('maximally connected SNP', MCL) or the consensus SNP (Cons), respectively. See example code for details. These last two files are expected to work better when LD thresholds are higher and SNPs in clusters or more strongly correlated, but no simualtions have been done to test this yet. 
+Returns a list of five objects. These are saved as separate .rds files in the folder "LDnCl_out" (which is created if it does not already exist). If something goes wrong you can specify \code{to_do} with indexes for files in folder specified by \code{vcf_folder} that still need to be done. 
+\code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). 
+\code{cluster_PCs} includes a matrix individuals (rows) and PCs (columns) corresponding to each row in \code{cluster_summary}. This is what you use for subsequent GWA analyses. 
+The third object (\code{clusters}) contains a list of locus names (chr:position; each entry corresponding to a row in \code{cluster_summary} for entries where PC=1). 
+The fourth and fifth objects are files matrixes similar to \code{cluster_PCs} except there will be one column per cluster with either the SNP with the highest intra cluster median LD ('maximally connected SNP', MCL) or the consensus SNP (Cons), respectively. 
+See example code for details. These last two files are expected to work better when LD thresholds are higher and SNPs in clusters or more strongly correlated, but no simualtions have been done to test this yet. 
 \cr 
 \cr
-Each .rds file contains only information for each crhromosome and if you wish to concatenate a data set for the whole genome, this has to be done after, will provide code for this later... 
+Each .rds file contains only information for each chromosome but this data can be concatenated into a single file using \code{\link{Combine_files}}
 \cr
 The columns in file \code{cluster_summary} are:
 \item{Chr}{Chromosome or linkage group identifer}
@@ -60,9 +65,11 @@ The columns in file \code{cluster_summary} are:
 Finds clusters of loci connected by high LD within non-overlapping windows and summerises this information using Principal Component Analysis, to be use in Genome Wide Association (GWA) analyses. Takes .vcf files as imput.
 }
 \details{
-Uses complete linkage clustering within non-overlapping windows of SNPs (within chromosomes) to find groups of correlated SNPs connected by high LD. This version used .vcf files as imput and uses \code{vcftools} to estimate LD. Assumes that vcftools can be called from command line as 'vcftools', make sure that it has the correct permissions (chmod 755) \cr
+Uses complete linkage clustering within non-overlapping windows of SNPs (within chromosomes) to find groups of correlated SNPs connected by high LD. 
+This version used .vcf files as imput and uses \code{vcftools} to estimate LD. Assumes that vcftools can be called from command line as 'vcftools', make sure that it has the correct permissions (chmod 755) \cr
 \cr
-Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by \code{w1}) is below \code{LD_threshold1}. \code{nSNPs} determines the goal size for each window; smaller windows will produce faster compuation times. \cr
+Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by \code{w1}) is below \code{LD_threshold1}. 
+\code{nSNPs} determines the goal size for each window; smaller windows will produce faster compuation times. \cr
 \cr
 First, a graph object is created using all pairwise r^2 values between SNPs within each window, and edges (representing r^2 values) < LD_threshold1 are removed. This breaks the initial graph into sub-graphs. 
 Removing edges like this and decomposing the graph is equivalent to a \code{sinlge linkage} clustering algorithm, with the draw back that clusters formed via single linkage clustering may be forced together due to single elements being close to each other, even though many of the elements in each cluster may be very distant to each other ('chaining-phenomenon').
@@ -75,7 +82,10 @@ From each cluster as many Principal Components (\code{PCs}) as is required to ex
 To increase compuational speed for large windows, or if a physical limit to how large clusters one is intrested in, window size (\code{w2}) for estimating r^2 can also be set to something less than the window size. This will in practice limit size of the clusters to (\code{w2}).
 This algorithm is performed by chromosome and window, and can thus be parallelized (\code{mc.cores}).\cr
 \cr
-It is also possible to plot LD-networks for different cluster solutions. For this you can specify a path for where the figure will be saved (\code{plot.network}). The parameter \code{threshold_net} determines the minimum value for each edge that is allowed in the network (i.e is equivalent to a single linkage clustering network). Each LD-cluster has a unique (arbitrary) color combination and black vertices reprsent loci that are not part of any cluster, i.e. should be considered independently in GWA analsyes. Minimum for \code{plot.network} is './', which exports figure to the working directory. Only works for data sets with up to 1000 SNPs and it is recommended that \code{threshold_net} is ~LD2.
+It is also possible to plot LD-networks for different cluster solutions. For this you can specify a path for where the figure will be saved (\code{plot.network}). 
+The parameter \code{threshold_net} determines the minimum value for each edge that is allowed in the network (i.e is equivalent to a single linkage clustering network). 
+Each LD-cluster has a unique (arbitrary) color combination and black vertices reprsent loci that are not part of any cluster, i.e. should be considered independently in GWA analsyes. 
+Minimum for \code{plot.network} is './', which exports figure to the working directory. Only works for data sets with up to 1000 SNPs and it is recommended that \code{threshold_net} is ~LD2.
 }
 \examples{
 ## example run, works basically the same as \\code{\\link{LDnClustering}} but instead of defining \\code{snp} and \\code{map} files, you have to specify the path to a folder with .vcf files.
