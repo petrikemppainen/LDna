@@ -1,6 +1,6 @@
 #' Combines data from files produced by \code{\link{LDnClusteringVCF}}
 #'
-#' \code{\link{LDnClusteringVCF}} produces one \code{.rds} file for each chromosome (from separate .vcf files). This function concatenates the information into a single file
+#' \code{\link{LDnClusteringVCF}} produces one \code{.rds} file for each chromosome (from separate .vcf files). This function concatenates the data from each \code{.rds} file into a single file
 #' 
 #' @param LDnCl_out Path to folder containing output from \code{\link{LDnClusteringVCF}}
 #' @keywords Linkage disequilibrium network clustering, complexity reduction
@@ -11,11 +11,11 @@
 #' Li, Z., Kemppainen, P., Rastas, P., Merila, J. Linkage disequilibrium clustering-based approach for association mapping with tightly linked genome-wide data. Accepted to Molecular Ecology Resources.
 #' @examples
 #' \dontrun{
-#' LDnCL_combined <- Combine_LDnCl(path/to/rds/files)
+#' LDnCL_combined <- Concat_files(path/to/rds/files)
 #'}                   
 #' @export
 #' 
-Combine_LDnCl <- function(LDnCl_out){
+Concat_files <- function(LDnCl_out){
   file_names <- list.files(LDnCl_out)
   
   LDnCl_combined <- list()

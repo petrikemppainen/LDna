@@ -1,9 +1,9 @@
-#' Linkage disequilibrium (LD) network clustering, with vcf files as imput
+#' Linkage disequilibrium (LD) network clustering, with vcf files as input
 #'
-#' Finds clusters of loci connected by high LD within non-overlapping windows and summerises this information using Principal Component Analysis, to be use in Genome Wide Association (GWA) analyses. Takes .vcf files as imput.
+#' Finds clusters of loci connected by high LD within non-overlapping windows and summerises this information using Principal Component Analysis, to be use in Genome Wide Association (GWA) analyses. Takes .vcf files as input.
 #' 
 #' Uses complete linkage clustering within non-overlapping windows of SNPs (within chromosomes) to find groups of correlated SNPs connected by high LD. 
-#' This version used .vcf files as imput and uses \code{vcftools} to estimate LD. Assumes that vcftools can be called from command line as 'vcftools', make sure that it has the correct permissions (chmod 755) \cr
+#' This version takes .vcf files as input and uses \code{vcftools} to estimate LD. Assumes that vcftools can be called from command line as 'vcftools', thus make sure that it has the correct permission (use chmod 755 if necessary) \cr
 #' \cr
 #' Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by \code{w1}) is below \code{LD_threshold1}. 
 #' \code{nSNPs} determines the goal size for each window; smaller windows will produce faster compuation times. \cr
@@ -25,7 +25,7 @@
 #' Minimum for \code{plot.network} is './', which exports figure to the working directory. Only works for data sets with up to 1000 SNPs and it is recommended that \code{threshold_net} is ~LD2.
 #' 
 #' @param vcf_folder Path to folder (only) containg relevant vcf files (one per chromosome).
-#' @param ld_measure Either '--geno-r2' or '--hap-r2', depending if you have phased data or not.
+#' @param ld_measure Either '---geno-r2' or '---hap-r2', depending if you have phased data or not.
 #' @param maf Minor allele frequency; SNPs need to be bi-allellic.
 #' @param nSNPs Desired number of SNPs per window.
 #' @param w1 Window size for defining putative recombination hotspots. Default is 10.
@@ -48,7 +48,7 @@
 #' See example code for details. These last two files are expected to work better when LD thresholds are higher and SNPs in clusters or more strongly correlated, but no simualtions have been done to test this yet. 
 #' \cr 
 #' \cr
-#' Each .rds file contains only information for each chromosome but this data can be concatenated into a single file using \code{\link{Combine_files}}. 
+#' Each .rds file contains only information for each chromosome but this data can be concatenated into a single file using \code{\link{Concat_files}}. 
 #' \cr
 #' The columns in file \code{cluster_summary} are:
 #' \item{Chr}{Chromosome or linkage group identifer}
@@ -67,7 +67,7 @@
 #' \cr
 #' Li, Z., Kemppainen, P., Rastas, P., Merila, J. Linkage disequilibrium clustering-based approach for association mapping with tightly linked genome-wide data. Accepted to Molecular Ecology Resources.
 #' @examples
-#' ## example run, works basically the same as \code{\link{LDnClustering}} but instead of defining \code{snp} and \code{map} files, you have to specify the path to a folder with .vcf files.
+#' ## example run, works basically the same as 'LDnClustering' but instead of defining 'snp' and 'map' files, you have to specify the path to a folder with '.vcf' files.
 #' \dontrun{
 #' data_0.3_0.5 <- LDnClustering(vcf_folder="./vcf", 
 #'                                   ld_measure='--geno-r2',
@@ -78,7 +78,6 @@
 #'                                   PC_threshold = 0.8)
 #' }
 #'                   
-#' ## test with simulated phenotypes ##
 #' @export
 #' 
 LDnClusteringVCF <- LDnClusteringVCF <- function(vcf_folder = "./vcf", ld_measure = '--geno-r2', nSNPs=1000, w1=10, w2=100 ,
