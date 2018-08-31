@@ -28,18 +28,23 @@
 #' # With multicore, in this case only slightly faster. 
 #' ldna <- LDnaRaw(r2.baimaii_subs, mc.cores=4)
 #' @export
+
 LDnaRaw <- function(LDmat, digits=2, method='single', mc.cores=NULL, fun=function(x){min(x, na.rm=TRUE)}){
   if(is.na(LDmat[2,1])) LDmat <- t(LDmat)
   LDmat[LDmat<0] <- 0
   LDmat <- round(LDmat, digits)
   tree <- ape::as.phylo(hclust(as.dist(1-LDmat), method=method))
   tree <- ape::di2multi(tree)
+  tree$edge.length <- round(tree$edge.length, digits = 3) 
+  tree <- ape::di2multi(tree)
+  
   Ntips <- length(tree$tip.label)
   
   if(!is.null(mc.cores)){
     out <- parallel::mclapply(Ntips:length(tree$edge.length)+1, function(x) stats.fun(tree, LDmat, x), mc.cores = mc.cores, mc.preschedule = TRUE)
   }else{
-    out <- lapply(Ntips:length(tree$edge.length)+1, function(x) stats.fun(tree, LDmat, x))}
+    out <- lapply(Ntips:length(tree$edge.length)+1, function(x) stats.fun(tree, LDmat, x))
+    }
   
   
   nV <- sapply(out, function(x){x$nV})
