@@ -201,7 +201,6 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
                paste(sapply(Windows, length), collapse = ":"), "\n"))
     
     ## for each window
-    #w <- 1
     out[[i]] <- parallel::mclapply(1:length(Windows), function(w){
       cat(paste('Working on chromosome', i ,', window', w, '\n'))
       
@@ -247,9 +246,7 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
       d_g <- decompose.graph(g)
       
       ## the recursive function; finds the clades where median LD is above LD_threshold2
-      # x <- clade <- tree$edge[1,1]
-      # x <- tree$edge[,2][tree$edge[,1]==x][[1]]
-      PC_recursive <- function(clade){
+       PC_recursive <- function(clade){
         lapply(clade, function(x){
           
           if(x>ntips){
@@ -274,19 +271,19 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
               Median.sub[[x]] <<- Median.temp
               Mad.sub[[x]] <<- mad(LDmat.part, na.rm  = TRUE)
               # polarise sequences
-              temp <- do.call(cbind,lapply(2:ncol(snp_cl), function(h){
-                if(!all(snp_cl[,1]==snp_cl[,h])){
-                  if(cor.test(snp_cl[,1], snp_cl[,h])$estimate<0){
-                    return(ifelse(snp_cl[,h]==2, 0,2))
-                  }else{
-                    return(snp_cl[,h])
-                  }
-                }else{
-                  return(snp_cl[,h])
-                }
-                
-              }))
-              
+          temp <- do.call(cbind,c(list(snp_cl[,1]), lapply(2:ncol(snp_cl), function(h){
+          if(!all(na.omit(snp_cl[,1]==snp_cl[,h]))){
+            if(cor.test(snp_cl[,1], snp_cl[,h])$estimate<0){
+              return(ifelse(snp_cl[,h]==2, 0,2))
+            }else{
+              return(snp_cl[,h])
+            }
+          }else{
+            return(snp_cl[,h])
+          }
+        })))
+        
+        temp[is.na(temp)] <- -1
               # get consensus
               Cons.sub[[x]] <<- phyclust::find.consensus(t(temp))
             }else{
@@ -309,8 +306,7 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
       Cons <- list()
       Median <- list()
       Mad <- list()
-      
-      y <- 26
+     
       for(y in 1:length(d_g)){
         loci <- V(d_g[[y]])$name
         if(length(loci)>1){
@@ -400,9 +396,6 @@ LDnClustering <- function(snp, map, nSNPs=1000, w1=10, w2=100 ,LD_threshold1 = 0
       return(list(clusters=clusters, PCs=PCs, PVE=PVE, MCL=MCL, Cons=Cons, Median=Median, Mad=Mad, chr=i))
     }, mc.cores=mc.cores)
   }
-  
-  #saveRDS(out, 'out_multic.rds')
-  #save.image()
   
   
   ### prepare output
