@@ -18,9 +18,10 @@
 #' @param graph.object Whether to output \code{graph object} when \code{option=1} (default=\code{FALSE}).
 #' @param col Color of vertices when using \code{option=1}, default is "grey"
 #' @param pos A numeric vector giving the position of loci along each chromosome. This is converted into red-green color space such that within each cluster it is possible to infer if vertex position reflexts its physical position in the chromosome. Currently works only for \code{option=1}.
+#' @param frame.color Used by \code{\link{LDnClustering}}
+#' @param digits Needs to be the same as used \code{\link{LDnaRaw}} and \code{\link{extractClusters}}, if not default (2)
 #' @seealso \code{\link{LDnaRaw}}, \code{\link{extractClusters}} and \code{\link{summaryLDna}}
 #' @return If \code{option=1} and \code{graph.object=TRUE} the output is an igraph.object that can further be manipulated for custom networks (see \code{\link{igraph}} for details).
-#' @export
 #' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}
 #' @examples
 #' ### Example with option=1
@@ -33,51 +34,51 @@
 #' clusters <- extractClusters(ldna, min.edges=20, phi=5)
 #' summary <- summaryLDna(ldna, clusters, r2.baimaii_subs)
 #' #default settings with option=2
-#' plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary)
+#' plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[[1]], summary=summary)
 #' ## Other useful settings
 #' # For large data sets
-#' plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=FALSE, include.parent=FALSE, after.merger=FALSE)
+#' plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[[1]], summary=summary, full.network=FALSE, include.parent=FALSE, after.merger=FALSE)
 #' # To visualise the merger
-#' plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=TRUE, after.merger=TRUE)
+#' plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[[1]], summary=summary, full.network=TRUE, after.merger=TRUE)
 #' # Or
-#' plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=FALSE, include.parent=TRUE, after.merger=TRUE)
+#' plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[[1]], summary=summary, full.network=FALSE, include.parent=TRUE, after.merger=TRUE)
 #' # To show that ususally several clusters are involved in most mergers
-#' plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=FALSE, include.parent=TRUE, after.merger=FALSE)
+#' plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[[1]], summary=summary, full.network=FALSE, include.parent=TRUE, after.merger=FALSE)
 #' ### Print directly to file, recommended for large data sets with many clusters. 
 #' \dontrun{
 #' library(parallel)
 #' fun <- function(x){
 #' setEPS()
 #' postscript(paste(x, "network.eps",  sep="_"))
-#' plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[x], summary=summary[x,], full.network=FALSE)
+#' plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[[1]][x], summary=summary[x,], full.network=FALSE)
 #' dev.off()
 #' }
 #' lapply(1:length(clusters), fun)
 #' # a multicore version of this
 #' mclapply(1:length(clusters), fun, mc.cores=4, mc.preschedule=TRUE)}
+#' @export
 
-
-plotLDnetwork <- function(ldna, LDmat, option, threshold, clusters, summary,
-exl=NULL, full.network=TRUE, include.parent=FALSE, after.merger=FALSE, graph.object=FALSE, col="grey", pos=NULL){
+plotLDnetwork <- function(ldna, LDmat, option, threshold, clusters, summary, digits=2,
+exl=NULL, full.network=TRUE, include.parent=FALSE, after.merger=FALSE, graph.object=FALSE, col="grey", frame.color='grey', pos=NULL){
     if(is.na(LDmat[2,1])) LDmat <- t(LDmat)
-    if(option==1) g <- option1(LDmat, threshold, exl, pos, col);
-    if(option==2) option2(ldna, LDmat, clusters, summary, exl, full.network, include.parent, after.merger)
+    if(option==1) g <- option1(LDmat, threshold, exl, pos, col, frame.color, digits);
+    if(option==2) option2(ldna, LDmat, clusters, summary, exl, full.network, include.parent, after.merger, digits)
     if(option==1 && graph.object) return(g)
 }
 
-option1 <- function(LDmat, threshold, exl, pos, col){
+option1 <- function(LDmat, threshold, exl, pos, col, frame.color,digits){
     
     LDmat <- LDmat[!(rownames(LDmat) %in% exl),!(rownames(LDmat) %in% exl)]
-    g <- graph.adjacency(LDmat, mode="lower", diag=FALSE, weighted=T)
+    g <- graph.adjacency(LDmat, mode="lower", diag=FALSE, weighted=TRUE)
     if(!is.null(pos)){
       V(g)$color <- rgb(pos, max(pos)-pos, 0, maxColorValue = max(pos))  
       V(g)$frame.color <- V(g)$color
     }else{
       V(g)$color <- col
-      V(g)$frame.color <- V(g)$color
+      V(g)$frame.color <- frame.color
     }
     
-    E(g)$weight <- round(E(g)$weight, 2)
+    E(g)$weight <- round(E(g)$weight, digits)
     g <- delete.edges(g, which(E(g)$weight<=threshold))
     g <- delete.vertices(g, which(degree(g) == 0))
     
@@ -86,7 +87,7 @@ option1 <- function(LDmat, threshold, exl, pos, col){
     return(g)
 }
 
-option2 <- function(ldna, LDmat, clusters, summary, exl, full.network, include.parent, after.merger){
+option2 <- function(ldna, LDmat, clusters, summary, exl, full.network, include.parent, after.merger, digits){
     col <- as.vector(summary$Type)
     col[col=="COC"] <- "blue"
     col[col=="SOC"] <- "red"
@@ -95,11 +96,11 @@ option2 <- function(ldna, LDmat, clusters, summary, exl, full.network, include.p
         threshold <- as.numeric(as.vector(summary$Merge.at[rownames(summary) == names(clusters)[[i]]]))
         option2raw(ldna, LDmat, exl, clusters[[i]], col=col[i],
         full.network, threshold, include.parent, after.merger,
-        names(clusters)[[i]])
+        names(clusters)[[i]], digits)
     }
 }
 
-option2raw <- function(ldna, LDmat, exl, loci, col, full.network, threshold, include.parent, after.merger, cluster.name){
+option2raw <- function(ldna, LDmat, exl, loci, col, full.network, threshold, include.parent, after.merger, cluster.name, digits){
     if(!is.null(exl)){
       LDmat <- LDmat[!(rownames(LDmat) %in% exl),!(rownames(LDmat) %in% exl)]
     }
@@ -118,11 +119,11 @@ option2raw <- function(ldna, LDmat, exl, loci, col, full.network, threshold, inc
     if(after.merger==TRUE) {
         p2 <- as.vector(ldna$stats$parent_cluster[ldna$stats$cluster %in%  p])
         if(p2=="root") {threshold <- threshold-0.01
-        }else{threshold <- as.numeric(strsplit(p2, "_", fixed=T)[[1]][2])}
+        }else{threshold <- as.numeric(strsplit(p2, "_", fixed=TRUE)[[1]][2])}
     }
     
-    g <- graph.adjacency(LDmat, mode="lower", diag=FALSE, weighted=T)
-    E(g)$weight <- round(E(g)$weight, 2)
+    g <- graph.adjacency(LDmat, mode="lower", diag=FALSE, weighted=TRUE)
+    E(g)$weight <- round(E(g)$weight, digits)
     g <- delete.edges(g, which(E(g)$weight<=threshold))
     g <- delete.vertices(g, which(degree(g) == 0))
     

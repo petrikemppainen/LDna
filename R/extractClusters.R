@@ -14,9 +14,8 @@
 #' @param lambda.lim If not \code{NULL} gives a fixed value for \eqn{\lambda_{lim}}. Overrides any value passed by \code{phi}.
 #' @keywords extractClusters
 #' @seealso \code{\link{LDnaRaw}}, \code{\link{summaryLDna}} and \code{\link{plotLDnetwork}}
-#' @export
 #' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}, Christopher Knight \email{Chris.Knight@@manchester.ac.uk}
-#' @return If extract=TRUE a named list of vectors giving the loci for the extracted clusters; otherwise returns plots of the tree (if plot.tree=TRUE) and the distribution of \eqn{\lambda} values (if plot.graph=TRUE and extract=TRUE)
+#' @return If extract=TRUE s list with two objects (1) a named list of vectors giving the loci for the extracted clusters and (2) a matrix indicating which 'single outlicer clusters' (\emph{SOCs}) are nested within which 'compound outlier clusters (\emph{COCs}). Else returns plots of the tree (if plot.tree=TRUE) and the distribution of \eqn{\lambda} values (if plot.graph=TRUE and extract=TRUE)
 #' @examples
 #' # Simple upper diagonal LD matrix
 #' LDmat <- structure(c(NA, 0.84, 0.64, 0.24, 0.2, 0.16, 0.44, 0.44, NA, NA, 0.8, 0.28, 0.4, 0.36, 0.36, 0.24, NA, NA, NA, 0.48, 0.32, 0.2, 0.36, 0.2, NA, NA, NA, NA, 0.76, 0.56, 0.6, 0.2, NA, NA, NA, NA, NA, 0.72, 0.68, 0.24, NA, NA, NA, NA, NA, NA, 0.44, 0.24, NA, NA, NA, NA, NA, NA, NA, 0.2, NA, NA, NA, NA, NA, NA, NA, NA), .Dim = c(8L, 8L), .Dimnames = list(c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"), c("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8")))
@@ -41,7 +40,13 @@
 #' clusters <- extractClusters(ldna, min.edges=15, phi=5, plot.tree=FALSE, plot.graph=FALSE)
 #' # Set fixed value for lambda.lim
 #' clusters <- extractClusters(ldna, min.edges=15, lambda.lim=2)
-
+#' # object 'clusters' includes two objects
+#' str(clusters)
+#' # clusters are here 
+#' clusters[[1]]
+#' # matrix indicating nesting here 
+#' clusters[[2]]
+#' @export
 extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=TRUE, extract=TRUE, plot.tree=TRUE, plot.graph=TRUE){
   # Get file for tree and clusters above min.edges and their lambda values
   tree <- clusterPhylo(ldna, min.edges)
@@ -59,30 +64,44 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
       }  
     }
     
-    #get outlier clusters
-    clusters.out <- names(lambda_new)[which(lambda_new >= threshold)]
-    if(identical(clusters.out, character(0))) stop("No outlier clusters, please decrease phi or lambda.lim")
     
+    Ntips <- length(ldna$tree$tip.label)
+    ## get outlier clusters
+      clusters.out <- names(lambda_new)[which(lambda_new >= threshold)]
+      if(identical(clusters.out, character(0))) stop("No outlier clusters, please decrease phi or lambda.lim")
     
-    # get SOCs and COCs
-    temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %in% clusters.out]
-    if(is.matrix(temp)){
-      nested <- matrix(NA, ncol(temp), ncol(temp))
-      for(i in 1:ncol(temp)){
-        for(j in 1:ncol(temp)){
-          if(i!=j & any(apply(cbind(temp[,i], temp[,j]),1, function(x) x[1]==TRUE & x[2]==TRUE))){
-            nested[i,j] <- "COC"
+    if(length(clusters.out)!=0){
+      loci <- ldna$tree$tip.label
+      # get SOCs and COCs
+      temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %in% clusters.out]
+      if(is.matrix(temp)){
+        nested <- matrix(NA, ncol(temp), ncol(temp))
+        for(i in 1:ncol(temp)){
+          for(j in 1:ncol(temp)){
+            if(i!=j & all(loci[temp[,j]] %in% loci[temp[,i]])){
+              nested[i,j] <- "COC"
+            }
           }
         }
+        nested[is.na(nested)] <- "SOC"
+        nested[lower.tri(nested)] <- NA
+        COCs <- as.vector(na.omit(colnames(temp)[apply(nested, 1, function(x) any(x=="COC"))]))
+        SOCs <- colnames(temp)[!colnames(temp) %in% COCs]
+        diag(nested) <- NA
+        
+      }else{
+        SOCs <- clusters.out
+        COCs <- NA
+        nested <- NULL
       }
-      nested[is.na(nested)] <- "SOC"
-      nested[lower.tri(nested)] <- NA    
-      COCs <- as.vector(na.omit(colnames(temp)[apply(nested, 1, function(x) any(x=="COC"))]))
-      SOCs <- colnames(temp)[!colnames(temp) %in% COCs]
+      
     }else{
-      SOCs <- clusters.out
-      COCs <- NA
-    }
+      
+      print('No clusters to extract')
+    } 
+    
+    dimnames(nested) <- list(clusters.out,clusters.out)
+    
     
     if(plot.graph){
       col <- lambda_ord <- lambda_new[order(lambda_new)]
@@ -129,15 +148,8 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
       }
       col.tip[tree$tip.label %in% SOCs] <- "black"
       plot(tree, show.tip.label=T, edge.width=3, edge.color=col, cex=1, tip.color=col.tip, root.edge=TRUE, underscore=T,x.lim=1)
-      #if(min.edges==0){
       axis(1, at=c(0,(1:10)*0.1))
-      #}else{
-      #  temp <- as.vector(ldna$stats[ldna$stats$nE > min.edges,2][-1])
-      #  x <- round(10*max(as.numeric(do.call('rbind', strsplit(temp, "_", fixed=TRUE))[,2])),0)+1
-      #  if(x>10) x <- 10
-      #  axis(1, at=c(0,(1:x)*0.1))
-      #}
-      if(!is.null(lambda.lim)){
+        if(!is.null(lambda.lim)){
         title(xlab="LD threshold", main=as.expression(bquote(lambda[lim]*plain("=")*.(lambda.lim)*"," ~~ "|E|"[min]*plain("=")* .(min.edges))))
       }else{
         title(xlab="LD threshold", main=as.expression(bquote(varphi*plain("=")*.(phi)*"," ~~ "|E|"[min]*plain("=")* .(min.edges))))
@@ -161,16 +173,16 @@ extractClusters <- function(ldna, min.edges=20, phi=2, lambda.lim=NULL, rm.COCs=
       loci <- list(names(temp)[temp])
     }
     
-    #rm(out)
-    #rm(loci)
-    return(loci)
+    return(list(clusters=loci, nested=nested))
     
   }else{
     plot(tree, edge.width=3,show.tip.label=F,edge.color="grey", cex=1,  root.edge=TRUE, x.lim=1)
     axis(1, at=c(0,(1:10)*0.1))
     title(xlab="LD threshold", main=as.expression(bquote("|E|"[min]*plain("=")* .(min.edges))))
   }
+  
 }
+
 clusterPhylo <-  function(ldna, min.edges=0){
   d <- ldna$stats[ldna$stats$nE>=min.edges,]
   
@@ -228,5 +240,5 @@ clusterPhylo <-  function(ldna, min.edges=0){
       row<-d$ancestor[row]
       next}
   }  
-  tree <- read.tree(text=newick)
+  tree <- ape::read.tree(text=newick)
 }

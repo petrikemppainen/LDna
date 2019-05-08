@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 <!--
 %\VignetteEngine{knitr}
 %\VignetteIndexEntry{An introduction LDna: Basics}
@@ -9,7 +14,7 @@ library(knitr)
   
 An introduction **LDna**: Basics
 =======================================
-#### Petri kemppainen, October 7, 2014
+#### Petri Kemppainen, April, 2018
 
 Introduction
 ------------
@@ -55,7 +60,7 @@ LDmat
 
 The first step in LDna is to build a *single linkage clustering* tree from an LD matrix and acquire summary data for each of the clusters identified by this tree. This is achieved by the function `LDnaRaw` which takes an upper or lower diagonal LD matrix and outputs a list with two objects. The first, `ldna$clusterfile`, is a matrix with all unique clusters as columns and the loci as rows, where `TRUE` indicates the presence of a locus in a specific cluster (else `FALSE` is given). The second, `ldna$stats`, is a data frame that gives all edges for the above tree along with summary information, including $\lambda$. By default all LD values are rounded to the nearest hundred as this significantly reduces computation time and has little affect on the analyses as a whole.
 ```{r}
-ldna <- LDnaRaw(LDmat)
+ldna <- LDnaRaw(LDmat, digits=2)
 ```
 
 As seen from the object `ldna$clusterfile` this data set includes seven unique clusters of which *"7_0.44"* includes all loci. The number after the underscore for each cluster-name indicates the highest LD threshold at which it is present.
@@ -77,21 +82,29 @@ par(mfcol=c(1,2))
 clusters1 <- extractClusters(ldna, min.edges = 0, phi = 1)
 ```
 
-`extractClusters` outputs a list with all OCs and their loci.
+`extractClusters` outputs a list with all OCs and their loci. New (from v.63) is that function `extractClusters` exports a list with two objects of which the first one contains the clusters and the second contains a matrix indicating which *"SOCs"* are nested in which *"COCs"*.
 ```{r, comment=NA}
-clusters1
+clusters1[[1]]
 ```
-
+In this case there is only on cluster that by definition is a *"SOC"*.
+```{r, comment=NA}
+clusters1[[2]]
+```
 If `phi` is lowered to 0.25 one additional cluster, *6_0.48*, becomes an outlier.
 ```{r fig.width=10, fig.height=5}
 par(mfcol=c(1,2))
 clusters2 <- extractClusters(ldna, min.edges = 0, phi = 0.25, rm.COCs=FALSE)
 ```
 ```{r, comment=NA}
-clusters2
+clusters2[[1]]
 ```
 
 As seen above, *OC 6_0.48* represents the merging of the two previous *OCs* (*2_0.8* and *5_0.68*). To distinguish that an *OC* contains loci from those extracted at an higher LD threshold than itself we denote it as a *"compound outlier cluster"*, *"COC"*, as opposed to a *"single outlier cluster"*, *"SOC"*. Typically we are mainly interested in *SOCs* and thus by default only *SOCs* are considered. However, as in the example above, when `rm.COCs=FALSE` all *OCs* are shown in the figures (and extracted) and any *COCs* are colored blue.
+
+In this case all second object are *"SOCs"*.
+```{r, comment=NA}
+clusters2[[2]]
+```
 
 ### Summerise data
 Based on the data produced above (`ldna`, `clusters` and `LDmat`), *OCs* can be further summarized by the function `summaryLDna`. In addition to the information already available from the `ldna` file above, `summaryLDna` outputs a data frame with the following information for each extracted cluster: *"Type"*, which indicates whether an *OC* is a *SOC* or a *COC* (for the given setting for `min.edges` and `phi`); *"Merge.at"*, which indicates at which LD threshold the cluster merges with the next cluster; *"Median.LD"* which gives the median of all intra-cluster pairwise LD values and *"MAD.LD"* which gives the unscaled median abosulute deviation (see `?mad`) of these LD values. A large difference between the LD threshold at which a cluster first is present (as indicated by the cluster name, see above) and *"Merge.at"* indicates that the cluster remains the same (with respect to it's loci) for a large range of LD threshold values.
@@ -126,13 +139,13 @@ plot.igraph(g, edge.label=E(g)$weight)
 With `option=2`, by default `plotLDnetwork` plots a network for each *OC* at an LD threshold just before it merges. For this the outputs from `LDnaRaw` and `extractClusters` and `summaryLDna` also need to be included. The title gives the cluster name in question and the LD threshold at which the network is drawn and any loci from the *OC* in question is indicated in red (*SOC*) or blue (*COC*).
 ```{r fig.width=9, fig.height=3}
 par(mfcol=c(1,3))
-plotLDnetwork(ldna, LDmat, option=2, clusters=clusters2, summary=summary)
+plotLDnetwork(ldna, LDmat, option=2, clusters=clusters2[[1]], summary=summary)
 ```
 
 By setting the argument `after.merger` to `TRUE`, the network is printed at an LD threshold just after merger. Note thus that the networks (below) are plotted at different LD thresholds compared to above. Overall `extractClusters` is a highly customizable functions which will be further demonstrated in `LDna:advanced`. 
 ```{r fig.width=9, fig.height=3}
 par(mfcol=c(1,3))
-plotLDnetwork(ldna, LDmat, option=2, clusters=clusters2, summary=summary, after.merger=TRUE)
+plotLDnetwork(ldna, LDmat, option=2, clusters=clusters2[[1]], summary=summary, after.merger=TRUE)
 ```
 
 Lastly, there is also a possibility to use a fixed value of $\lambda_{lim}$ via the `lambda.lim` option in `excractClusters` as follows:
