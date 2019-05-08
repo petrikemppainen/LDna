@@ -21,7 +21,7 @@ Any questions or suggestions may be posted at: https://groups.google.com/forum/#
 
 With **devtools** (accessible from CRAN) **LDna** can be installed by:
 ```r
-devtools::install_github("petrikemppainen/LDna", ref = 'v.64')
+devtools::install_github("petrikemppainen/LDna", ref = 'master')
 ```
 This downloads the source directly from **github** and builds the vignettes and thus requires LaTeX to be installed on your computer.
 
