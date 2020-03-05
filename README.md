@@ -11,9 +11,9 @@ There's an implementaiton that takes a path to a folder with vcf files (one for 
 
 There's some example code on how to use emmax for LD-clustered data. Tutorials are still in progress. 
 
-LDnClustering now removes all edges below LD_threshold1 and decomposes this graph (essentially performing single linkage clusetring) and in the resulting sub-clusters LDnClustering performs complete linkage clustering and recursively finds clades where median LD is below LD_threshold2. In this way the hireachichal clustering does not have to be done on the whole tree (window) but in the sub-clusters instead. Also, the recursive step to find relevant clades means that less singleton clusters are produced compared to the original implementation.
+As of v.0.64,LDnClustering now removes all edges below LD_threshold1 and decomposes this graph (essentially performing single linkage clusetring) and in the resulting sub-clusters LDnClustering performs complete linkage clustering and recursively finds clades where median LD is below LD_threshold2. In this way the hireachichal clustering does not have to be done on the whole tree (window) but in the sub-clusters instead. Also, the recursive step to find relevant clades means that less singleton clusters are produced compared to the original implementation.
 
-As of v.0.65, there's also function (LDnClusteringEL) that performs LDn-clustering based on precalculated LD values (as edge lists). The path to folder where these edge lists (one for each chromosome) resides. There are examples for this.
+As of v.0.65, there's also function (LDnClusteringEL) that performs LDn-clustering based on pre-calculated LD values (as edge lists; one for each chromosome). There are examples for this.
 -
 Any questions or suggestions may be posted at: https://groups.google.com/forum/#!forum/ld-network-analysis
 

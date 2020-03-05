@@ -25,7 +25,7 @@
 #' Minimum for \code{plot.network} is './', which exports figure to the working directory. Only works for data sets with up to 1000 SNPs and it is recommended that \code{threshold_net} is ~LD2.
 #' @param EL_path Path to folder with edge lists of pairwise LD values. Typically you can restrict the window size to ~100 consequtive SNPs to substantially reduce the data sets and computation times. This is essentially the parameter \code{W2}. Default is "./LD_EL"
 #' @param LD_column Is the column in the edge lists that contains the LD estimate. 
-#' @param out_folder Is the folder where all output is created. Use \code{Concat_files(out_folder)} that takes the folder names as argument and concatenates all results. If this folder does not exist, it is created.
+#' @param out_folder Is the folder where all output is created. Use \code{Concat_files} that takes the folder names as argument and concatenates all results. If this folder does not exist, it is created.
 #' @param min.cl.size If you only want to keep clusters of certain size (in terms of numbers of loci), this can be specified here. It turns out that by excluding all singleton clusters (\code{min.cl.size=2}), not much information is lost, especially for outlier analyses and data with high levels of noise (e.g. small samplesizes).
 #' @param nSNPs Desired number of SNPs per window. 
 #' @param w1 Window size for defining putative recombination hotspots. Default is 10.
