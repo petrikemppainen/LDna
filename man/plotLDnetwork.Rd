@@ -4,10 +4,23 @@
 \alias{plotLDnetwork}
 \title{Plots linkage disequilibrium networks}
 \usage{
-plotLDnetwork(ldna, LDmat, option, threshold, clusters, summary, digits = 2,
-  exl = NULL, full.network = TRUE, include.parent = FALSE,
-  after.merger = FALSE, graph.object = FALSE, col = "grey",
-  frame.color = "grey", pos = NULL)
+plotLDnetwork(
+  ldna,
+  LDmat,
+  option,
+  threshold,
+  clusters,
+  summary,
+  digits = 2,
+  exl = NULL,
+  full.network = TRUE,
+  include.parent = FALSE,
+  after.merger = FALSE,
+  graph.object = FALSE,
+  col = "grey",
+  frame.color = "grey",
+  pos = NULL
+)
 }
 \arguments{
 \item{ldna}{Output from \code{\link{LDnaRaw}}}

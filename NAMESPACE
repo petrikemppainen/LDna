@@ -3,6 +3,7 @@
 export(Concat_files)
 export(LDnClustering)
 export(LDnClusteringVCF)
+export(LDnClusteringEL)
 export(LDnaRaw)
 export(emmax_group)
 export(extractClusters)

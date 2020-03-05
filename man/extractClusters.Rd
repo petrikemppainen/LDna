@@ -4,8 +4,16 @@
 \alias{extractClusters}
 \title{Extracts LD clusters for linkage disequilibrium network analysis (LDna)}
 \usage{
-extractClusters(ldna, min.edges = 20, phi = 2, lambda.lim = NULL,
-  rm.COCs = TRUE, extract = TRUE, plot.tree = TRUE, plot.graph = TRUE)
+extractClusters(
+  ldna,
+  min.edges = 20,
+  phi = 2,
+  lambda.lim = NULL,
+  rm.COCs = TRUE,
+  extract = TRUE,
+  plot.tree = TRUE,
+  plot.graph = TRUE
+)
 }
 \arguments{
 \item{ldna}{Output from \code{\link{LDnaRaw}}}

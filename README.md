@@ -13,8 +13,8 @@ There's some example code on how to use emmax for LD-clustered data. Tutorials a
 
 LDnClustering now removes all edges below LD_threshold1 and decomposes this graph (essentially performing single linkage clusetring) and in the resulting sub-clusters LDnClustering performs complete linkage clustering and recursively finds clades where median LD is below LD_threshold2. In this way the hireachichal clustering does not have to be done on the whole tree (window) but in the sub-clusters instead. Also, the recursive step to find relevant clades means that less singleton clusters are produced compared to the original implementation.
 
-Current beta version is 0.64.
-
+As of v.0.65, there's also function (LDnClusteringEL) that performs LDn-clustering based on precalculated LD values (as edge lists). The path to folder where these edge lists (one for each chromosome) resides. There are examples for this.
+-
 Any questions or suggestions may be posted at: https://groups.google.com/forum/#!forum/ld-network-analysis
 
 ###Installing
@@ -25,7 +25,7 @@ devtools::install_github("petrikemppainen/LDna", ref = 'master')
 ```
 This downloads the source directly from **github** and builds the vignettes and thus requires LaTeX to be installed on your computer.
 
-Alternatively, download the source file (LDna_0.64.tar.gz) directly and install by:
+Alternatively, download the source file (LDna_0.65.tar.gz) directly and install by:
 ```r
 install.packages("/path_to/source_file", repos = NULL, type = "source")
 ```

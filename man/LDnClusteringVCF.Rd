@@ -4,10 +4,21 @@
 \alias{LDnClusteringVCF}
 \title{Linkage disequilibrium (LD) network clustering, with vcf files as input}
 \usage{
-LDnClusteringVCF(vcf_folder = "./vcf", ld_measure = "--geno-r2",
-  nSNPs = 1000, w1 = 10, w2 = 100, LD_threshold1 = 0.5,
-  LD_threshold2 = 0.7, PC_threshold = 0.8, maf = 0.05, mc.cores = 1,
-  plot.network = NULL, threshold_net = 0.9, to_do = to_do)
+LDnClusteringVCF(
+  vcf_folder = "./vcf",
+  ld_measure = "--geno-r2",
+  nSNPs = 1000,
+  w1 = 10,
+  w2 = 100,
+  LD_threshold1 = 0.5,
+  LD_threshold2 = 0.7,
+  PC_threshold = 0.8,
+  maf = 0.05,
+  mc.cores = 1,
+  plot.network = NULL,
+  threshold_net = 0.9,
+  to_do = to_do
+)
 }
 \arguments{
 \item{vcf_folder}{Path to folder (only) containg relevant vcf files (one per chromosome).}

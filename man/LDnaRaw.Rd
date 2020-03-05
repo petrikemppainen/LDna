@@ -4,8 +4,13 @@
 \alias{LDnaRaw}
 \title{Produces necessary data for LDna from a matrix of pairwise LD values}
 \usage{
-LDnaRaw(LDmat, digits = 2, method = "single", mc.cores = NULL,
-  fun = function(x) {     min(x, na.rm = TRUE) })
+LDnaRaw(
+  LDmat,
+  digits = 2,
+  method = "single",
+  mc.cores = NULL,
+  fun = function(x) {     min(x, na.rm = TRUE) }
+)
 }
 \arguments{
 \item{LDmat}{Lower diagonal matrix of pairwise LD values, \eqn{R^2} is strongly recommended. Must include row and column names.}

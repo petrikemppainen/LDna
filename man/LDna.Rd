@@ -3,7 +3,6 @@
 \docType{package}
 \name{LDna}
 \alias{LDna}
-\alias{LDna-package}
 \title{Linkage disequilibrium network analyses (LDna)}
 \description{
 Linkage disequilibrium network anlysis (LDna) is an exploratory tool for population genomic data that based on pairwise LD values can be used to identify and extract sets of loci that bear distinct population genetic signals.
