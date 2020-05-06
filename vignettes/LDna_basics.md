@@ -6,7 +6,7 @@
 
 
   
-An introduction **LDna**: Basics
+An introduction LDna: Basics
 =======================================
 #### Petri kemppainen, April 5, 2014
 

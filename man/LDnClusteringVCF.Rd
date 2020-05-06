@@ -4,21 +4,41 @@
 \alias{LDnClusteringVCF}
 \title{Linkage disequilibrium (LD) network clustering, with vcf files as input}
 \usage{
-LDnClusteringVCF(vcf_folder = "./vcf", ld_measure = "--geno-r2",
-  nSNPs = 1000, w1 = 10, w2 = 100, LD_threshold1 = 0.5,
-  LD_threshold2 = 0.7, PC_threshold = 0.8, maf = 0.05, mc.cores = 1,
-  plot.network = NULL, threshold_net = 0.9, to_do = to_do)
+LDnClusteringVCF(
+  vcf_folder = "./vcf/",
+  ld_measure = "--geno-r2",
+  nSNPs = 1000,
+  w1 = 10,
+  w2 = 100,
+  out_folder = "./LDnCl_out/",
+  temp_folder = "./LDnC_temp/",
+  verbose = FALSE,
+  LD_threshold1 = 0.5,
+  LD_threshold2 = 0.8,
+  PC_threshold = 0.8,
+  maf = 0.05,
+  plot.network = NULL,
+  threshold_net = 0.9,
+  to_do = NULL,
+  cores = 1
+)
 }
 \arguments{
-\item{vcf_folder}{Path to folder (only) containg relevant vcf files (one per chromosome).}
+\item{vcf_folder}{Path to folder (only) containg relevant vcf.gz files (one per chromosome).}
 
-\item{ld_measure}{Either '---geno-r2' or '---hap-r2', depending if you have phased data or not.}
+\item{ld_measure}{Either '---geno-r2' (default) or '---hap-r2', depending if you have phased data or not.}
 
 \item{nSNPs}{Desired number of SNPs per window.}
 
 \item{w1}{Window size for defining putative recombination hotspots. Default is 10.}
 
 \item{w2}{Window size for estimating LD values (smaller is faster but may break up large clusters caused e.g. by inversion polymorphism).}
+
+\item{out_folder}{Path to folder where output is produced (default is './LDnCl_out/'). Proceed to use \code{\link{Concat_files}} to concatenate this data to a single file.}
+
+\item{temp_folder}{Path to folder where temporary output can be stored (this folder is removed at the end), default is "./LDnC_temp/".}
+
+\item{verbose}{If FALSE (default) output from vcftools is supressed. Mostly used for debugging.}
 
 \item{LD_threshold1}{Minimum LD value within a cluster}
 
@@ -28,13 +48,13 @@ LDnClusteringVCF(vcf_folder = "./vcf", ld_measure = "--geno-r2",
 
 \item{maf}{Minor allele frequency; SNPs need to be bi-allellic.}
 
-\item{mc.cores}{Number of cores for mclapply}
-
 \item{plot.network}{File name for plotting network. If \code{NULL} (default) no network is plotted.}
 
 \item{threshold_net}{Threshold for edges when plotting network}
 
-\item{to_do}{Vector with indexes for files in folder specified by \code{vcf_folder} that still need to be done}
+\item{to_do}{Vector with indexes for files in folder specified by \code{vcf_folder} that still need to be done. If \code{NULL} (default) all files will be processed}
+
+\item{cores}{Number of cores}
 }
 \value{
 Returns a list of five objects. These are saved as separate .rds files in the folder "LDnCl_out" (which is created if it does not already exist). If something goes wrong you can specify \code{to_do} with indexes for files in folder specified by \code{vcf_folder} that still need to be done. 
@@ -62,11 +82,11 @@ The columns in file \code{cluster_summary} are:
 \item{Grp}{Unique group identifier for PCs extracted from each cluster. Used by \code{\link{emmax_group}}}
 }
 \description{
-Finds clusters of loci connected by high LD within non-overlapping windows and summerises this information using Principal Component Analysis, to be use in Genome Wide Association (GWA) analyses. Takes .vcf files as input.
+Finds clusters of loci connected by high LD within non-overlapping windows and summerises this information using Principal Component Analysis, to be use in Genome Wide Association (GWA) analyses. Takes .vcf.gz files as input.
 }
 \details{
 Uses complete linkage clustering within non-overlapping windows of SNPs (within chromosomes) to find groups of correlated SNPs connected by high LD. 
-This version takes .vcf files as input and uses \code{vcftools} to estimate LD. Assumes that vcftools can be called from command line as 'vcftools', thus make sure that it has the correct permission (use chmod 755 if necessary) \cr
+This version takes .vcf.gz files as input and uses \code{vcftools} to estimate LD. Assumes that vcftools can be called from command line as 'vcftools', thus make sure that it has the correct permission \cr
 \cr
 Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by \code{w1}) is below \code{LD_threshold1}. 
 \code{nSNPs} determines the goal size for each window; smaller windows will produce faster compuation times. \cr
@@ -80,7 +100,7 @@ Thus \code{LD_threshold1} is typically set to lower than \code{LD_threshold1} an
 \cr
 From each cluster as many Principal Components (\code{PCs}) as is required to explain >= \code{PC_threshold} are extracted. 
 To increase compuational speed for large windows, or if a physical limit to how large clusters one is intrested in, window size (\code{w2}) for estimating r^2 can also be set to something less than the window size. This will in practice limit size of the clusters to (\code{w2}).
-This algorithm is performed by chromosome and window, and can thus be parallelized (\code{mc.cores}).\cr
+This algorithm is performed by chromosome and window, and can thus be parallelized (\code{cores}).\cr
 \cr
 It is also possible to plot LD-networks for different cluster solutions. For this you can specify a path for where the figure will be saved (\code{plot.network}). 
 The parameter \code{threshold_net} determines the minimum value for each edge that is allowed in the network (i.e is equivalent to a single linkage clustering network). 
@@ -88,15 +108,14 @@ Each LD-cluster has a unique (arbitrary) color combination and black vertices re
 Minimum for \code{plot.network} is './', which exports figure to the working directory. Only works for data sets with up to 1000 SNPs and it is recommended that \code{threshold_net} is ~LD2.
 }
 \examples{
-## example run, works basically the same as 'LDnClustering' but instead of defining 'snp' and 'map' files, you have to specify the path to a folder with '.vcf' files.
+## example run, works basically the same as 'LDnClustering' but instead of defining 'snp' and 'map' files, you have to specify the path to a folder with '.vcf.gz' files. Works with only default values, if the vcf.gz files are in the "./vcf/" folder.
 \dontrun{
-data_0.3_0.5 <- LDnClustering(vcf_folder="./vcf", 
-                                  ld_measure='--geno-r2',
-                                  nSNPs = 1000, 
-                                  w2 = 100, 
-                                  LD_threshold1 = 0.3, 
-                                  LD_threshold2 = 0.5,
-                                  PC_threshold = 0.8)
+data(LDna)
+system("mkdir vcf")                      ## creae "./vcf/" folder
+vcfR::write.vcf(vcf, "./vcf/example.vcf.gz")   ## produce an example vcf file, requires package \code{vcfR}
+LDnClusteringVCF()                             ## can be run with default settings
+results <- readRDS("./LDnCl_out/example.rds")  ## here be the results
+results$cluster_summary[1:10,]
 }
                   
 }

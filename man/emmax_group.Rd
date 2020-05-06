@@ -27,7 +27,7 @@ This function is not meant to be a part of LDna but is provided here to show an 
 See reference
 }
 \examples{
-## see \\code{\\link{LDnClustering}}
+## see \code{\link{LDnClustering}}
 }
 \references{
 Li, Z., Kemppainen, P., Rastas, P., Merila, J. Linkage disequilibrium clustering-based approach for association mapping with tightly linked genome-wide data. Accepted to Molecular Ecology Resources.

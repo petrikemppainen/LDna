@@ -12,7 +12,7 @@ output:
 library(knitr)
 ```
   
-An introduction **LDna**: Basics
+An introduction LDna: Basics
 =======================================
 #### Petri Kemppainen, April, 2018
 

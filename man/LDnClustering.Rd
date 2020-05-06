@@ -4,9 +4,19 @@
 \alias{LDnClustering}
 \title{Linkage disequilibrium (LD) network clustering}
 \usage{
-LDnClustering(snp, map, nSNPs = 1000, w1 = 10, w2 = 100,
-  LD_threshold1 = 0.5, LD_threshold2 = 0.7, PC_threshold = 0.8,
-  mc.cores = 1, plot.network = NULL, threshold_net = 0.9)
+LDnClustering(
+  snp,
+  map,
+  nSNPs = 1000,
+  w1 = 10,
+  w2 = 100,
+  LD_threshold1 = 0.5,
+  LD_threshold2 = 0.7,
+  PC_threshold = 0.8,
+  mc.cores = 1,
+  plot.network = NULL,
+  threshold_net = 0.9
+)
 }
 \arguments{
 \item{snp}{A matrix with individuals as rows and bi-allelic SNP genotypes as columns. SNPs must be coded as 0,1 or 2 for the number of alleles of the reference nucleotide.}
@@ -84,7 +94,7 @@ length(data_0.5_0.7$clusters)
 ## with the following distribution of SNPs in each cluster
 table(data_0.5_0.7$cluster_summary$nSNPs)
 
-## Plot graphs, only edges above \\code{threshold_net} are shown. Lower LD-threhsold settings produce larger and 'less' connected clusters.
+## Plot graphs, only edges above \code{threshold_net} are shown. Lower LD-threhsold settings produce larger and 'less' connected clusters.
 \dontrun{
 a <- LDnClustering(snp=snp_ara, 
                   map=map_ara, 

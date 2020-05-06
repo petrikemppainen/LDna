@@ -6,7 +6,7 @@
 
 
 
-An introduction **LDna**: Advanced
+An introduction LDna: Advanced
 =======================================
 #### Petri kemppainen, April 5, 2014
 

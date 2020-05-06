@@ -13,7 +13,11 @@ There's some example code on how to use emmax for LD-clustered data. Tutorials a
 
 LDnClustering now removes all edges below LD_threshold1 and decomposes this graph (essentially performing single linkage clusetring) and in the resulting sub-clusters LDnClustering performs complete linkage clustering and recursively finds clades where median LD is below LD_threshold2. In this way the hireachichal clustering does not have to be done on the whole tree (window) but in the sub-clusters instead. Also, the recursive step to find relevant clades means that less singleton clusters are produced compared to the original implementation.
 
+As of v.642 I have added the possibility multithreading for *LDnClusteringVCF* (where a folder with "vcf.gz" files can be specified, one file for each chromosome/linkage group) and improved speed.
+
 Current beta version is 0.64.
+
+
 
 Any questions or suggestions may be posted at: https://groups.google.com/forum/#!forum/ld-network-analysis
 

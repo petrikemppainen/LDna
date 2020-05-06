@@ -13,7 +13,7 @@ library(knitr)
 library(LDna)
 ```
 
-An introduction **LDna**: Advanced
+An introduction LDna: Advanced
 =======================================
 #### Petri Kemppainen, April, 2018
 
