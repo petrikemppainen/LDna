@@ -111,11 +111,21 @@ Minimum for \code{plot.network} is './', which exports figure to the working dir
 ## example run, works basically the same as 'LDnClustering' but instead of defining 'snp' and 'map' files, you have to specify the path to a folder with '.vcf.gz' files. Works with only default values, if the vcf.gz files are in the "./vcf/" folder.
 \dontrun{
 data(LDna)
-system("mkdir vcf")                      ## creae "./vcf/" folder
-vcfR::write.vcf(vcf, "./vcf/example.vcf.gz")   ## produce an example vcf file, requires package \code{vcfR}
-LDnClusteringVCF()                             ## can be run with default settings
-results <- readRDS("./LDnCl_out/example.rds")  ## here be the results
-results$cluster_summary[1:10,]
+## create "./vcf/" folder
+system("mkdir vcf")                      
+vcf <- list(vcf1,vcf2)
+## create vcf files into the folder
+#chr1
+write.vcf(vcf[[1]], file = "./vcf/chr1.vcf.gz")
+
+#chr2
+write.vcf(vcf[[2]], file = "./vcf/chr2.vcf.gz")
+
+#LDnClustering; can be run with default settings because the vcf files are now in the default folder
+LDnClusteringVCF()                             
+LDnCL_results <- Concat_files("./LDnCl_out/")                   
+LDnCl_summary <- data.table(LDnCL_results$cluster_summary)
+LDnCl_summary
 }
                   
 }
