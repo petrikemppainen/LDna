@@ -351,7 +351,7 @@ LDnClusteringVCF <- function(vcf_folder = "./vcf/", ld_measure = '--geno-r2', nS
       cat(paste0(length(PCs),' clusters and ', sum(sapply(PCs, ncol)), ' PCs extracted from of ', ncol(LDmat), ' original SNPs, on average explaining ', signif(mean(sapply(PVE, max)), 2)*100, '% of the variation \n' ))
       
       return(list(clusters=clusters, PCs=PCs, PVE=PVE, MCL=MCL, Cons=Cons, Median=Median, Mad=Mad, chr=chr))
-    }, mc.cores =1)
+    }, mc.cores =cores)
     
     cat('preparing output \n')
     
