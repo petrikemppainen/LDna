@@ -55,8 +55,7 @@ Returns a list of five objects. These are saved as separate .rds files in the fo
 \code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). 
 \code{cluster_PCs} includes a matrix individuals (rows) and PCs (columns) corresponding to each row in \code{cluster_summary}. This is what you use for subsequent GWA analyses. 
 The third object (\code{clusters}) contains a list of locus names (chr:position; each entry corresponding to a row in \code{cluster_summary} for entries where PC=1). 
-The fourth and fifth objects are files matrixes similar to \code{cluster_PCs} except there will be one column per cluster with either the SNP with the highest intra cluster median LD ('maximally connected SNP', MCL) or the consensus SNP (Cons), respectively. 
-See example code for details. These last two files are expected to work better when LD thresholds are higher and SNPs in clusters or more strongly correlated, but no simualtions have been done to test this yet. 
+The fourth object is a vector of SNP positions for the highest intra cluster median LD ('maximally connected SNP', MCL) for each cluster, that can be used for downstream analyses
 \cr 
 \cr
 Each .rds file contains only information for each chromosome but this data can be concatenated into a single file using \code{\link{Concat_files}}. 

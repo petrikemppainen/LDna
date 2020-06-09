@@ -70,8 +70,8 @@ plotLDnetwork(LDmat=r2.baimaii_subs, option=1, threshold=0.4, col="red") # for m
 ### Examples with option 2
 par(mfcol=c(1,2))
 ldna <- LDnaRaw(r2.baimaii_subs)
-clusters <- extractClusters(ldna, min.edges=20, phi=5)
-summary <- summaryLDna(ldna, clusters, r2.baimaii_subs)
+clusters <- extractClusters(ldna, r2.baimaii_subs, min.edges=20, lambda.lim = 1)
+summary <- summaryLDna(ldna, clusters,r2.baimaii_subs)
 #default settings with option=2
 plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[[1]], summary=summary)
 ## Other useful settings

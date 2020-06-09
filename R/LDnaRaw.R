@@ -44,7 +44,7 @@ LDnaRaw <- function(LDmat, digits=2, method='single', mc.cores=NULL, fun=functio
     out <- parallel::mclapply(Ntips:length(tree$edge.length)+1, function(x) stats.fun(tree, LDmat, x), mc.cores = mc.cores, mc.preschedule = TRUE)
   }else{
     out <- lapply(Ntips:length(tree$edge.length)+1, function(x) stats.fun(tree, LDmat, x))
-    }
+  }
   
   
   nV <- sapply(out, function(x){x$nV})
@@ -76,8 +76,8 @@ LDnaRaw <- function(LDmat, digits=2, method='single', mc.cores=NULL, fun=functio
   d$nV[is.na(d$nV)] <- 1
   d$nE[is.na(d$nE)] <- 0
   d$lambda[is.na(d$lambda)] <- 0
-  d <- d[rev(order(d$nV)),]
   rownames(d) <- 1:nrow(d)
+  d <- d[rev(order(d$nV)),]
   
   lambda_min <- data.table(do.call(rbind, lapply(2:ncol(clusterfile), function(x){
     p <- tree$edge[,1][tree$edge[,2] == Ntips+x]-Ntips
@@ -88,7 +88,7 @@ LDnaRaw <- function(LDmat, digits=2, method='single', mc.cores=NULL, fun=functio
     LD2 <- fun(temp[temp!=0])
     c(LD1,LD2)
   })))
- 
+  
   out <- list(clusterfile, d, tree, lambda_min)
   
   names(out) <- c("clusterfile", "stats", 'tree', 'lambda_min')
@@ -102,7 +102,7 @@ lambda.fun <- function(tree, LDmat, clusterfile, Ntips, x){
   LD1 <- median(temp, na.rm=TRUE)
   temp <- c(temp, LDmat[clusterfile[,p] + clusterfile[,x]==1,clusterfile[,x]])
   LD2 <- median(temp, na.rm=TRUE)
-  (LD1 - LD2)*length(which(clusterfile[,x]))
+  (LD1 - LD2)*length(which(clusterfile[,x]))/nrow(clusterfile)*1000 
 }
 
 stats.fun <- function(tree, LDmat, x){

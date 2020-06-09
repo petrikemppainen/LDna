@@ -25,7 +25,7 @@ LDmat <- structure(c(NA, 0.84, 0.64, 0.24, 0.2, 0.16, 0.44, 0.44, NA, NA, 0.8, 0
 # Produce neccesary data for LDna
 ldna <- LDnaRaw(LDmat)
 # Extract clusters and plot graphs, for this small example min.edges is set to zero such that each tip clade corresponds to an individual locus
-clusters <- extractClusters(ldna, min.edges=0, phi=0.25, rm.COCs=FALSE)
+clusters <- extractClusters(ldna, min.edges=0, phi=0.25, rm.COCs=FALSE, branch.traversal=FALSE)
 summary <- summaryLDna(ldna, clusters, LDmat)
 }
 \seealso{
