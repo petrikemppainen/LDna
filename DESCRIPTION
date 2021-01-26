@@ -2,12 +2,12 @@ Package: LDna
 Type: Package
 Encoding: UTF-8
 Title: Linkage disequilibrum network analysis (LDna)
-Version: 0.7
+Version: 0.71
 Date: 2021-06-10
 Author: Petri Kemppainen <petrikemppainen2@gmail.com>
 Maintainer: Petri Kemppainen <petrikemppainen2@gmail.com>
 Depends:
-    R (>= 3.5.0),
+    R (>= 4.0.2),
     igraph,
     data.table,
     phyclust,
@@ -39,4 +39,4 @@ URL: http://ldnetworkanalysis.wordpress.com,
 VignetteBuilder: knitr
 Suggests:
     knitr
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
