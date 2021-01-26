@@ -27,7 +27,6 @@ Concat_files <- function(LDnCl_out){
     readRDS(paste(LDnCl_out, x, sep = '/'))$cluster_PCs
   }))
   
-  x <- file_names[1]
   LDnCl_combined$clusters <- unlist(lapply(file_names, function(x){
     readRDS(paste(LDnCl_out, x, sep = '/'))$clusters
   }), recursive=FALSE)

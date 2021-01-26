@@ -2,65 +2,58 @@
 % Please edit documentation in R/LDnClusteringEL.R
 \name{LDnClusteringEL}
 \alias{LDnClusteringEL}
-\title{Linkage disequilibrium (LD) network clustering, with pre-prepared edge lists as.}
+\title{Linkage disequilibrium (LD) network clustering, starting from edge lists of pairwise LD-values as input.}
 \usage{
 LDnClusteringEL(
   EL_path = "./LD_EL",
   nSNPs = 1000,
   w1 = 10,
-  w2 = 100,
-  LD_column = 4,
+  columns = c(1, 2, 4),
   out_folder = "LDnCl_out",
-  LD_threshold1 = 0.5,
-  LD_threshold2 = 0.8,
-  PC_threshold = 0.8,
+  min_LD = 0.7,
   plot.network = NULL,
   threshold_net = 0.9,
   to_do = NULL,
+  cores = 1,
   min.cl.size = 2,
-  cores = 1
+  min_LD2 = 0.3
 )
 }
 \arguments{
-\item{EL_path}{Path to folder (only) containg relevant el's (one per chromosome/linkage group). For convenience the file name should be "name_of_chromosome"."el" e.g. chr1.el, 1.el, LG1.el, LG1_clean.el etc.}
+\item{EL_path}{Path to folder (only) containing relevant el's (one per chromosome/linkage group). For convenience the file name should be "name_of_chromosome"."el" e.g. chr1.el, 1.el, LG1.el, LG1_clean.el etc.}
 
 \item{nSNPs}{Desired number of SNPs per window.}
 
-\item{w1}{Window size for defining putative recombination hotspots. Default is 10.}
-
-\item{w2}{Window size for estimating LD values (smaller is faster but may break up large clusters caused e.g. by inversion polymorphism).}
-
-\item{LD_column}{Index of the column that contain LD (r^2). The two first two columns must be locus 1 and 2 for each edge.}
+\item{columns}{Index of the column that contain LD (r^2). The two first two columns must be locus 1 and 2 for each edge.}
 
 \item{out_folder}{Path to folder where output is produced (default is './LDnCl_out/'). Proceed to use \code{Concat_files} to concatenate this data to a single file.}
 
-\item{LD_threshold1}{Minimum LD value within a cluster}
-
-\item{LD_threshold2}{Minimum median LD within each cluster}
-
-\item{PC_threshold}{Minimum cummulative amount of genetic variation explained by extracted PCs}
+\item{min_LD}{Minimum LD value that at least one locus must be connected to all other loci in the recursive step.}
 
 \item{plot.network}{File name for plotting network. If \code{NULL} (default) no network is plotted.}
 
-\item{threshold_net}{Threshold for edges when plotting network}
+\item{threshold_net}{Threshold for edges when plotting network.}
 
-\item{to_do}{Vector with indexes for files in folder specified by \code{EL_path} that still need to be done. If \code{NULL} (default) all files will be processed}
-
-\item{min.cl.size}{If you alrady know that you are only interested in loci that have LD>\code{LD_threshold2} with at least one other locus within the window specified by \code{w2}, \code{min.cl.size} can be set to 2. This greatly reduced the size of the output without greatly losing information e.g. for outlier analyeses, in particular in smaller data sets with otherwise high noise to signal ratios.}
+\item{to_do}{Vector with indexes for files in folder specified by \code{EL_path} that still need to be done. If \code{NULL} (default) all files will be processed.}
 
 \item{cores}{Number of cores, default is 1}
+
+\item{min.cl.size}{If 1 also singletons will be retained, which may be necessary for data sets with weak LD-structures (e.g. most loci are independent). Produced very large files though, so typically 2 is used to exclude all singleton clusters.}
+
+\item{min_LD2}{Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by w1) is below min_LD2.}
 }
 \value{
-Returns a list of five objects. These are saved as separate .rds files in the folder "LDnCl_out" (which is created if it does not already exist). If something goes wrong you can specify \code{to_do} with indexes for files in folder specified by \code{vcf_folder} that still need to be done. 
-\code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, inluding summary statistics (Median LD, MAD etc, see below). 
-\code{cluster_PCs} includes a matrix individuals (rows) and PCs (columns) corresponding to each row in \code{cluster_summary}. This is what you use for subsequent GWA analyses. 
-The third object (\code{clusters}) contains a list of locus names (chr:position; each entry corresponding to a row in \code{cluster_summary} for entries where PC=1). 
-The fourth object is a vector of SNP positions for the highest intra cluster median LD ('maximally connected SNP', MCL) for each cluster, that can be used for downstream analyses
+Returns a list of three objects which are saved as ".rds" files in the folder specified by \code{out_folder}.
+\code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, including summary statistics (Median LD, MAD etc, see below). 
+\code{clusters} contains a list of locus names (chr:position; each entry corresponding to a row in \code{cluster_summary}.
+\code{MCL} is a vector of names which which best represents the LD-cluster in downstream analyses ('maximally connected SNP', MCL aka rSNP).
 \cr 
 \cr
-Each .rds file contains only information for each chromosome but this data can be concatenated into a single file using \code{\link{Concat_files}}. 
+Each .rds file contains only information for each chromosome but they can be concatenated into a single file using \code{\link{Concat_files}}. 
+\cr
 \cr
 The columns in file \code{cluster_summary} are:
+Chr', 'Window', 'Pos', 'Min', 'Max', 'Range', 'nSNPs', 'Min_LD'
 \item{Chr}{Chromosome or linkage group identifer}
 \item{Window}{Window identifier, recycled among chromosomes}
 \item{Pos}{Mean position of SNPs in a cluster}
@@ -68,53 +61,32 @@ The columns in file \code{cluster_summary} are:
 \item{Max}{Most upstream position of SNPs in a cluster}
 \item{Range}{Max-Min}
 \item{nSNPs}{Number of SNPs in the cluster}
-\item{Median}{Median pair wise LD between loci in a cluster}
-\item{MAD}{Median absolute deviation among pair wise LD-values between loci in a cluster}
-\item{PC}{PC identifier (first PC explaining most of the genetic variation)}
-\item{PVE}{Cummulative proportion of variation explained by each PC}
-\item{Grp}{Unique group identifier for PCs extracted from each cluster. Used by \code{\link{emmax_group}}}
+\item{Min_LD}{the minimum LD between the rSNP/MCL and all other loci in its cluster}
 }
 \description{
-Finds clusters of loci connected by high LD within non-overlapping windows and summerises this information using Principal Component Analysis, to be use e.g. in Genome Wide Association (GWA) analyses. For population genomic analyses it can also be used to filter non-infomative SNPs. Path to folder that contains edge lits (el's) calculated by other software needs to be specified. This implementetion is of course much faster since no LD values need to be calculated here.
+Finds clusters of loci connected by high LD within non-overlapping windows and returns a summary file, the resulting clusters and the names of the rSNPs (previouslu MCL), to be use e.g. in Genome Wide Association (GWA) analyses.
 }
 \details{
-Uses complete linkage clustering within non-overlapping windows of SNPs (within chromosomes) to find groups of correlated SNPs connected by high LD. 
-This version el's of precalculated LD values as input. Assumes first column corresponds to locus 1 and the second column corresponds to locus 2 (of a pairwise comparison). The column that contain LD (r^2) values is specified with  \code{LD_column}
+Uses single linkage clustering within non-overlapping windows of SNPs (within chromosomes) to find groups of correlated SNPs connected by high LD. This is done recursively within the single linkage clustering sub-trees (from root and up); as soon as a clade is reached where at least one locus is connected with all other loci within its clade above threshold \code{min_LD}, the algorithm stops. The default (0.7) produces clusters where the first PC typically explains >99 percent of the variation in each cluster.
+
+Uses edge lists of LD values as input. The informative columns are specified by \code{LD_column}, where first and second specifies the columns for locus names and the third contains LD (r^2) values.
 \cr
-Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by \code{w1}) is below \code{LD_threshold1}. 
-\code{nSNPs} determines the goal size for each window; smaller windows will produce faster compuation times. \cr
 \cr
-First, a graph object is created using all pairwise r^2 values between SNPs within each window, and edges (representing r^2 values) < LD_threshold1 are removed. This breaks the initial graph into sub-graphs. 
-Removing edges like this and decomposing the graph is equivalent to a \code{sinlge linkage} clustering algorithm, with the draw back that clusters formed via single linkage clustering may be forced together due to single elements being close to each other, even though many of the elements in each cluster may be very distant to each other ('chaining-phenomenon').
-For the (potentially long and elongated) sub-clusters produced in step one, a \code{complete linkage clustering} algorithim is performed (all edged need to be connected by a threshold value of r^2, resulting in more compact and highly connected clusters). \cr
+Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by \code{w1}) is below \code{min_LD2}.
 \cr
-With the \code{complete linkage clustering} trees clades with median LD>\code{LD_threshold2} are are recursively found. 
-Thus \code{LD_threshold1} is typically set to lower than \code{LD_threshold1} and aims to break the initial network into sub-clusters, thus increasing compuational speed (i.e. it would also be possible to produce a complete linkage clustering tree for the whole window and then recursively find the relevant clades to extract). \cr
 \cr
-From each cluster as many Principal Components (\code{PCs}) as is required to explain >= \code{PC_threshold} are extracted. 
-To increase compuational speed for large windows, or if a physical limit to how large clusters one is intrested in, window size (\code{w2}) for estimating r^2 can also be set to something less than the window size. This will in practice limit size of the clusters to (\code{w2}).
-This algorithm is performed by chromosome and window, and can thus be parallelized (\code{cores}).\cr
+\code{nSNPs} determines the goal size for each window; smaller windows will produce faster computation times. \cr
+\cr
+\cr
+If something goes wrong you can specify \code{to_do} with indexes for files in folder specified by \code{EL_path} that still need to be done. 
+\cr
 \cr
 It is also possible to plot LD-networks for different cluster solutions. For this you can specify a path for where the figure will be saved (\code{plot.network}). 
 The parameter \code{threshold_net} determines the minimum value for each edge that is allowed in the network (i.e is equivalent to a single linkage clustering network). 
-Each LD-cluster has a unique (arbitrary) color combination and black vertices reprsent loci that are not part of any cluster, i.e. should be considered independently in GWA analsyes. 
+Each LD-cluster has a unique (arbitrary) color combination and black vertices represent loci that are not part of any cluster, i.e. should be considered independently in GWA analyses. 
 Minimum for \code{plot.network} is './', which exports figure to the working directory. Only works for data sets with up to 1000 SNPs and it is recommended that \code{threshold_net} is ~LD2.
 }
 \examples{
-## example run, works basically the same as 'LDnClustering' but instead of defining 'snp' and 'map' files, you have to specify the path to a folder with el's. Works with only default values, if the correlct files are in "./EL_folder/"
-\dontrun{
-data(LDna)
-##create default folder
-system("mkdir LD_EL") # create the default folder
-## put some edgelists in there
-fwrite(ELs[[1]], "./LD_EL/chr1.el", sep = "\t")
-fwrite(ELs[[2]], "./LD_EL/chr2.el", sep = "\t")
-## LD clustering using default parameters
-LDnClusteringEL()
-concat <- Concat_files("./LDnCl_out/") ## the default out folder
-LDnCl_summary <- data.table(concat$cluster_summary)
-LDnCl_summary
-}
 
 }
 \references{
@@ -128,9 +100,9 @@ Li, Z., Kemppainen, P., Rastas, P., Merila, J. Linkage disequilibrium clustering
 \author{
 Petri Kemppainen \email{petrikemppainen2@gmail.com}, zitong.li \email{lizitong1985@gmail.com}
 }
+\keyword{LD,}
 \keyword{Linkage}
-\keyword{clustering,}
-\keyword{complexity}
-\keyword{disequilibrium}
+\keyword{analyses,complexity}
+\keyword{disequilibrium,}
 \keyword{network}
 \keyword{reduction}

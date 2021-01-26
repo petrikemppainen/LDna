@@ -2,8 +2,8 @@ Package: LDna
 Type: Package
 Encoding: UTF-8
 Title: Linkage disequilibrum network analysis (LDna)
-Version: 0.71
-Date: 2021-06-10
+Version: 2.0
+Date: 2021-01-25
 Author: Petri Kemppainen <petrikemppainen2@gmail.com>
 Maintainer: Petri Kemppainen <petrikemppainen2@gmail.com>
 Depends:
@@ -19,23 +19,9 @@ Depends:
 Imports:
     SNPRelate,
     ape
-Description: R package for linkage disequilibrium (LD) network analysis (LDna).
-    In LD networks nodes represent loci and connections between nodes represent
-    LD values a given thresholds. Distinct clusters visible across a wide range
-    of LD thresholds are expected to be associated with distinct evolutionary
-    events or forces. By monitoring change in LD as clusters successively merge
-    with decreasing LD threshold, such distinct clusters can be identified and
-    extracted at appropriate LD thresholds. Cluster merging is visualized using
-    trees, where nodes represent clusters and node distance distance indicates
-    lowest LD threshold at which the cluster is present. Functions are provided
-    to: produce necessary data files for LDna from a matrix of pairwise LD
-    values; calculate lambda, which measured the change in LD before and after
-    cluster merging and is used to identify distinct clusters; extract clusters
-    based on user defined parameters; summerize data and visualise results,
-    both when extracting clusers and when exploring the extracted clusters.
+Description: R package for linkage disequilibrium (LD) network analysis (LDna). Contains collection of functions that uses network analytical tools to partition loci into sets correlated clusters based on LD.
 License: GPL (>= 2)
-URL: http://ldnetworkanalysis.wordpress.com,
-    http://www.github.com/petrikemppainen/LDna
+URL: http://www.github.com/petrikemppainen/LDna
 VignetteBuilder: knitr
 Suggests:
     knitr
