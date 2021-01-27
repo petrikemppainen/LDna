@@ -1,0 +1,110 @@
+#' Extracts LD clusters for linkage disequilibrium network analysis (LDna) using only |E|min, i.e. considers each branch as LD-cluster.
+#'
+#' Identifies \emph{outlier clusters}, \emph{OCs}, and plots \code{"single linage clustering trees"} that describes cluster merging with decreasing LD threshold.
+#' 
+#' If \code{plot.tree} and \code{plot.graph} are set to \code{TRUE}, \code{extractClusters} plots two graphs (default). The first shows all \eqn{\lambda}-values oredered from low to high and indicates which values are above \eqn{\lambda_{lim}}. Values corresponding to \emph{"selected outlier clusters", SOCs} are indicated in red and values corresponding to \emph{COCs} are indiced in blue. A \emph{COC} is defined as any \emph{OC} that contains loci from an \emph{OC} already extracted at a higher LD threshold. The second graph gives the tree illustrating cluster merger with decreasing LD threshold where nodes represent and node distance gives the LD threholds at which these events occur. Branches corresponding to \emph{SOCs} are indicated in red and those corresponding to \emph{COCs} are indiced in blue (if \code{rm.COCs=FALSE}).
+#' 
+#' Branch traversal means that as long as a branch contains outliers, the outlier clusters (SOC or COC) that is closest to the base of the branch is selected as the outlier cluster. This ensures that a wide range threshold values for \eqn{\lambda} gives similar results. 
+#'
+#' @param ldna Output from \code{\link{LDnaRaw}}
+#' @param LDmat  Same LDmat as used for \code{\link{LDnaRaw}}
+#' @param min.edges Minimum number of edges for a cluster that is shown as a branch in a tree.
+#' @param merge.min Is the correlation threshold at which a clade is considered a separate LD-cluster, even if it contains more than two branches.
+#' @param plot.tree If \code{TRUE} (default), plots tree.
+#' @keywords extractBranches
+#' @seealso \code{\link{LDnaRaw}}, \code{\link{summaryLDna}} and \code{\link{plotLDnetwork}}
+#' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}, Christopher Knight \email{Chris.Knight@@manchester.ac.uk}
+#' @return Returns a list containing a vectors of locus names belonging to a given cluster (branch)
+#' @examples
+#' data(LDna)
+#' 
+#' ldna <- LDnaRaw2(r2.baimaii_subs)
+#' 
+#' ## low lambda.lim without branch traversal, clusters extracted at high LD thresholds
+#' par(mfcol=c(1,2))
+#' clusters <- extractClusters(ldna, LDmat=r2.baimaii_subs, min.edges=15, lambda.lim = 0.1,extract=TRUE, plot.graph = TRUE, branch.traversal = FALSE)
+#' ## low lambda.lim with branch traversal
+#' # three different lambda.lim give exatly the same results after branch traversal; the "whole branch" is always selected. I recommend using branch traversal as it gives more consistent results across different data sets
+#' par(mfcol=c(3,3))
+#' clusters <- extractClusters(ldna, LDmat=r2.baimaii_subs, min.edges=15, lambda.lim = 0.1,extract=TRUE, plot.graph = FALSE, plot.tree=TRUE, branch.traversal = TRUE)
+#' clusters <- extractClusters(ldna, LDmat=r2.baimaii_subs, min.edges=15, lambda.lim = 0.5,extract=TRUE, plot.graph = FALSE, plot.tree=TRUE, branch.traversal = TRUE)
+#' clusters <- extractClusters(ldna, LDmat=r2.baimaii_subs, min.edges=15, lambda.lim = 1,extract=TRUE, plot.graph = FALSE, plot.tree=TRUE, branch.traversal = TRUE)
+#' str(clusters)
+#' # clusters are here 
+#' clusters[[1]]
+#' # matrix indicating nesting here 
+#' clusters[[2]]
+#' @export
+
+extractBranches <- function(ldna, min.edges=20, merge.min=0.8, plot.tree=TRUE){
+  
+  
+  # Get file for tree and clusters above min.edges and their lambda values
+  tree <- clusterPhylo(ldna, min.edges)
+  #plot(tree)
+  clusterfile <- ldna$clusterfile
+  
+  
+  stats <- data.table(ldna$stats)
+  clusterfile_red <- clusterfile[,colnames(clusterfile) %in% stats[nE>=min.edges,cluster] &  colnames(clusterfile) %in% stats[merge_at_below<=merge.min,cluster]]
+  SOCs <- clusters.out <- colnames(clusterfile_red)
+  
+  clusters.out <- unique(unlist(sapply(clusters.out, function(x) {
+    anc <- stats[cluster %in% x, parent_cluster]
+    cand <- stats[parent_cluster %in% anc, cluster]
+    cand <- cand[!cand %in% x]
+    cand <- cand[cand %in% clusters.out]
+  })))
+  
+  if(length(clusters.out)!=0){
+    loci <- ldna$tree$tip.label
+    # get SOCs and COCs
+    temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %in% clusters.out]
+    if(is.matrix(temp)){
+      nested <- matrix(NA, ncol(temp), ncol(temp))
+      for(i in 1:ncol(temp)){
+        for(j in 1:ncol(temp)){
+          if(i!=j & all(loci[temp[,j]] %in% loci[temp[,i]])){
+            nested[i,j] <- "COC"
+          }
+        }
+      }
+      nested[is.na(nested)] <- "SOC"
+      nested[lower.tri(nested)] <- NA
+      COCs <- as.vector(na.omit(colnames(temp)[apply(nested, 1, function(x) any(x=="COC"))]))
+      SOCs <- colnames(temp)[!colnames(temp) %in% COCs]
+      diag(nested) <- NA
+      
+    }else{
+      SOCs <- clusters.out
+      COCs <- NA
+      nested <- NULL
+    }
+    
+  }else{
+    
+    print('No clusters to extract')
+  } 
+  
+  Ntips <- length(ldna$tree$tip.label)
+  col <- rep("grey", length(tree$edge))
+  
+  if(plot.tree){
+    distances <- tree$edge.length[tree$edge[,2] %in% which(tree$tip.label %in% SOCs)]
+    clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %in% which(tree$tip.label %in% SOCs)]]
+    keep.col <- clusters.temp[distances > 0]
+    col[tree$edge[,2] %in% which(tree$tip.label %in% keep.col)] <- "red"
+    col[tree$edge[,2] %in% tree$edge[,1][tree$edge[,2] %in% which(tree$tip.label %in% SOCs[!SOCs %in% keep.col])]] <- "red"
+    col.tip <- rep("#00000000", length(tree$tip.label))
+    
+    col.tip[tree$tip.label %in% SOCs] <- "black"
+    plot(tree, show.tip.label=TRUE, edge.width=3, edge.color=col, cex=0.5, tip.color=col.tip, root.edge=TRUE, underscore=TRUE)
+    axis(1, at=c(0,(1:10)*0.1))
+    text(0,0,as.expression(bquote("|E|"[min]*plain("=")* .(min.edges))),  adj = c(0,0))
+  }
+ 
+  clusters <- lapply(SOCs, function(x) names(which(clusterfile_red[,which(colnames(clusterfile_red)==x)])))
+  names(clusters) <- SOCs
+  return(clusters)
+}
+
