@@ -21,7 +21,7 @@ extractBranches(ldna, min.edges = 20, merge.min = 0.8, plot.tree = TRUE)
 Returns a list containing a vectors of locus names belonging to a given cluster (branch)
 }
 \description{
-Identifies \emph{outlier clusters}, \emph{OCs}, and plots \code{"single linage clustering trees"} that describes cluster merging with decreasing LD threshold.
+
 }
 \details{
 If \code{plot.tree} and \code{plot.graph} are set to \code{TRUE}, \code{extractClusters} plots two graphs (default). The first shows all \eqn{\lambda}-values oredered from low to high and indicates which values are above \eqn{\lambda_{lim}}. Values corresponding to \emph{"selected outlier clusters", SOCs} are indicated in red and values corresponding to \emph{COCs} are indiced in blue. A \emph{COC} is defined as any \emph{OC} that contains loci from an \emph{OC} already extracted at a higher LD threshold. The second graph gives the tree illustrating cluster merger with decreasing LD threshold where nodes represent and node distance gives the LD threholds at which these events occur. Branches corresponding to \emph{SOCs} are indicated in red and those corresponding to \emph{COCs} are indiced in blue (if \code{rm.COCs=FALSE}).
@@ -33,20 +33,9 @@ data(LDna)
 
 ldna <- LDnaRaw2(r2.baimaii_subs)
 
-## low lambda.lim without branch traversal, clusters extracted at high LD thresholds
 par(mfcol=c(1,2))
-clusters <- extractClusters(ldna, LDmat=r2.baimaii_subs, min.edges=15, lambda.lim = 0.1,extract=TRUE, plot.graph = TRUE, branch.traversal = FALSE)
-## low lambda.lim with branch traversal
-# three different lambda.lim give exatly the same results after branch traversal; the "whole branch" is always selected. I recommend using branch traversal as it gives more consistent results across different data sets
-par(mfcol=c(3,3))
-clusters <- extractClusters(ldna, LDmat=r2.baimaii_subs, min.edges=15, lambda.lim = 0.1,extract=TRUE, plot.graph = FALSE, plot.tree=TRUE, branch.traversal = TRUE)
-clusters <- extractClusters(ldna, LDmat=r2.baimaii_subs, min.edges=15, lambda.lim = 0.5,extract=TRUE, plot.graph = FALSE, plot.tree=TRUE, branch.traversal = TRUE)
-clusters <- extractClusters(ldna, LDmat=r2.baimaii_subs, min.edges=15, lambda.lim = 1,extract=TRUE, plot.graph = FALSE, plot.tree=TRUE, branch.traversal = TRUE)
-str(clusters)
-# clusters are here 
-clusters[[1]]
-# matrix indicating nesting here 
-clusters[[2]]
+clusters <- extractBranches(ldna,min.edges=20,merge.min=0.8, plot.tree=TRUE) # default values
+clusters
 }
 \seealso{
 \code{\link{LDnaRaw}}, \code{\link{summaryLDna}} and \code{\link{plotLDnetwork}}
