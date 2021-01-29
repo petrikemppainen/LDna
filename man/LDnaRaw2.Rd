@@ -46,8 +46,8 @@ LDmat <- structure(c(NA, 0.84, 0.64, 0.24, 0.2, 0.16, 0.44, 0.44, NA, NA, 0.8, 0
 ldna <- LDnaRaw2(LDmat)
 ldna$clusterfile
 ldna$stats
-\cr
-\cr
+
+
 # Illustrating \code{merge_at_below} and \code{merge_at_above} 
 clusters <- extractBranches(ldna, min.edges=0, merge.min=0.8)
 clusters
@@ -55,8 +55,8 @@ cl_info <- ldna$stats[cluster==names(clusters)[2]] # focus on cluster 5_0.68
 cl_info
 abline(v=cl_info$merge_at_below, col="blue")
 abline(v=cl_info$merge_at_above, col="green")
-\cr
-\cr
+
+
 #' # using multiple cores for a larger data set
 data(LDna)
 ldna <- LDnaRaw2(r2.baimaii_subs, mc.cores=4)
