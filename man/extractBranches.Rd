@@ -2,7 +2,7 @@
 % Please edit documentation in R/extractBranches.R
 \name{extractBranches}
 \alias{extractBranches}
-\title{Extracts LD clusters for linkage disequilibrium network analysis (LDna) using only |E|min, i.e. considers each branch as LD-cluster.}
+\title{Extracts LD clusters for linkage disequilibrium network analysis (LDna).}
 \usage{
 extractBranches(ldna, min.edges = 20, merge.min = 0.8, plot.tree = TRUE)
 }
@@ -21,24 +21,37 @@ extractBranches(ldna, min.edges = 20, merge.min = 0.8, plot.tree = TRUE)
 Returns a list containing a vectors of locus names belonging to a given cluster (branch)
 }
 \description{
-
+Finds clusters of highly correlated loci (LD-clusters) by considering each branch in single-linkage clustering trees as a separate LD-cluster. The single-linkage can be plotted with the brances representing LD-clusters indicated.
 }
 \details{
-If \code{plot.tree} and \code{plot.graph} are set to \code{TRUE}, \code{extractClusters} plots two graphs (default). The first shows all \eqn{\lambda}-values oredered from low to high and indicates which values are above \eqn{\lambda_{lim}}. Values corresponding to \emph{"selected outlier clusters", SOCs} are indicated in red and values corresponding to \emph{COCs} are indiced in blue. A \emph{COC} is defined as any \emph{OC} that contains loci from an \emph{OC} already extracted at a higher LD threshold. The second graph gives the tree illustrating cluster merger with decreasing LD threshold where nodes represent and node distance gives the LD threholds at which these events occur. Branches corresponding to \emph{SOCs} are indicated in red and those corresponding to \emph{COCs} are indiced in blue (if \code{rm.COCs=FALSE}).
+In this implementation of defining LD-clusters, only the parameter \code{min.edges} needs to be specified. Low values of \code{min.edges} lead to "bushes" with many small "twigs" in the tree, each corresponding to a separate LD-cluster. These clusters contain fewer but more highly correlated sets of loci. Conversely, high values lead to fewer "thick" branches i.e. larger (in terms of the number of loci) but less strongly correlated LD-clusters.
+\cr
+\cr
+The single-linkage clustering tree visualizing branches/LD-clusters can be printed by \code{plot.tree}=TRUE. 
+\cr
+\cr
+With low values for \code{min.edges} an additional parameter \code{merge.min} can be used to group "branches" that merge above this threshold into a single LD-cluster; clusters that merge at high LD-threshold are so correlated, it makes no sense to regard them as separate LD-clusters.
 
-Branch traversal means that as long as a branch contains outliers, the outlier clusters (SOC or COC) that is closest to the base of the branch is selected as the outlier cluster. This ensures that a wide range threshold values for \eqn{\lambda} gives similar results.
+This function works only with \code{\link{LDnaRaw2}} as shown in the examples
 }
 \examples{
 data(LDna)
 
 ldna <- LDnaRaw2(r2.baimaii_subs)
 
-par(mfcol=c(1,2))
 clusters <- extractBranches(ldna,min.edges=20,merge.min=0.8, plot.tree=TRUE) # default values
+clusters
+
+# with lower threshold for  \code{min.edges}
+clusters <- extractBranches(ldna,min.edges=5,merge.min=0.8, plot.tree=TRUE) # default values
+clusters
+
+# with lower threshold for  \code{min.edges} and 
+clusters <- extractBranches(ldna,min.edges=5,merge.min=0.2, plot.tree=TRUE) # default values
 clusters
 }
 \seealso{
-\code{\link{LDnaRaw}}, \code{\link{summaryLDna}} and \code{\link{plotLDnetwork}}
+\code{\link{LDnaRaw2}}
 }
 \author{
 Petri Kemppainen \email{petrikemppainen2@gmail.com}, Christopher Knight \email{Chris.Knight@manchester.ac.uk}

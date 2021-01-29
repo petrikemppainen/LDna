@@ -35,7 +35,7 @@ LDnaRaw <- function(LDmat, digits=2, method='single', mc.cores=NULL, fun=functio
   LDmat <- round(LDmat, digits)
   tree <- ape::as.phylo(hclust(as.dist(1-LDmat), method=method))
   tree <- ape::di2multi(tree)
-  tree$edge.length <- round(tree$edge.length, digits = 3) 
+  tree$edge.length <- round(tree$edge.length, digits = digits+1) 
   tree <- ape::di2multi(tree)
   
   Ntips <- length(tree$tip.label)
