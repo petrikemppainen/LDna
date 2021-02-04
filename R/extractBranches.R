@@ -49,25 +49,25 @@ extractBranches <- function(ldna, min.edges=20, merge.min=0.8, plot.tree=TRUE){
   
   
   stats <- data.table(ldna$stats)
-  clusterfile_red <- clusterfile[,colnames(clusterfile) %in% stats[nE>=min.edges,cluster] &  colnames(clusterfile) %in% stats[merge_at_below<=merge.min,cluster]]
+  clusterfile_red <- clusterfile[,colnames(clusterfile) %chin% stats[nE>=min.edges,cluster] &  colnames(clusterfile) %chin% stats[merge_at_below<=merge.min,cluster]]
   SOCs <- clusters.out <- colnames(clusterfile_red)
   
   clusters.out <- unique(unlist(sapply(clusters.out, function(x) {
-    anc <- stats[cluster %in% x, parent_cluster]
-    cand <- stats[parent_cluster %in% anc, cluster]
-    cand <- cand[!cand %in% x]
-    cand <- cand[cand %in% clusters.out]
+    anc <- stats[cluster %chin% x, parent_cluster]
+    cand <- stats[parent_cluster %chin% anc, cluster]
+    cand <- cand[!cand %chin% x]
+    cand <- cand[cand %chin% clusters.out]
   })))
   
   if(length(clusters.out)!=0){
     loci <- ldna$tree$tip.label
     # get SOCs and COCs
-    temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %in% clusters.out]
+    temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %chin% clusters.out]
     if(is.matrix(temp)){
       nested <- matrix(NA, ncol(temp), ncol(temp))
       for(i in 1:ncol(temp)){
         for(j in 1:ncol(temp)){
-          if(i!=j & all(loci[temp[,j]] %in% loci[temp[,i]])){
+          if(i!=j & all(loci[temp[,j]] %chin% loci[temp[,i]])){
             nested[i,j] <- "COC"
           }
         }
@@ -75,7 +75,7 @@ extractBranches <- function(ldna, min.edges=20, merge.min=0.8, plot.tree=TRUE){
       nested[is.na(nested)] <- "SOC"
       nested[lower.tri(nested)] <- NA
       COCs <- as.vector(na.omit(colnames(temp)[apply(nested, 1, function(x) any(x=="COC"))]))
-      SOCs <- colnames(temp)[!colnames(temp) %in% COCs]
+      SOCs <- colnames(temp)[!colnames(temp) %chin% COCs]
       diag(nested) <- NA
       
     }else{
@@ -96,14 +96,14 @@ extractBranches <- function(ldna, min.edges=20, merge.min=0.8, plot.tree=TRUE){
   
   
   if(plot.tree){
-    distances <- tree$edge.length[tree$edge[,2] %in% which(tree$tip.label %in% SOCs)]
-    clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %in% which(tree$tip.label %in% SOCs)]]
+    distances <- tree$edge.length[tree$edge[,2] %chin% which(tree$tip.label %chin% SOCs)]
+    clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %chin% which(tree$tip.label %chin% SOCs)]]
     keep.col <- clusters.temp[distances > 0]
-    col[tree$edge[,2] %in% which(tree$tip.label %in% keep.col)] <- "red"
-    col[tree$edge[,2] %in% tree$edge[,1][tree$edge[,2] %in% which(tree$tip.label %in% SOCs[!SOCs %in% keep.col])]] <- "red"
+    col[tree$edge[,2] %chin% which(tree$tip.label %chin% keep.col)] <- "red"
+    col[tree$edge[,2] %chin% tree$edge[,1][tree$edge[,2] %chin% which(tree$tip.label %chin% SOCs[!SOCs %chin% keep.col])]] <- "red"
     col.tip <- rep("#00000000", length(tree$tip.label))
     
-    col.tip[tree$tip.label %in% SOCs] <- "black"
+    col.tip[tree$tip.label %chin% SOCs] <- "black"
     plot(tree, show.tip.label=TRUE, edge.width=3, edge.color=col, cex=0.5, tip.color=col.tip, root.edge=TRUE, underscore=TRUE)
     
     roof <- floor(ldna$stats[nE>min.edges,max(merge_at_above, na.rm = TRUE)]*10)
