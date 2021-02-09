@@ -49,7 +49,10 @@ extractBranches <- function(ldna, min.edges=20, merge.min=0.8, plot.tree=TRUE){
   
   
   stats <- data.table(ldna$stats)
-  clusterfile_red <- clusterfile[,colnames(clusterfile) %chin% stats[nE>=min.edges,cluster] &  colnames(clusterfile) %chin% stats[merge_at_below<=merge.min,cluster]]
+  
+  #suppressWarnings(clusterfile_red <- clusterfile[,!colnames(clusterfile) %chin% stats[merge_at_above >=merge.min & as.numeric(do.call(rbind, strsplit(stats$cluster, "_"))[,2])>merge.min, cluster]])
+  clusterfile_red <- clusterfile[,colnames(clusterfile) %in% stats[nE>=min.edges,cluster] & colnames(clusterfile) %in% stats[merge_at_below<=merge.min,cluster]]
+  
   SOCs <- clusters.out <- colnames(clusterfile_red)
   
   clusters.out <- unique(unlist(sapply(clusters.out, function(x) {
@@ -96,14 +99,14 @@ extractBranches <- function(ldna, min.edges=20, merge.min=0.8, plot.tree=TRUE){
   
   
   if(plot.tree){
-    distances <- tree$edge.length[tree$edge[,2] %chin% which(tree$tip.label %chin% SOCs)]
-    clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %chin% which(tree$tip.label %chin% SOCs)]]
+    distances <- tree$edge.length[tree$edge[,2] %in% which(tree$tip.label %in% SOCs)]
+    clusters.temp <- tree$tip.label[tree$edge[,2][tree$edge[,2] %in% which(tree$tip.label %in% SOCs)]]
     keep.col <- clusters.temp[distances > 0]
-    col[tree$edge[,2] %chin% which(tree$tip.label %chin% keep.col)] <- "red"
-    col[tree$edge[,2] %chin% tree$edge[,1][tree$edge[,2] %chin% which(tree$tip.label %chin% SOCs[!SOCs %chin% keep.col])]] <- "red"
+    col[tree$edge[,2] %in% which(tree$tip.label %in% keep.col)] <- "red"
+    col[tree$edge[,2] %in% tree$edge[,1][tree$edge[,2] %in% which(tree$tip.label %in% SOCs[!SOCs %in% keep.col])]] <- "red"
     col.tip <- rep("#00000000", length(tree$tip.label))
     
-    col.tip[tree$tip.label %chin% SOCs] <- "black"
+    col.tip[tree$tip.label %in% SOCs] <- "black"
     plot(tree, show.tip.label=TRUE, edge.width=3, edge.color=col, cex=0.5, tip.color=col.tip, root.edge=TRUE, underscore=TRUE)
     
     roof <- floor(ldna$stats[nE>min.edges,max(merge_at_above, na.rm = TRUE)]*10)
@@ -115,4 +118,62 @@ extractBranches <- function(ldna, min.edges=20, merge.min=0.8, plot.tree=TRUE){
   names(clusters) <- SOCs
   return(clusters)
 }
-
+clusterPhylo <-  function(ldna, min.edges=0){
+  d <- ldna$stats[ldna$stats$nE>=min.edges,]
+  
+  d$times<-rep(0,dim(d)[1])
+  d$offspring<-as.list(rep(NA,dim(d)[1]))
+  d$terminal<-rep(0,dim(d)[1])
+  d$ancestor<-rep(0,dim(d)[1])
+  
+  row<-1
+  rowOld<-0
+  newick<-character()
+  
+  repeat{
+    cluster<-as.character(d$cluster[row])
+    d$offspring[[row]]<-which(as.character(d$parent_cluster)==cluster)
+    offspNo<-sum(!is.na(d$offspring[[row]]))
+    
+    if(offspNo==0){d$terminal[row]<-1}
+    
+    if(d$terminal[row]==1){
+      d$ancestor[row]<-rowOld
+      if(d$ancestor[row]==0){
+        newick<-paste("(",cluster,":0,:0);", sep="")
+        break}
+      newick<-paste(newick,cluster,":",d$distance[row], sep="")
+      row<-d$ancestor[row]
+      next}
+    
+    if(d$times[row]==0){
+      newick<-paste(newick,"(", sep="")
+      if(offspNo>1){newick<-paste(newick,"(", sep="")}
+      d$ancestor[row]<-rowOld
+      rowOld<-row
+      d$times[row]<-d$times[row]+1
+      row<-d$offspring[[row]][1]
+      next}
+    
+    if(d$times[row]>0 & d$times[row]<offspNo){
+      newick<-paste(newick,",", sep="")
+      if((offspNo-d$times[row])>1){newick<-paste(newick,"(", sep="")}
+      rowOld<-row
+      d$times[row]<-d$times[row]+1
+      row<-d$offspring[[row]][(d$times[row])]
+      next}
+    
+    if(d$times[row]>0 & d$times[row]==offspNo){
+      if(offspNo==1){
+        newick<-paste(newick,",",cluster,":0):",d$distance[row], sep="")
+      }else{
+        newick<-paste(newick,paste(rep("):0",(offspNo-1)),sep="", collapse=""),",",cluster,":0):",d$distance[row], sep="", collapse="")            
+      }
+      if(d$ancestor[row]==0){
+        newick<-paste(newick,";", sep="")
+        break}
+      row<-d$ancestor[row]
+      next}
+  }  
+  tree <- ape::read.tree(text=newick)
+}
