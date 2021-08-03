@@ -13,10 +13,10 @@
 #' This function works only with \code{\link{LDnaRaw2}} as shown in the examples
 #' 
 #' @param ldna Output from \code{\link{LDnaRaw}}
-#' @param LDmat  Same LDmat as used for \code{\link{LDnaRaw}}
 #' @param min.edges Minimum number of edges for a cluster that is shown as a branch in a tree.
 #' @param merge.min Is the correlation threshold at which a clade is considered a separate LD-cluster, even if it contains more than two branches.
 #' @param plot.tree If \code{TRUE} (default), plots tree.
+#' @param cores Number of cores to use.
 #' @keywords extractBranches
 #' @seealso \code{\link{LDnaRaw2}}
 #' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}, Christopher Knight \email{Chris.Knight@@manchester.ac.uk}
@@ -38,7 +38,7 @@
 #' clusters
 #' @export
 
-extractBranches <- function(ldna, min.edges=20, merge.min=0.8, plot.tree=TRUE){
+extractBranches <- function(ldna, min.edges=200, merge.min=0.8, plot.tree=TRUE, cores=10){
   
   
   # Get file for tree and clusters above min.edges and their lambda values
@@ -53,7 +53,7 @@ extractBranches <- function(ldna, min.edges=20, merge.min=0.8, plot.tree=TRUE){
   #suppressWarnings(clusterfile_red <- clusterfile[,!colnames(clusterfile) %chin% stats[merge_at_above >=merge.min & as.numeric(do.call(rbind, strsplit(stats$cluster, "_"))[,2])>merge.min, cluster]])
   clusterfile_red <- clusterfile[,colnames(clusterfile) %in% stats[nE>=min.edges,cluster] & colnames(clusterfile) %in% stats[merge_at_below<=merge.min,cluster]]
   
-  SOCs <- clusters.out <- colnames(clusterfile_red)
+  clusters.out <- colnames(clusterfile_red)
   
   clusters.out <- unique(unlist(sapply(clusters.out, function(x) {
     anc <- stats[cluster %chin% x, parent_cluster]
@@ -63,34 +63,30 @@ extractBranches <- function(ldna, min.edges=20, merge.min=0.8, plot.tree=TRUE){
   })))
   
   if(length(clusters.out)!=0){
-    loci <- ldna$tree$tip.label
-    # get SOCs and COCs
+
     temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %chin% clusters.out]
     if(is.matrix(temp)){
-      nested <- matrix(NA, ncol(temp), ncol(temp))
-      for(i in 1:ncol(temp)){
-        for(j in 1:ncol(temp)){
-          if(i!=j & all(loci[temp[,j]] %chin% loci[temp[,i]])){
-            nested[i,j] <- "COC"
-          }
-        }
+      cols <- ncol(temp)
+      
+      if(ncol(temp)>2){
+        out <- unlist(mclapply(1:(cols-2), function(x){
+          
+          any(names(which(temp[,x])) %chin% unlist(apply(temp[,(x+1):cols], 2, function(y) names(which(y)))))
+        },mc.cores=cores))
+        
+        SOCs <- c(colnames(temp)[!out], colnames(temp)[cols])  
+      }else{
+        if(!any(names(which(temp[,1])) %chin% names(which(temp[,2])))) SOCs <- colnames(temp)
       }
-      nested[is.na(nested)] <- "SOC"
-      nested[lower.tri(nested)] <- NA
-      COCs <- as.vector(na.omit(colnames(temp)[apply(nested, 1, function(x) any(x=="COC"))]))
-      SOCs <- colnames(temp)[!colnames(temp) %chin% COCs]
-      diag(nested) <- NA
+      
       
     }else{
       SOCs <- clusters.out
-      COCs <- NA
-      nested <- NULL
     }
-    
   }else{
-    
     print('No clusters to extract')
   } 
+  
   
   Ntips <- length(ldna$tree$tip.label)
   
@@ -113,11 +109,12 @@ extractBranches <- function(ldna, min.edges=20, merge.min=0.8, plot.tree=TRUE){
     axis(1, at=c(0,(1:roof)*0.1))
     text(0,1,as.expression(bquote("|E|"[min]*plain("=")* .(min.edges))),  adj = c(0,0))
   }
- 
+  
   clusters <- lapply(SOCs, function(x) names(which(clusterfile_red[,which(colnames(clusterfile_red)==x)])))
   names(clusters) <- SOCs
   return(clusters)
 }
+
 clusterPhylo <-  function(ldna, min.edges=0){
   d <- ldna$stats[ldna$stats$nE>=min.edges,]
   

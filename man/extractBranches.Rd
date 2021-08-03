@@ -4,7 +4,13 @@
 \alias{extractBranches}
 \title{Extracts LD clusters for linkage disequilibrium network analysis (LDna).}
 \usage{
-extractBranches(ldna, min.edges = 20, merge.min = 0.8, plot.tree = TRUE)
+extractBranches(
+  ldna,
+  min.edges = 200,
+  merge.min = 0.8,
+  plot.tree = TRUE,
+  cores = 10
+)
 }
 \arguments{
 \item{ldna}{Output from \code{\link{LDnaRaw}}}
@@ -15,7 +21,7 @@ extractBranches(ldna, min.edges = 20, merge.min = 0.8, plot.tree = TRUE)
 
 \item{plot.tree}{If \code{TRUE} (default), plots tree.}
 
-\item{LDmat}{Same LDmat as used for \code{\link{LDnaRaw}}}
+\item{cores}{Number of cores to use.}
 }
 \value{
 Returns a list containing a vectors of locus names belonging to a given cluster (branch)

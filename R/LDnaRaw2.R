@@ -43,7 +43,8 @@
 #' @export
 
 LDnaRaw2 <- function(LDmat, digits=2, method='single', mc.cores=NULL, length_out=NULL, fun=function(x){min(x, na.rm=TRUE)}){
-
+  if(any(duplicated(colnames(LDmat)))) stop("Remove/rename duplicated loci")
+  
   if(!is.null(length_out)){
     tmp <- seq(0,1,length.out = length_out+1)
     
