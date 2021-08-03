@@ -15,25 +15,28 @@
 #' # Produce neccesary data for LDna
 #' ldna <- LDnaRaw(LDmat)
 #' # Extract clusters and plot graphs, for this small example min.edges is set to zero such that each tip clade corresponds to an individual locus
-#' clusters <- extractClusters(ldna, min.edges=0, phi=0.25, rm.COCs=FALSE)
+#' clusters <- extractClusters(ldna, min.edges=0, phi=0.25, rm.COCs=FALSE, branch.traversal=FALSE)
 #' summary <- summaryLDna(ldna, clusters, LDmat)
 #' @export
 summaryLDna <- function(ldna, clusters, LDmat){
   if(is.na(LDmat[2,1])) LDmat <- t(LDmat)
   p <- NULL
+  # i <- 1
   for(i in 1:length(clusters[[1]])){
     fc <- names(clusters[[1]])[i]
     p <- c(p, as.vector(ldna$stats[, 2][ldna$stats[, 1] %in% fc]))
-  }  
+  } 
+  
   Merge.at <- do.call('rbind', strsplit(p, "_"))[,2]
   
   nLoci <- as.vector(unlist(lapply(clusters[[1]], length)))
   
-  nE <- ldna$stats$nE[ldna$stats$cluster %in% names(clusters[[1]])]
-  names(nE) <- ldna$stats$cluster[ldna$stats$cluster %in% names(clusters[[1]])]
-  lambda <- ldna$stats$lambda[ldna$stats$cluster %in% names(clusters[[1]])]
-  names(lambda) <- ldna$stats$cluster[ldna$stats$cluster %in% names(clusters[[1]])]
-
+  keep <- match(names(clusters[[1]]),ldna$stats$cluster)
+  nE <- ldna$stats$nE[keep]
+  names(nE) <- ldna$stats$cluster[keep]
+  lambda <- ldna$stats$lambda[keep]
+  names(lambda) <- ldna$stats$cluster[keep]
+  
   std.err <- function(x) sd(x)/sqrt(length(x))
   Median.LD <- NULL
   MAD.LD <- NULL
@@ -45,31 +48,22 @@ summaryLDna <- function(ldna, clusters, LDmat){
     MAD.LD <- c(MAD.LD, signif(mad(as.vector(temp2), na.rm=TRUE, constant=1),3))
   }
   
-  temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %in% names(clusters[[1]])]
-  # nested <- matrix("SOC", ncol(temp), ncol(temp))
-  # for(i in 1:ncol(temp)){
-  #   for(j in 1:ncol(temp)){
-  #     if(i!=j & any(apply(cbind(temp[,i], temp[,j]),1, function(x) x[1]==TRUE & x[2]==TRUE))){
-  #        nested[i,j] <- "COC"
-  #     }
-  #   }
-  # }
-  # nested[lower.tri(nested)] <- NA
-  # diag(nested) <- NA
-  # 
-  COCs <- as.vector(na.omit(colnames(temp)[apply(clusters[[2]], 1, function(x) any(x=="COC"))]))
-  SOCs <- colnames(temp)[!colnames(temp) %in% COCs]
-
-
-
   
+  
+  nested <- clusters[[2]][match(names(clusters[[1]]), colnames(clusters[[2]])),match(names(clusters[[1]]), colnames(clusters[[2]]))]
+  COCs <- as.vector(na.omit(colnames(nested)[apply(nested, 1, function(x) any(x=="COC"))]))
+  SOCs <- colnames(nested)[!colnames(nested) %in% COCs]
+  
+  
+  
+  #####
   
   Type <- names(clusters[[1]])
   Type[which(Type %in% SOCs)] <- "SOC"
   Type[Type != "SOC"] <- "COC"
   names(Type) <- names(clusters[[1]])
   
-  lambda[match(names(Type), names(lambda))]
-  summary <- data.frame(Type, Merge.at, nLoci, nE=nE[match(names(Type), names(nE))], lambda=lambda[match(names(Type), names(lambda))], Median.LD, MAD.LD)
+  #lambda[match(names(Type), names(lambda))]
+  summary <- data.frame(Name=names(lambda), Type, Merge.at, nLoci,  nE=nE, lambda=lambda, Median.LD, MAD.LD)
   return(summary)
 }

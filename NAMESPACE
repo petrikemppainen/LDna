@@ -2,9 +2,12 @@
 
 export(Concat_files)
 export(LDnClustering)
+export(LDnClusteringEL)
 export(LDnClusteringVCF)
 export(LDnaRaw)
+export(LDnaRaw2)
 export(emmax_group)
+export(extractBranches)
 export(extractClusters)
 export(plotLDnetwork)
 export(summaryLDna)
