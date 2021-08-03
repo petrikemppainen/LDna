@@ -14,7 +14,9 @@ The function *extractBranches* is a much simplified version of *extractClusters*
 
 For more details please see https://www.biorxiv.org/content/10.1101/2021.01.26.428263v1, in particular Supporting Methods 4 to understand the trade off between high/low parameter settings for *|E|min*. Please note that in this paper LDna-1 is equivalent to *LDnClusteringEL*
 
-Any questions or suggestions may be posted at: https://groups.google.com/forum/#!forum/ld-network-analysis
+For questions, email me at petrikemppainen2@gmail.com
+
+For small data sets an getting famliar with LDna basics, I still recommend checking out v.0.64!
 
 ###Installing
 
