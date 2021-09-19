@@ -12,7 +12,7 @@
 #' 
 #' This function works only with \code{\link{LDnaRaw2}} as shown in the examples
 #' 
-#' @param ldna Output from \code{\link{LDnaRaw}}
+#' @param ldna Output from \code{\link{LDnaRaw2}}
 #' @param min.edges Minimum number of edges for a cluster that is shown as a branch in a tree.
 #' @param merge.min Is the correlation threshold at which a clade is considered a separate LD-cluster, even if it contains more than two branches.
 #' @param plot.tree If \code{TRUE} (default), plots tree.
