@@ -142,6 +142,7 @@ LDnClusteringEL <- function(EL_path = "./LD_EL", nSNPs=1000, w1=10, columns = c(
           
           if(length(cl)>1){
             LDmat.part <- LDmat[which(locus_names %in% cl), which(locus_names %in% cl)]
+            LDmat.part[LDmat.part==0]<-NA
             Min_LD <- apply(LDmat.part, 1, min, na.rm=TRUE)
             
             if(max(Min_LD) > min_LD){
@@ -180,7 +181,7 @@ LDnClusteringEL <- function(EL_path = "./LD_EL", nSNPs=1000, w1=10, columns = c(
           tree$tip.label <- loci
           ntips <- length(tree$tip.label)
           
-          
+          LDmat.part[LDmat.part==0]<-NA
           
           if(min(LDmat.part, na.rm = TRUE)<min_LD){
             clusters.sub <- list()
