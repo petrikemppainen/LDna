@@ -122,7 +122,7 @@ LDnClusteringEL <- function(EL_path = "./LD_EL", nSNPs=1000, w1=10, columns = c(
       g <- graph.edgelist(apply(el[keep,.(from, to)],2, function(o) as.character(o)), directed = FALSE)
       E(g)$weight <- as.numeric(el[keep,r2])
       
-      g <- delete_edges(g, which(E(g)$weight<0.3))
+      g <- delete_edges(g, which(E(g)$weight<0.5)) ## too low value will cause infinite recursions. This should be lower than min_LD and 0.5 seems to be a good compromise
       
       d_g <- decompose.graph(g)
       #d_g <- d_g[sapply(d_g, function(x) length(V(x)$name)>1)]
