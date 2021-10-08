@@ -13,7 +13,7 @@ extractBranches(
 )
 }
 \arguments{
-\item{ldna}{Output from \code{\link{LDnaRaw}}}
+\item{ldna}{Output from \code{\link{LDnaRaw2}}}
 
 \item{min.edges}{Minimum number of edges for a cluster that is shown as a branch in a tree.}
 

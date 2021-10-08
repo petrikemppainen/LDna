@@ -87,7 +87,7 @@ extractBranches <- function(ldna, min.edges=200, merge.min=0.8, plot.tree=TRUE, 
     print('No clusters to extract')
   } 
   
-  
+  SOCs <- SOCs[!duplicated(SOCs)]
   Ntips <- length(ldna$tree$tip.label)
   
   col <- rep("grey", length(tree$edge))
