@@ -106,24 +106,23 @@ LDnaRaw2 <- function(LDmat, digits=2, method='single', mc.cores=NULL, length_out
   merge_at_below <- sapply(unique(d$cluster)[-1], function(cl){
     
     if(as.vector(na.omit(d$parent_cluster[d$cluster==cl]))!="root"){
-      as.numeric(strsplit(d[d$cluster %chin%   as.vector(na.omit(d$parent_cluster[d$cluster==cl])),]$cluster, "_")[[1]][2])
+      as.numeric(strsplit(d[d$cluster %chin%  as.vector(na.omit(d$parent_cluster[d$cluster==cl])),]$cluster, "_")[[1]][2])
     }else{
       0
     }
     
   })
   d <- data.table(d, merge_at_below=c(0,merge_at_below))
-
-  sapply(unique(d$cluster)[-1], function(cl){
+  d[nE==0,merge_at_above:=1]
+  sapply(unique(d[nE!=0]$cluster)[-1], function(cl){
+    
     tmp <- d[parent_cluster==cl,]
-    if(any(tmp$merge_at_below+as.numeric(tmp$distance)!=1)){
+    if(all(is.na(tmp$merge_at_above))){
       d[cluster==cl, merge_at_above := as.numeric(strsplit(tmp[tmp$merge_at_below+as.numeric(tmp$distance)!=1,]$cluster, "_")[[1]][2])  ]
     }else{
-      if(all(tmp$merge_at_below+as.numeric(tmp$distance)==1) & nrow(tmp)>0){
-        d[cluster==cl, merge_at_above := as.numeric(strsplit(cl, "_")[[1]][2])]
-      }else{
-        d[cluster==cl, merge_at_above := 1]
-      }
+      
+      d[cluster==cl, merge_at_above := as.numeric(strsplit(cl, "_")[[1]][2])]
+      
     }
   })
 

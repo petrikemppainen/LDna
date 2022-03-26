@@ -50,28 +50,32 @@ extractBranches <- function(ldna, min.edges=200, merge.min=0.8, plot.tree=TRUE, 
   
   stats <- data.table(ldna$stats)
   
-  #suppressWarnings(clusterfile_red <- clusterfile[,!colnames(clusterfile) %chin% stats[merge_at_above >=merge.min & as.numeric(do.call(rbind, strsplit(stats$cluster, "_"))[,2])>merge.min, cluster]])
+  
   clusterfile_red <- clusterfile[,colnames(clusterfile) %in% stats[nE>=min.edges,cluster] & colnames(clusterfile) %in% stats[merge_at_below<=merge.min,cluster]]
   
   clusters.out <- colnames(clusterfile_red)
   
   clusters.out <- unique(unlist(sapply(clusters.out, function(x) {
-    anc <- stats[cluster %chin% x, parent_cluster]
-    cand <- stats[parent_cluster %chin% anc, cluster]
+    anc <- stats[cluster %chin% x &nE!=0, parent_cluster]
+    cand <- stats[parent_cluster %chin% anc&nE!=0, cluster]
     cand <- cand[!cand %chin% x]
     cand <- cand[cand %chin% clusters.out]
   })))
-  
+  # 
   if(length(clusters.out)!=0){
-
+    
     temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %chin% clusters.out]
     if(is.matrix(temp)){
       cols <- ncol(temp)
-      
+      #  x<-9
       if(ncol(temp)>2){
-        out <- unlist(mclapply(1:(cols-2), function(x){
+        out <- unlist(mclapply(1:(cols-1), function(x){
+          if(x<cols-1){
+            any(names(which(temp[,x])) %chin% unlist(apply(temp[,(x+1):cols], 2, function(y) names(which(y)))))  
+          }else{
+            any(names(which(temp[,x])) %chin% names(which(temp[,(x+1)])))
+          }
           
-          any(names(which(temp[,x])) %chin% unlist(apply(temp[,(x+1):cols], 2, function(y) names(which(y)))))
         },mc.cores=cores))
         
         SOCs <- c(colnames(temp)[!out], colnames(temp)[cols])  
@@ -80,11 +84,13 @@ extractBranches <- function(ldna, min.edges=200, merge.min=0.8, plot.tree=TRUE, 
       }
       
       
+      
     }else{
       SOCs <- clusters.out
     }
   }else{
-    print('No clusters to extract')
+    stop('No clusters to extract - consider lowering "min.edges" or increasing "merge.min"')
+    
   } 
   
   SOCs <- SOCs[!duplicated(SOCs)]
@@ -92,6 +98,9 @@ extractBranches <- function(ldna, min.edges=200, merge.min=0.8, plot.tree=TRUE, 
   
   col <- rep("grey", length(tree$edge))
   
+  if(min.edges==0){
+    SOCs <- c(SOCs, rownames(clusterfile)[!rownames(clusterfile) %in% unlist(apply(clusterfile[,colnames(clusterfile) %in% SOCs], 2, function(x) names(which(x))))])
+  }
   
   
   if(plot.tree){
