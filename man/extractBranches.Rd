@@ -9,11 +9,11 @@ extractBranches(
   min.edges = 200,
   merge.min = 0.8,
   plot.tree = TRUE,
-  cores = 10
+  cores = 1
 )
 }
 \arguments{
-\item{ldna}{Output from \code{\link{LDnaRaw2}}}
+\item{ldna}{Output from \code{\link{LDnaRaw}}}
 
 \item{min.edges}{Minimum number of edges for a cluster that is shown as a branch in a tree.}
 
@@ -43,7 +43,7 @@ This function works only with \code{\link{LDnaRaw2}} as shown in the examples
 \examples{
 data(LDna)
 
-ldna <- LDnaRaw2(r2.baimaii_subs)
+ldna <- LDnaRaw(r2.baimaii_subs)
 
 clusters <- extractBranches(ldna,min.edges=20,merge.min=0.8, plot.tree=TRUE) # default values
 clusters

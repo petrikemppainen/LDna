@@ -12,7 +12,7 @@
 #' 
 #' This function works only with \code{\link{LDnaRaw2}} as shown in the examples
 #' 
-#' @param ldna Output from \code{\link{LDnaRaw2}}
+#' @param ldna Output from \code{\link{LDnaRaw}}
 #' @param min.edges Minimum number of edges for a cluster that is shown as a branch in a tree.
 #' @param merge.min Is the correlation threshold at which a clade is considered a separate LD-cluster, even if it contains more than two branches.
 #' @param plot.tree If \code{TRUE} (default), plots tree.
@@ -24,7 +24,7 @@
 #' @examples
 #' data(LDna)
 #' 
-#' ldna <- LDnaRaw2(r2.baimaii_subs)
+#' ldna <- LDnaRaw(r2.baimaii_subs)
 #' 
 #' clusters <- extractBranches(ldna,min.edges=20,merge.min=0.8, plot.tree=TRUE) # default values
 #' clusters
@@ -38,7 +38,7 @@
 #' clusters
 #' @export
 
-extractBranches <- function(ldna, min.edges=200, merge.min=0.8, plot.tree=TRUE, cores=10){
+extractBranches <- function(ldna, min.edges=200, merge.min=0.8, plot.tree=TRUE, cores=1){
   
   
   # Get file for tree and clusters above min.edges and their lambda values
@@ -119,8 +119,15 @@ extractBranches <- function(ldna, min.edges=200, merge.min=0.8, plot.tree=TRUE, 
     text(0,1,as.expression(bquote("|E|"[min]*plain("=")* .(min.edges))),  adj = c(0,0))
   }
   
-  clusters <- lapply(SOCs, function(x) names(which(clusterfile_red[,which(colnames(clusterfile_red)==x)])))
-  names(clusters) <- SOCs
+  if(length(SOCs[!grep("_0.",SOCs)])==0){
+    clusters <- lapply(SOCs, function(x) names(which(clusterfile_red[,which(colnames(clusterfile_red)==x)])))
+    names(clusters) <- SOCs  
+  }else{
+    clusters2 <- list(SOCs[!grepl("_0.",SOCs)])
+    clusters <- c(clusters,clusters2)
+    names(clusters) <- SOCs  
+  }
+  
   return(clusters)
 }
 
