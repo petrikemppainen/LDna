@@ -55,13 +55,13 @@ extractBranches <- function(ldna, min.edges=200, merge.min=0.8, plot.tree=TRUE, 
   
   clusters.out <- colnames(clusterfile_red)
   
-  clusters.out <- unique(unlist(sapply(clusters.out, function(x) {
-    anc <- stats[cluster %chin% x &nE!=0, parent_cluster]
-    cand <- stats[parent_cluster %chin% anc&nE!=0, cluster]
-    cand <- cand[!cand %chin% x]
-    cand <- cand[cand %chin% clusters.out]
-  })))
-  # 
+  # clusters.out <- unique(unlist(sapply(clusters.out, function(x) {
+  #   anc <- stats[cluster %chin% x &nE!=0, parent_cluster]
+  #   cand <- stats[parent_cluster %chin% anc&nE!=0, cluster]
+  #   cand <- cand[!cand %chin% x]
+  #   cand <- cand[cand %chin% clusters.out]
+  # })))
+  # # 
   if(length(clusters.out)!=0){
     
     temp <- ldna$clusterfile[,colnames(ldna$clusterfile) %chin% clusters.out]
