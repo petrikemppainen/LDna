@@ -31,11 +31,11 @@ plotLDnetwork(
 
 \item{threshold}{Specifies the LD threshold at which an LD network is plotted. Only required for option=1.}
 
-\item{clusters}{Output from \code{\link{extractClusters}}.}
+\item{clusters}{Output from \code{\link{extractBranches}}.}
 
 \item{summary}{Output from \code{\link{summaryLDna}}.}
 
-\item{digits}{Needs to be the same as used \code{\link{LDnaRaw}} and \code{\link{extractClusters}}, if not default (2)}
+\item{digits}{Needs to be the same as used \code{\link{LDnaRaw}} and \code{\link{extractBranches}}, if not default (2)}
 
 \item{exl}{A list of locus names to be excluded from the LD networks (default is \code{NULL}).}
 
@@ -49,7 +49,7 @@ plotLDnetwork(
 
 \item{col}{Color of vertices when using \code{option=1}, default is "grey"}
 
-\item{frame.color}{Used by \code{\link{LDnClustering}}}
+\item{frame.color}{Frame color for vertices.}
 
 \item{pos}{A numeric vector giving the position of loci along each chromosome. This is converted into red-green color space such that within each cluster it is possible to infer if vertex position reflexts its physical position in the chromosome. Currently works only for \code{option=1}.}
 }
@@ -57,47 +57,47 @@ plotLDnetwork(
 If \code{option=1} and \code{graph.object=TRUE} the output is an igraph.object that can further be manipulated for custom networks (see \code{\link{igraph}} for details).
 }
 \description{
-Allows for visual inspection of clusters identified by \code{\link{extractClusters}}.
+Allows for visual inspection of clusters identified by \code{\link{extractBranches}}.
 }
 \details{
 See examples for more details
 }
 \examples{
-### Example with option=1
+#### Example with option=1
 data(LDna)
 plotLDnetwork(LDmat=r2.baimaii_subs, option=1, threshold=0.4)
 plotLDnetwork(LDmat=r2.baimaii_subs, option=1, threshold=0.4, col="red") # for more color
 ### Examples with option 2
 par(mfcol=c(1,2))
 ldna <- LDnaRaw(r2.baimaii_subs)
-clusters <- extractClusters(ldna, r2.baimaii_subs, min.edges=20, lambda.lim = 1)
-summary <- summaryLDna(ldna, clusters,r2.baimaii_subs)
+clusters <- extractBranches(ldna, min.edges=20)
+summary <- summaryLDna(ldna, clusters,LDmat=r2.baimaii_subs)
 #default settings with option=2
-plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[[1]], summary=summary)
+par(mfcol=c(2,2))
+plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary)
 ## Other useful settings
 # For large data sets
-plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[[1]], summary=summary, full.network=FALSE, include.parent=FALSE, after.merger=FALSE)
+plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=FALSE, include.parent=FALSE, after.merger=FALSE)
 # To visualise the merger
-plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[[1]], summary=summary, full.network=TRUE, after.merger=TRUE)
+plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=TRUE, after.merger=TRUE)
 # Or
-plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[[1]], summary=summary, full.network=FALSE, include.parent=TRUE, after.merger=TRUE)
+plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=FALSE, include.parent=TRUE, after.merger=TRUE)
 # To show that ususally several clusters are involved in most mergers
-plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[[1]], summary=summary, full.network=FALSE, include.parent=TRUE, after.merger=FALSE)
-### Print directly to file, recommended for large data sets with many clusters. 
-\dontrun{
+plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters, summary=summary, full.network=FALSE, include.parent=TRUE, after.merger=FALSE)
+### Print directly to file, recommended for large data sets with many clusters.
 library(parallel)
 fun <- function(x){
 setEPS()
 postscript(paste(x, "network.eps",  sep="_"))
-plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[[1]][x], summary=summary[x,], full.network=FALSE)
+plotLDnetwork(ldna, r2.baimaii_subs, option=2, clusters=clusters[x], summary=summary[x,], full.network=FALSE)
 dev.off()
 }
 lapply(1:length(clusters), fun)
 # a multicore version of this
-mclapply(1:length(clusters), fun, mc.cores=4, mc.preschedule=TRUE)}
+mclapply(1:length(clusters), fun, mc.cores=4, mc.preschedule=TRUE)
 }
 \seealso{
-\code{\link{LDnaRaw}}, \code{\link{extractClusters}} and \code{\link{summaryLDna}}
+\code{\link{LDnaRaw}}, \code{\link{extractBranches}} and \code{\link{summaryLDna}}
 }
 \author{
 Petri Kemppainen \email{petrikemppainen2@gmail.com}

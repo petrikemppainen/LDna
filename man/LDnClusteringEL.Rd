@@ -5,9 +5,8 @@
 \title{Linkage disequilibrium (LD) network clustering, starting from edge lists of pairwise LD-values as input.}
 \usage{
 LDnClusteringEL(
-  EL_path = "./LD_EL",
+  EL_path = "./LD_EL/",
   nSNPs = 1000,
-  w1 = 10,
   columns = c(1, 2, 4),
   out_folder = "LDnCl_out",
   min_LD = 0.7,
@@ -15,12 +14,11 @@ LDnClusteringEL(
   threshold_net = 0.9,
   to_do = NULL,
   cores = 1,
-  min.cl.size = 2,
-  min_LD2 = 0.3
+  min.cl.size = 2
 )
 }
 \arguments{
-\item{EL_path}{Path to folder (only) containing relevant el's (one per chromosome/linkage group). For convenience the file name should be "name_of_chromosome"."el" e.g. chr1.el, 1.el, LG1.el, LG1_clean.el etc.}
+\item{EL_path}{Path to folder (only) containing relevant el's (one per chromosome/linkage group). For convenience the file name should be "name_of_chromosome"."el" e.g. chr1.el, 1.el, LG1.el, LG1_clean.el etc. Note that it is unnecessary to use a window size of more than ca. 100 SNPs for the edge list (specified in whatever software you are using), otherwise you may have to wait for a long time...}
 
 \item{nSNPs}{Desired number of SNPs per window.}
 
@@ -39,8 +37,6 @@ LDnClusteringEL(
 \item{cores}{Number of cores, default is 1}
 
 \item{min.cl.size}{If 1 also singletons will be retained, which may be necessary for data sets with weak LD-structures (e.g. most loci are independent). Produced very large files though, so typically 2 is used to exclude all singleton clusters.}
-
-\item{min_LD2}{Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by w1) is below min_LD2.}
 }
 \value{
 Returns a list of three objects which are saved as ".rds" files in the folder specified by \code{out_folder}.
@@ -64,7 +60,7 @@ Chr', 'Window', 'Pos', 'Min', 'Max', 'Range', 'nSNPs', 'Min_LD'
 \item{Min_LD}{the minimum LD between the rSNP/MCL and all other loci in its cluster}
 }
 \description{
-Finds clusters of loci connected by high LD within non-overlapping windows and returns a summary file, the resulting clusters and the names of the rSNPs (previouslu MCL), to be use e.g. in Genome Wide Association (GWA) analyses.
+Finds clusters of loci connected by high LD within non-overlapping windows and returns a summary file, the resulting clusters and the names of the rSNPs (previously MCL), to be use e.g. in Genome Wide Association (GWA) analyses.
 }
 \details{
 Uses single linkage clustering within non-overlapping windows of SNPs (within chromosomes) to find groups of correlated SNPs connected by high LD. This is done recursively within the single linkage clustering sub-trees (from root and up); as soon as a clade is reached where at least one locus is connected with all other loci within its clade above threshold \code{min_LD}, the algorithm stops. The default (0.7) produces clusters where the first PC typically explains >99 percent of the variation in each cluster.
@@ -72,10 +68,7 @@ Uses single linkage clustering within non-overlapping windows of SNPs (within ch
 Uses edge lists of LD values as input. The informative columns are specified by \code{LD_column}, where first and second specifies the columns for locus names and the third contains LD (r^2) values.
 \cr
 \cr
-Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by \code{w1}) is below \code{min_LD2}.
-\cr
-\cr
-\code{nSNPs} determines the goal size for each window; smaller windows will produce faster computation times. \cr
+\code{nSNPs} determines the goal size for each window; smaller windows will produce faster computation times, but the smaller this size, the larger is the risk that you miss LD-clusters across breakpoints. However, if such a cluster is large, it will be split in two separate LD-clusters and they will be correlated in subsequent LDna steps.
 \cr
 \cr
 If something goes wrong you can specify \code{to_do} with indexes for files in folder specified by \code{EL_path} that still need to be done. 
@@ -87,7 +80,41 @@ Each LD-cluster has a unique (arbitrary) color combination and black vertices re
 Minimum for \code{plot.network} is './', which exports figure to the working directory. Only works for data sets with up to 1000 SNPs and it is recommended that \code{threshold_net} is ~LD2.
 }
 \examples{
+\dontrun{
+library(LDna)
+data("LDna")
+## make directory for edge lists to live
+system("mkdir LD_EL")
+length(ELs) # edge lists for two chromosomes
+## write them in LD_EL folder
+# the locus names need to be "Chr:Pos"
+tmp <- as.data.table(ELs[[1]])
+tmp[,V1:=paste("Chr1",V1,sep=":")]
+tmp[,V2:=paste("Chr1",V2,sep=":")]
+ELs[[1]] <- tmp
+tmp <- as.data.table(ELs[[2]])
+tmp[,V1:=paste("Chr2",V1,sep=":")]
+tmp[,V2:=paste("Chr2",V2,sep=":")]
+ELs[[2]] <- tmp
+## write the files to the EL folder
+fwrite(ELs[[1]],file="LD_EL/Chr1.ld", row.names=FALSE,quote=FALSE)
+fwrite(ELs[[2]],file="LD_EL/Chr2.ld", row.names=FALSE,quote=FALSE)
 
+## run LD-network clustering (LD-network complexity reduction)
+LDnClusteringEL(EL_path = "./LD_EL/",cores = 10, min.cl.size = 2) ## no singleton clusters are kept
+## read in results
+LDnC_res <- Concat_files("./LDnCl_out/")
+cluster_summary<- as.data.table(LDnC_res$cluster_summary)
+cluster_summary
+cluster_summary[,hist(Min_LD)] ## distribution of minimum LD among any two loci within a cluster
+cluster_summary[,table(nSNPs)]  ## distribution cluster sizes
+cluster_summary[,plot(nSNPs,Min_LD)]  ## larger clusters tend to have lower minimum LD, those large clusters are from inversions
+
+LDnC_res$clusters[cluster_summary[,which.max(nSNPs)]] ## this is the cluster with the most loci (e.g. putative inversion); the name is the MCL/rSNP
+LDnC_res$MCL[cluster_summary[,which.max(nSNPs)]] ## the MCL/rSNP, i.e. the SNP that has the highest median LD with all other loci in this cluster 
+## and can be used to "represent" (hence "rSNP") this cluster in downstream analsyes.
+##  The alternative is to analyse the first PC as a forms of "synthetic multilocus genotypes"
+}
 }
 \references{
 Kemppainen, P., Knight, C. G., Sarma, D. K., Hlaing, T., Prakash, A., Maung Maung, Y. N., Walton, C. (2015). Linkage disequilibrium network analysis (LDna) gives a global view of chromosomal inversions, local adaptation and geographic structure. Molecular Ecology Resources, 15(5), 1031-1045. https://doi.org/10.1111/1755-0998.12369\cr

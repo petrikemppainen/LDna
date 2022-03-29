@@ -9,7 +9,7 @@ extractBranches(
   min.edges = 200,
   merge.min = 0.8,
   plot.tree = TRUE,
-  cores = 10
+  cores = 1
 )
 }
 \arguments{
@@ -38,12 +38,12 @@ The single-linkage clustering tree visualizing branches/LD-clusters can be print
 \cr
 With low values for \code{min.edges} an additional parameter \code{merge.min} can be used to group "branches" that merge above this threshold into a single LD-cluster; clusters that merge at high LD-threshold are so correlated, it makes no sense to regard them as separate LD-clusters.
 
-This function works only with \code{\link{LDnaRaw2}} as shown in the examples
+This function works only with \code{\link{LDnaRaw}} as shown in the examples
 }
 \examples{
 data(LDna)
 
-ldna <- LDnaRaw2(r2.baimaii_subs)
+ldna <- LDnaRaw(r2.baimaii_subs)
 
 clusters <- extractBranches(ldna,min.edges=20,merge.min=0.8, plot.tree=TRUE) # default values
 clusters
@@ -57,7 +57,7 @@ clusters <- extractBranches(ldna,min.edges=5,merge.min=0.2, plot.tree=TRUE) # de
 clusters
 }
 \seealso{
-\code{\link{LDnaRaw2}}
+\code{\link{LDnaRaw}}
 }
 \author{
 Petri Kemppainen \email{petrikemppainen2@gmail.com}, Christopher Knight \email{Chris.Knight@manchester.ac.uk}

@@ -9,9 +9,9 @@ emmax_group(Y, X, Grp, K, B = NULL)
 \arguments{
 \item{Y}{Phenotypic value}
 
-\item{X}{Original SNP data used for by \code{\link{LDnClustering}} (matrix with SNPs as columns and individuals as rows)}
+\item{X}{Original SNP data used for by \code{\link{LDnClusteringEL}} (matrix with SNPs as columns and individuals as rows)}
 
-\item{Grp}{Index indicating which LD-cluster SNPs belong to. Produced by \code{\link{LDnClustering}}.}
+\item{Grp}{Index indicating which LD-cluster SNPs belong to. Produced by \code{\link{LDnClusteringEL}}.}
 
 \item{K}{Kinship matrix, as produced e.g by \code{A.mat}, package \code{rrBLUP}}
 
@@ -21,19 +21,19 @@ emmax_group(Y, X, Grp, K, B = NULL)
 See reference
 }
 \description{
-This function is not meant to be a part of LDna but is provided here to show an example of how output from \code{\link{LDnClustering}} can be used for GWA studies. Potentially there will be a separate R-package in the future that focuses on GWA. For now we refer to code provided with the reference, see below.
+This function is not meant to be a part of LDna but is provided here to show an example of how output from \code{\link{LDnClusteringEL}} can be used for GWA studies. Potentially there will be a separate R-package in the future that focuses on GWA. For now we refer to code provided with the reference, see below.
 }
 \details{
 See reference
 }
 \examples{
-## see \code{\link{LDnClustering}}
+## see \code{\link{LDnClusteringEL}}
 }
 \references{
 Li, Z., Kemppainen, P., Rastas, P., Merila, J. Linkage disequilibrium clustering-based approach for association mapping with tightly linked genome-wide data. Accepted to Molecular Ecology Resources.
 }
 \seealso{
-\code{\link{LDnClustering}}
+\code{\link{LDnClusteringEL}}
 }
 \author{
 Petri Kemppainen \email{petrikemppainen2@gmail.com}, zitong.li \email{lizitong1985@gmail.com}

@@ -2,22 +2,22 @@
 % Please edit documentation in R/Concat_files.R
 \name{Concat_files}
 \alias{Concat_files}
-\title{Combines data from files produced by \code{\link{LDnClusteringVCF}}}
+\title{Combines data from files produced by \code{\link{LDnClusteringEL}}}
 \usage{
 Concat_files(LDnCl_out)
 }
 \arguments{
-\item{LDnCl_out}{Path to folder containing output from \code{\link{LDnClusteringVCF}}}
+\item{LDnCl_out}{Path to folder containing output from \code{\link{LDnClusteringEL}}}
 }
 \value{
-Returns concatenated file with the same data as in the individual \code{.rds} files. Can be used with e.g. \code{\link{emmax_group}} as with output produced by \code{\link{LDnClustering}}
+Returns concatenated file with the same data as in the individual \code{.rds} files. Can be used with e.g. \code{\link{emmax_group}} as with output produced by \code{\link{LDnClusteringEL}}
 }
 \description{
-\code{\link{LDnClusteringVCF}} produces one \code{.rds} file for each chromosome (from separate .vcf files). This function concatenates the data from each \code{.rds} file into a single file
+\code{\link{LDnClusteringEL}} produces one \code{.rds} file for each chromosome. This function concatenates the data from each \code{.rds} file into a single file
 }
 \examples{
 \dontrun{
-LDnCL_combined <- Concat_files(path/to/rds/files)
+LDnCL_combined <- Concat_files("path/to/rds/files")
 }                   
 }
 \references{

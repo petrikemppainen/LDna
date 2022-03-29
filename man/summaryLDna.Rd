@@ -9,15 +9,15 @@ summaryLDna(ldna, clusters, LDmat)
 \arguments{
 \item{ldna}{Output from \code{\link{LDnaRaw}}}
 
-\item{clusters}{Output from \code{\link{extractClusters}}}
+\item{clusters}{Output from \code{\link{extractBranches}}}
 
-\item{LDmat}{a matrix of pairwise LD values}
+\item{LDmat}{a matrix of pairwise LD values used for \code{\link{LDnaRaw}}}
 }
 \value{
-Returns a data frame with each row corresponding to a cluster, in decreasing order with respect to highest LD threshold value at which they are present. Column \emph{Type} specifies if a cluster is a \emph{"single outlier cluster", SOC} or a \emph{"compound oulier cluster", COC}. Column \emph{"Merge.at"} specfies the LD threshold for cluster merger. "Median.LD" gives the median LD of all pairwise values between loci in a cluster, and "MAD.LD" gives their unscaled median absolute deviation.
+Returns a data frame with each row corresponding to a cluster, in decreasing order with respect to highest LD threshold value at which they are present. Column \emph{"Merge.at"} specfies the LD threshold for cluster merger. "Median.LD" gives the median LD of all pairwise values between loci in a cluster, and "MAD.LD" gives their unscaled median absolute deviation.
 }
 \description{
-Creates a data frame with summary information of LD clusters extracted by function \code{\link{extractClusters}}
+Creates a data frame with summary information of LD clusters extracted by function \code{\link{extractBranches}}
 }
 \examples{
 # Simple upper diagonal LD matrix
@@ -25,11 +25,12 @@ LDmat <- structure(c(NA, 0.84, 0.64, 0.24, 0.2, 0.16, 0.44, 0.44, NA, NA, 0.8, 0
 # Produce neccesary data for LDna
 ldna <- LDnaRaw(LDmat)
 # Extract clusters and plot graphs, for this small example min.edges is set to zero such that each tip clade corresponds to an individual locus
-clusters <- extractClusters(ldna, min.edges=0, phi=0.25, rm.COCs=FALSE, branch.traversal=FALSE)
+clusters <- extractBranches(ldna, min.edges=0,merge.min = 0.6)
 summary <- summaryLDna(ldna, clusters, LDmat)
+summary
 }
 \seealso{
-\code{\link{extractClusters}}, \code{\link{LDnaRaw}} and \code{\link{plotLDnetwork}}
+\code{\link{extractBranches}}, \code{\link{LDnaRaw}} and \code{\link{plotLDnetwork}}
 }
 \author{
 Petri Kemppainen \email{petrikemppainen2@gmail.com}
