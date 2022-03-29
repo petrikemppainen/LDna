@@ -1,16 +1,13 @@
 #' Linkage disequilibrium (LD) network clustering, starting from edge lists of pairwise LD-values as input.
 #'
-#' Finds clusters of loci connected by high LD within non-overlapping windows and returns a summary file, the resulting clusters and the names of the rSNPs (previouslu MCL), to be use e.g. in Genome Wide Association (GWA) analyses.
+#' Finds clusters of loci connected by high LD within non-overlapping windows and returns a summary file, the resulting clusters and the names of the rSNPs (previously MCL), to be use e.g. in Genome Wide Association (GWA) analyses.
 #' 
 #' Uses single linkage clustering within non-overlapping windows of SNPs (within chromosomes) to find groups of correlated SNPs connected by high LD. This is done recursively within the single linkage clustering sub-trees (from root and up); as soon as a clade is reached where at least one locus is connected with all other loci within its clade above threshold \code{min_LD}, the algorithm stops. The default (0.7) produces clusters where the first PC typically explains >99 percent of the variation in each cluster.
 #' 
 #' Uses edge lists of LD values as input. The informative columns are specified by \code{LD_column}, where first and second specifies the columns for locus names and the third contains LD (r^2) values.
 #' \cr
 #' \cr
-#' Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by \code{w1}) is below \code{min_LD2}.
-#' \cr
-#' \cr
-#' \code{nSNPs} determines the goal size for each window; smaller windows will produce faster computation times. \cr
+#' \code{nSNPs} determines the goal size for each window; smaller windows will produce faster computation times, but the smaller this size, the larger is the risk that you miss LD-clusters across breakpoints. However, if such a cluster is large, it will be split in two separate LD-clusters and they will be correlated in subsequent LDna steps.
 #' \cr
 #' \cr
 #' If something goes wrong you can specify \code{to_do} with indexes for files in folder specified by \code{EL_path} that still need to be done. 
@@ -21,7 +18,7 @@
 #' Each LD-cluster has a unique (arbitrary) color combination and black vertices represent loci that are not part of any cluster, i.e. should be considered independently in GWA analyses. 
 #' Minimum for \code{plot.network} is './', which exports figure to the working directory. Only works for data sets with up to 1000 SNPs and it is recommended that \code{threshold_net} is ~LD2.
 #' 
-#' @param EL_path Path to folder (only) containing relevant el's (one per chromosome/linkage group). For convenience the file name should be "name_of_chromosome"."el" e.g. chr1.el, 1.el, LG1.el, LG1_clean.el etc.
+#' @param EL_path Path to folder (only) containing relevant el's (one per chromosome/linkage group). For convenience the file name should be "name_of_chromosome"."el" e.g. chr1.el, 1.el, LG1.el, LG1_clean.el etc. Note that it is unnecessary to use a window size of more than ca. 100 SNPs for the edge list (specified in whatever software you are using), otherwise you may have to wait for a long time...
 #' @param nSNPs Desired number of SNPs per window.
 #' @param columns Index of the column that contain LD (r^2). The two first two columns must be locus 1 and 2 for each edge.
 #' @param out_folder Path to folder where output is produced (default is './LDnCl_out/'). Proceed to use \code{Concat_files} to concatenate this data to a single file.
@@ -31,7 +28,6 @@
 #' @param plot.network File name for plotting network. If \code{NULL} (default) no network is plotted.
 #' @param threshold_net Threshold for edges when plotting network.
 #' @param to_do Vector with indexes for files in folder specified by \code{EL_path} that still need to be done. If \code{NULL} (default) all files will be processed.
-#' @param min_LD2 Window breakpoints are placed where r^2 between adjacent SNPs within a window (defined by w1) is below min_LD2. 
 #' 
 #' @keywords Linkage disequilibrium, LD, network analyses,complexity reduction
 #' 
@@ -62,11 +58,45 @@
 #' \cr
 #' Li, Z., Kemppainen, P., Rastas, P., Merila, J. Linkage disequilibrium clustering-based approach for association mapping with tightly linked genome-wide data. Accepted to Molecular Ecology Resources.
 #' @examples
+#' \dontrun{
+#' library(LDna)
+#' data("LDna")
+#' ## make directory for edge lists to live
+#' system("mkdir LD_EL")
+#' length(ELs) # edge lists for two chromosomes
+#' ## write them in LD_EL folder
+#' # the locus names need to be "Chr:Pos"
+#' tmp <- as.data.table(ELs[[1]])
+#' tmp[,V1:=paste("Chr1",V1,sep=":")]
+#' tmp[,V2:=paste("Chr1",V2,sep=":")]
+#' ELs[[1]] <- tmp
+#' tmp <- as.data.table(ELs[[2]])
+#' tmp[,V1:=paste("Chr2",V1,sep=":")]
+#' tmp[,V2:=paste("Chr2",V2,sep=":")]
+#' ELs[[2]] <- tmp
+#' ## write the files to the EL folder
+#' fwrite(ELs[[1]],file="LD_EL/Chr1.ld", row.names=FALSE,quote=FALSE)
+#' fwrite(ELs[[2]],file="LD_EL/Chr2.ld", row.names=FALSE,quote=FALSE)
 #' 
+#' ## run LD-network clustering (LD-network complexity reduction)
+#' LDnClusteringEL(EL_path = "./LD_EL/",cores = 10, min.cl.size = 2) ## no singleton clusters are kept
+#' ## read in results
+#' LDnC_res <- Concat_files("./LDnCl_out/")
+#' cluster_summary<- as.data.table(LDnC_res$cluster_summary)
+#' cluster_summary
+#' cluster_summary[,hist(Min_LD)] ## distribution of minimum LD among any two loci within a cluster
+#' cluster_summary[,table(nSNPs)]  ## distribution cluster sizes
+#' cluster_summary[,plot(nSNPs,Min_LD)]  ## larger clusters tend to have lower minimum LD, those large clusters are from inversions
+#' 
+#' LDnC_res$clusters[cluster_summary[,which.max(nSNPs)]] ## this is the cluster with the most loci (e.g. putative inversion); the name is the MCL/rSNP
+#' LDnC_res$MCL[cluster_summary[,which.max(nSNPs)]] ## the MCL/rSNP, i.e. the SNP that has the highest median LD with all other loci in this cluster 
+#' ## and can be used to "represent" (hence "rSNP") this cluster in downstream analsyes.
+#' ##  The alternative is to analyse the first PC as a forms of "synthetic multilocus genotypes"
+#' }
 #' @export
 
-LDnClusteringEL <- function(EL_path = "./LD_EL", nSNPs=1000, w1=10, columns = c(1,2,4), out_folder="LDnCl_out", 
-                            min_LD = 0.7, plot.network=NULL, threshold_net=0.9, to_do = NULL, cores=1, min.cl.size=2, min_LD2 = 0.3){
+LDnClusteringEL <- function(EL_path = "./LD_EL/", nSNPs=1000,  columns = c(1,2,4), out_folder="LDnCl_out", 
+                            min_LD = 0.7, plot.network=NULL, threshold_net=0.9, to_do = NULL, cores=1, min.cl.size=2){
   
   out <- list()
   if(is.null(to_do)){
@@ -97,7 +127,7 @@ LDnClusteringEL <- function(EL_path = "./LD_EL", nSNPs=1000, w1=10, columns = c(
     nL <- length(snp.pos)
     nWindows <- as.integer(nL/nSNPs)+1
     
-    temp <- which(slideFunct_max(as.numeric(el_adj[,3]), w1, 1) < min_LD2)
+    temp <- which(slideFunct_max(as.numeric(el_adj[,3]), 1, 1) < 0.3)
     
     hotspots <- sapply(seq(1, nL, length.out = nWindows + 1), function(i) {which.min(abs(i - temp))})
     
@@ -110,7 +140,11 @@ LDnClusteringEL <- function(EL_path = "./LD_EL", nSNPs=1000, w1=10, columns = c(
     })
     cat(paste0("Number of windows: ", length(Windows), "; window  sizes: ", 
                paste(sapply(Windows, length), collapse = ":"), "\n"))
-    #w <- 46
+    
+  
+    #which.max(sapply(Windows,length))
+    #w <- 48
+    #cores <- 10
     out <- mclapply((1:length(Windows)), function(w){
       cat(paste0('Working on file ', EL_files[i], ', window ', w, '\n'))
       ## remove previous files, if present
@@ -122,7 +156,7 @@ LDnClusteringEL <- function(EL_path = "./LD_EL", nSNPs=1000, w1=10, columns = c(
       g <- graph.edgelist(apply(el[keep,.(from, to)],2, function(o) as.character(o)), directed = FALSE)
       E(g)$weight <- as.numeric(el[keep,r2])
       
-      g <- delete_edges(g, which(E(g)$weight<0.5)) ## too low value will cause infinite recursions. This should be lower than min_LD and 0.5 seems to be a good compromise
+      g <- delete_edges(g, which(E(g)$weight<0.5))
       
       d_g <- decompose.graph(g)
       #d_g <- d_g[sapply(d_g, function(x) length(V(x)$name)>1)]
@@ -142,7 +176,7 @@ LDnClusteringEL <- function(EL_path = "./LD_EL", nSNPs=1000, w1=10, columns = c(
           
           if(length(cl)>1){
             LDmat.part <- LDmat[which(locus_names %in% cl), which(locus_names %in% cl)]
-            LDmat.part[LDmat.part==0]<-NA
+            LDmat.part[LDmat.part==0] <- NA
             Min_LD <- apply(LDmat.part, 1, min, na.rm=TRUE)
             
             if(max(Min_LD) > min_LD){
@@ -181,7 +215,7 @@ LDnClusteringEL <- function(EL_path = "./LD_EL", nSNPs=1000, w1=10, columns = c(
           tree$tip.label <- loci
           ntips <- length(tree$tip.label)
           
-          LDmat.part[LDmat.part==0]<-NA
+          LDmat.part[LDmat.part==0] <- NA
           
           if(min(LDmat.part, na.rm = TRUE)<min_LD){
             clusters.sub <- list()
