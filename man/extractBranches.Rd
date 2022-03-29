@@ -48,11 +48,11 @@ ldna <- LDnaRaw(r2.baimaii_subs)
 clusters <- extractBranches(ldna,min.edges=20,merge.min=0.8, plot.tree=TRUE) # default values
 clusters
 
-# with lower threshold for  \code{min.edges}
+# with lower threshold for min.edges
 clusters <- extractBranches(ldna,min.edges=5,merge.min=0.8, plot.tree=TRUE) # default values
 clusters
 
-# with lower threshold for  \code{min.edges} and 
+# with lower threshold for min.edges
 clusters <- extractBranches(ldna,min.edges=5,merge.min=0.2, plot.tree=TRUE) # default values
 clusters
 }

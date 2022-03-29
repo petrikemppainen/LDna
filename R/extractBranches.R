@@ -29,11 +29,11 @@
 #' clusters <- extractBranches(ldna,min.edges=20,merge.min=0.8, plot.tree=TRUE) # default values
 #' clusters
 #' 
-#' # with lower threshold for  \code{min.edges}
+#' # with lower threshold for min.edges
 #' clusters <- extractBranches(ldna,min.edges=5,merge.min=0.8, plot.tree=TRUE) # default values
 #' clusters
 #' 
-#' # with lower threshold for  \code{min.edges} and 
+#' # with lower threshold for min.edges
 #' clusters <- extractBranches(ldna,min.edges=5,merge.min=0.2, plot.tree=TRUE) # default values
 #' clusters
 #' @export
@@ -56,17 +56,12 @@ extractBranches <- function(ldna, min.edges=200, merge.min=0.8, plot.tree=TRUE, 
   clusters.out <- colnames(clusterfile_red)
   
   clusters.out <- unique(unlist(sapply(clusters.out, function(x) {
-    anc <- stats[cluster %chin% x , parent_cluster]
+    anc <- stats[cluster %chin% x, parent_cluster]
     cand <- stats[parent_cluster %chin% anc, cluster]
-    
-    if(length(cand[!cand %in% rownames(clusterfile_red)])>1){
-      cand <- cand[!cand %chin% x]
-      cand <- cand[cand %chin% clusters.out]  
-    }else{
-      x
-    }
-    #print(cand)
+    cand <- cand[!cand %chin% x]
+    cand <- cand[cand %chin% clusters.out]
   })))
+  
   # # 
   if(length(clusters.out)!=0){
     
