@@ -114,6 +114,8 @@ LDnaRaw <- function(LDmat, digits=2, method='single', mc.cores=NULL, length_out=
   })
   d <- data.table(d, merge_at_below=c(0,merge_at_below))
   d[nE==0,merge_at_above:=1]
+  
+  d[do.call(rbind, strsplit(d$cluster,"_",fixed = TRUE))[,2]=="1",merge_at_above:=1]
   sapply(unique(d[nE!=0]$cluster)[-1], function(cl){
     
     tmp <- d[parent_cluster==cl,]
