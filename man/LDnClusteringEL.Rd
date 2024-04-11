@@ -40,7 +40,7 @@ LDnClusteringEL(
 }
 \value{
 Returns a list of three objects which are saved as ".rds" files in the folder specified by \code{out_folder}.
-\code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, including summary statistics (Median LD, MAD etc, see below). 
+\code{cluster_summary} is a data frame that contains most of the relevant information for each cluster. 
 \code{clusters} contains a list of locus names (chr:position; each entry corresponding to a row in \code{cluster_summary}.
 \code{MCL} is a vector of names which which best represents the LD-cluster in downstream analyses ('maximally connected SNP', MCL aka rSNP).
 \cr 
@@ -60,7 +60,7 @@ Chr', 'Window', 'Pos', 'Min', 'Max', 'Range', 'nSNPs', 'Min_LD'
 \item{Min_LD}{the minimum LD between the rSNP/MCL and all other loci in its cluster}
 }
 \description{
-Finds clusters of loci connected by high LD within non-overlapping windows and returns a summary file, the resulting clusters and the names of the rSNPs (previously MCL), to be use e.g. in Genome Wide Association (GWA) analyses.
+Finds clusters of loci connected by high LD within non-overlapping windows and returns a summary file, the resulting clusters and the names of the rSNPs (previously MCL), to be use e.g. in Genome Wide Association (GWA) or outlier analyses.
 }
 \details{
 Uses single linkage clustering within non-overlapping windows of SNPs (within chromosomes) to find groups of correlated SNPs connected by high LD. This is done recursively within the single linkage clustering sub-trees (from root and up); as soon as a clade is reached where at least one locus is connected with all other loci within its clade above threshold \code{min_LD}, the algorithm stops. The default (0.7) produces clusters where the first PC typically explains >99 percent of the variation in each cluster.
@@ -74,13 +74,10 @@ Uses edge lists of LD values as input. The informative columns are specified by 
 If something goes wrong you can specify \code{to_do} with indexes for files in folder specified by \code{EL_path} that still need to be done. 
 \cr
 \cr
-It is also possible to plot LD-networks for different cluster solutions. For this you can specify a path for where the figure will be saved (\code{plot.network}). 
-The parameter \code{threshold_net} determines the minimum value for each edge that is allowed in the network (i.e is equivalent to a single linkage clustering network). 
-Each LD-cluster has a unique (arbitrary) color combination and black vertices represent loci that are not part of any cluster, i.e. should be considered independently in GWA analyses. 
-Minimum for \code{plot.network} is './', which exports figure to the working directory. Only works for data sets with up to 1000 SNPs and it is recommended that \code{threshold_net} is ~LD2.
 }
 \examples{
 \dontrun{
+## We will first create some example data to live in folder "LD_EL"
 library(LDna)
 data("LDna")
 ## make directory for edge lists to live

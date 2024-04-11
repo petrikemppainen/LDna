@@ -1,6 +1,6 @@
 #' Linkage disequilibrium (LD) network clustering, starting from edge lists of pairwise LD-values as input.
 #'
-#' Finds clusters of loci connected by high LD within non-overlapping windows and returns a summary file, the resulting clusters and the names of the rSNPs (previously MCL), to be use e.g. in Genome Wide Association (GWA) analyses.
+#' Finds clusters of loci connected by high LD within non-overlapping windows and returns a summary file, the resulting clusters and the names of the rSNPs (previously MCL), to be use e.g. in Genome Wide Association (GWA) or outlier analyses.
 #' 
 #' Uses single linkage clustering within non-overlapping windows of SNPs (within chromosomes) to find groups of correlated SNPs connected by high LD. This is done recursively within the single linkage clustering sub-trees (from root and up); as soon as a clade is reached where at least one locus is connected with all other loci within its clade above threshold \code{min_LD}, the algorithm stops. The default (0.7) produces clusters where the first PC typically explains >99 percent of the variation in each cluster.
 #' 
@@ -13,10 +13,6 @@
 #' If something goes wrong you can specify \code{to_do} with indexes for files in folder specified by \code{EL_path} that still need to be done. 
 #' \cr
 #' \cr
-#' It is also possible to plot LD-networks for different cluster solutions. For this you can specify a path for where the figure will be saved (\code{plot.network}). 
-#' The parameter \code{threshold_net} determines the minimum value for each edge that is allowed in the network (i.e is equivalent to a single linkage clustering network). 
-#' Each LD-cluster has a unique (arbitrary) color combination and black vertices represent loci that are not part of any cluster, i.e. should be considered independently in GWA analyses. 
-#' Minimum for \code{plot.network} is './', which exports figure to the working directory. Only works for data sets with up to 1000 SNPs and it is recommended that \code{threshold_net} is ~LD2.
 #' 
 #' @param EL_path Path to folder (only) containing relevant el's (one per chromosome/linkage group). For convenience the file name should be "name_of_chromosome"."el" e.g. chr1.el, 1.el, LG1.el, LG1_clean.el etc. Note that it is unnecessary to use a window size of more than ca. 100 SNPs for the edge list (specified in whatever software you are using), otherwise you may have to wait for a long time...
 #' @param nSNPs Desired number of SNPs per window.
@@ -36,7 +32,7 @@
 #' @author Petri Kemppainen \email{petrikemppainen2@@gmail.com}, zitong.li \email{lizitong1985@@gmail.com}
 #' 
 #' @return Returns a list of three objects which are saved as ".rds" files in the folder specified by \code{out_folder}.
-#' \code{cluster_summary} is a data frame that contains most of the relevant information for each cluster, including summary statistics (Median LD, MAD etc, see below). 
+#' \code{cluster_summary} is a data frame that contains most of the relevant information for each cluster. 
 #' \code{clusters} contains a list of locus names (chr:position; each entry corresponding to a row in \code{cluster_summary}.
 #' \code{MCL} is a vector of names which which best represents the LD-cluster in downstream analyses ('maximally connected SNP', MCL aka rSNP).
 #' \cr 
@@ -59,6 +55,7 @@
 #' Li, Z., Kemppainen, P., Rastas, P., Merila, J. Linkage disequilibrium clustering-based approach for association mapping with tightly linked genome-wide data. Accepted to Molecular Ecology Resources.
 #' @examples
 #' \dontrun{
+#' ## We will first create some example data to live in folder "LD_EL"
 #' library(LDna)
 #' data("LDna")
 #' ## make directory for edge lists to live
@@ -258,45 +255,6 @@ LDnClusteringEL <- function(EL_path = "./LD_EL/", nSNPs=1000,  columns = c(1,2,4
       clusters <- clusters[keep]
       names(clusters) <- MCL
       Median <- Median[keep]
-      
-      
-      ## plot network if path for 'plot.network' and 'threshold_net' have been specified
-      if(!is.null(plot.network)){
-        ## plot network 
-        cat('plotting network \n')
-        
-        nClust <- length(clusters)
-        
-        temp1 <- sample(rep(col_vector, ceiling(nClust/length((col_vector)))))
-        
-        
-        Col <- unlist(lapply(1:length(clusters), function(x) {
-          ifelse(sapply(clusters, length)[x]==1, return('black'),  return(rep(temp1[1:nClust][x], sapply(clusters, length)[x])))
-        }))[match(snp.pos_w, unlist(clusters) )]
-        
-        
-        temp2 <- sample(rep(col_vector[-1], ceiling(nClust/length((col_vector)))))
-        
-        frame.col <- unlist(lapply(1:length(clusters), function(x) {
-          ifelse(sapply(clusters, length)[x]==1, return('black'),  return(rep(temp2[1:nClust][x], sapply(clusters, length)[x])))
-        }))[match(colnames(LDmat), unlist(clusters) )]
-        
-        g <- graph.adjacency(LDmat, mode="lower", diag=FALSE, weighted=TRUE)
-        
-        V(g)$color <- Col
-        V(g)$frame.color <- frame.col
-        
-        E(g)$weight <- round(E(g)$weight, 5)
-        g <- delete.edges(g, which(E(g)$weight<=threshold_net))
-        g <- delete.vertices(g, which(degree(g) == 0))
-        
-        par(mar=c(0,0,2,0))
-        png(paste0(paste0(plot.network, 'Chr', i, '_window',w, '_LD2:', min_LD), '.png'), res = 300, width = 6, height=6, units = 'in')
-        plot.igraph(g, layout=layout.fruchterman.reingold, vertex.size=3, vertex.label.dist=NULL, edge.width=1, vertex.label=NA)
-        title(main=paste(" @", threshold_net, sep="", '; Chr', i, '; window',w, '; LD2=', min_LD))
-        dev.off()
-        
-      }
       
       cat(paste0(length(MCL),' clusters extracted from ', ncol(LDmat), ' original SNPs \n' ))
       

@@ -18,6 +18,12 @@
 #' clusters <- extractBranches(ldna, min.edges=0,merge.min = 0.6)
 #' summary <- summaryLDna(ldna, clusters, LDmat)
 #' summary
+#' ## example with baimaii data set
+#' data(LDna)
+#' ldna <- LDnaRaw(r2.baimaii_subs)
+#' clusters <- extractBranches(ldna, min.edges=20,merge.min = 0.6)
+#' summary <- summaryLDna(ldna, clusters, r2.baimaii_subs)
+#' summary
 #' @export
 #' 
 summaryLDna <- function(ldna, clusters, LDmat){
@@ -41,6 +47,7 @@ summaryLDna <- function(ldna, clusters, LDmat){
   Median.LD <- NULL
   MAD.LD <- NULL
   # clusters <- clusters1
+  # i <- 1
   for(i in 1:length(names(clusters))){
     loci <- as.vector(unlist(clusters[i]))
     temp2 <- LDmat[which(rownames(LDmat) %in% loci), which(colnames(LDmat) %in% loci)]

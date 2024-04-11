@@ -2,6 +2,7 @@
 % Please edit documentation in R/LDna.R
 \docType{package}
 \name{LDna}
+\alias{LDna-package}
 \alias{LDna}
 \title{Linkage disequilibrium network analyses (LDna)}
 \description{
@@ -11,6 +12,13 @@ Linkage disequilibrium network anlysis (LDna) is an exploratory tool for populat
 The main pipeline is to produce raw data using: \code{\link{LDnaRaw}}, extract clusters using: \code{\link{extractBranches}}, summerise data using: \code{\link{summaryLDna}} and exploring networks using \code{\link{plotLDnetwork}}.
 
 Since LDna considers all pairwise LD-values in a matrix it is not practical for more than 10-20k SNPs at a time (and need a lot of RAM). LDna can therefore be performed in a nested fashion starting by finding LD-clusters within windows within chromosomes using \code{\link{LDnClusteringEL}}. Edge lists of LD-values need to be provided by the user though.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{http://www.github.com/petrikemppainen/LDna}
+}
+
 }
 \author{
 Petri Kemppainen, \email{petrikemppainen2@gmail.com} and Christopher Knight Christopher Knight, \email{Chris.Knight@manchester.ac.uk}

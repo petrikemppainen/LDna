@@ -28,6 +28,12 @@ ldna <- LDnaRaw(LDmat)
 clusters <- extractBranches(ldna, min.edges=0,merge.min = 0.6)
 summary <- summaryLDna(ldna, clusters, LDmat)
 summary
+## example with baimaii data set
+data(LDna)
+ldna <- LDnaRaw(r2.baimaii_subs)
+clusters <- extractBranches(ldna, min.edges=20,merge.min = 0.6)
+summary <- summaryLDna(ldna, clusters, r2.baimaii_subs)
+summary
 }
 \seealso{
 \code{\link{extractBranches}}, \code{\link{LDnaRaw}} and \code{\link{plotLDnetwork}}

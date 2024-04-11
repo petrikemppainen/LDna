@@ -28,7 +28,7 @@
 #' ldna$stats
 #' 
 #' 
-#' # Illustrating \code{merge_at_below} and \code{merge_at_above} 
+#' # Illustrating the use of merge_at_below and merge_at_above
 #' clusters <- extractBranches(ldna, min.edges=0, merge.min=0.8)
 #' clusters
 #' cl_info <- ldna$stats[cluster==names(clusters)[2]] # focus on cluster 5_0.68
@@ -37,9 +37,11 @@
 #' abline(v=cl_info$merge_at_above, col="green")
 #' 
 #' 
-#' #' # using multiple cores for a larger data set
+#' # using multiple cores for a larger data set
 #' data(LDna)
 #' ldna <- LDnaRaw(r2.baimaii_subs, mc.cores=4)
+#' clusters <- extractBranches(ldna, min.edges=20, merge.min=0.8) ## higher threshold for cluster size
+#' # proceed  to explore networks using function "plotLDnetwork"
 #' @export
 
 LDnaRaw <- function(LDmat, digits=2, method='single', mc.cores=NULL, length_out=NULL, fun=function(x){min(x, na.rm=TRUE)}){

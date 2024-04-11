@@ -2,7 +2,7 @@ Package: LDna
 Type: Package
 Encoding: UTF-8
 Title: Linkage disequilibrum network analysis (LDna)
-Version: 2.13
+Version: 2.14
 Date: 2021-01-25
 Author: Petri Kemppainen <petrikemppainen2@gmail.com>
 Maintainer: Petri Kemppainen <petrikemppainen2@gmail.com>
@@ -17,7 +17,6 @@ Depends:
     graphics,
     grDevices
 Imports:
-    SNPRelate,
     ape
 Description: R package for linkage disequilibrium (LD) network analysis (LDna). Contains collection of functions that uses network analytical tools to partition loci into sets correlated clusters based on LD.
 License: GPL (>= 2)
@@ -25,4 +24,4 @@ URL: http://www.github.com/petrikemppainen/LDna
 VignetteBuilder: knitr
 Suggests:
     knitr
-RoxygenNote: 7.1.1
+RoxygenNote: 7.3.1

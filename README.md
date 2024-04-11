@@ -8,13 +8,9 @@ Reference: http://onlinelibrary.wiley.com/doi/10.1111/1755-0998.12369/abstract
 
 For this we recommend the *LDnClusteringEL* which requires edge-list of pairwise LD-values as input. For next-gen data we recommend using **ngsLD** (https://github.com/fgvieira/ngsLD) for LD-estimation.
 
-LDna v2.0 contains some major upgrades (see full version history below) mainly the inclusion of two new functions (*LDnaRaw2* and *extractBranches*) that allow for much simpler detection of LD-clusters. The old versions (*LDnaRaw* and *extractClusters*) are still included as the tutorials for these are much more comprehensive and they still work well for smaller data sets and allow for much better visualisation of the principles of **LDna**. For this you might however be better off by using the v0.64 instead.
+From LDna v2.0 *extractClusters* has been replaced with *extractBranches* which is a much simplified version of *extractClusters* that only relies on the parameter *|E|min* (the minimum number of edges for LD-clusters) which essentially determines how many branches are allowed in a tree. Then all branches are considered as LD-clusters, thus lower *|E|min* values lead to many smaller and more strongly correlated LD-clusters and conversely higher *|E|min* values lead to fewer but larger LD-clusters where loci will on average be less correlated. Smaller clusters potentially have stronger correlations with traits of interest (in GWAS) but also more conservative corrections for multiple testing and vice versa.
 
-The function *extractBranches* is a much simplified version of *extractClusters* that only relies on the parameter *|E|min* (the minimum number of edges for LD-clusters) which essentially determines how many branches are allowed in a tree. Then all branches are considered as LD-clusters, thus lower *|E|min* values lead to many smaller and more strongly correlated LD-clusters and conversely higher *|E|min* values lead to fewer but larger LD-clusters where loci will on average be less correlated. Smaller clusters potentially have stronger correlations with traits of interest (in GWAS) but also more conservative corrections for multiple testing and vice versa.
-
-LDna v2.13 fixes some bugs in *extractBranches* that sometimes did not extract some of the LD-clusters that should have been extracted. Furthermore, in small data sets and using *min.edges=0* it also gives you all singleton clusters (i.e. those loci that are not part of any other LD-clusters) and includes them in the tree. **!!!As of v2.1, I have removed the old versions of LDnaRaw and extractClusters!!**. This means that you should only use *LDnaRaw* and *extractBranches* and now also *summaryLDna* and *plotLDnetworks* should work as they did for the old version!.
-
-**!!In v2.13 LDnClustering and LDnClusteringVCF have been removed!!**. Use *LDnClusteringEL* where you provide edge lists of pairwise LD-values estimated by third party software for greater control (see specific documentation for details).
+LDna v2.14 fixes some bugs in *extractBranches* that sometimes did not extract some of the LD-clusters that should have been extracted. Furthermore, in small data sets and using *min.edges=0* it also gives you all singleton clusters (i.e. those loci that are not part of any other LD-clusters) and includes them in the tree.
 
 For more details please see https://www.biorxiv.org/content/10.1101/2021.01.26.428263v1, in particular Supporting Methods 4 to understand the trade off between high/low parameter settings for *|E|min*. Please note that in this paper LDna-1 is equivalent to *LDnClusteringEL*
 
@@ -28,7 +24,7 @@ devtools::install_github("petrikemppainen/LDna", ref = 'v.2.14')
 ```
 This downloads the source directly from **github** and builds the vignettes and thus requires LaTeX to be installed on your computer.
 
-Alternatively, download the source file (LDna_v.2.13.tar.gz) directly and install by:
+Alternatively, download the source file (LDna_v.2.14.tar.gz) directly and install by:
 ```r
 install.packages("/path_to/source_file", repos = NULL, type = "source")
 ```
