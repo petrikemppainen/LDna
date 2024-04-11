@@ -10,7 +10,7 @@ For this we recommend the *LDnClusteringEL* which requires edge-list of pairwise
 
 From LDna v2.0 *extractClusters* has been replaced with *extractBranches* which is a much simplified version of *extractClusters* that only relies on the parameter *|E|min* (the minimum number of edges for LD-clusters) which essentially determines how many branches are allowed in a tree. Then all branches are considered as LD-clusters, thus lower *|E|min* values lead to many smaller and more strongly correlated LD-clusters and conversely higher *|E|min* values lead to fewer but larger LD-clusters where loci will on average be less correlated. Smaller clusters potentially have stronger correlations with traits of interest (in GWAS) but also more conservative corrections for multiple testing and vice versa.
 
-LDna v2.14 fixes some bugs in *extractBranches* that sometimes did not extract some of the LD-clusters that should have been extracted. Furthermore, in small data sets and using *min.edges=0* it also gives you all singleton clusters (i.e. those loci that are not part of any other LD-clusters) and includes them in the tree.
+LDna v2.15 fixes some bugs in *extractBranches* that sometimes did not extract some of the LD-clusters that should have been extracted. Furthermore, in small data sets and using *min.edges=0* it also gives you all singleton clusters (i.e. those loci that are not part of any other LD-clusters) and includes them in the tree.
 
 While this version does not have any manual or vignettes, pdf versions for v.63 can still be found at https://github.com/petrikemppainen/LDna/tree/v.63/inst/doc which will give you the basics. Please refer to the examples and information for each function for further details.
 
@@ -22,11 +22,11 @@ Any questions or suggestions may be posted at: https://groups.google.com/forum/#
 
 With **devtools** (accessible from CRAN) **LDna** can be installed by:
 ```r
-devtools::install_github("petrikemppainen/LDna", ref = 'v.2.14')
+devtools::install_github("petrikemppainen/LDna", ref = 'v.2.15')
 ```
 This downloads the source directly from **github** and builds the vignettes and thus requires LaTeX to be installed on your computer.
 
-Alternatively, download the source file (LDna_v.2.14.tar.gz) directly and install by:
+Alternatively, download the source file (LDna_v.2.15.tar.gz) directly and install by:
 ```r
 install.packages("/path_to/source_file", repos = NULL, type = "source")
 ```
