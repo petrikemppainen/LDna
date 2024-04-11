@@ -12,6 +12,8 @@ From LDna v2.0 *extractClusters* has been replaced with *extractBranches* which 
 
 LDna v2.14 fixes some bugs in *extractBranches* that sometimes did not extract some of the LD-clusters that should have been extracted. Furthermore, in small data sets and using *min.edges=0* it also gives you all singleton clusters (i.e. those loci that are not part of any other LD-clusters) and includes them in the tree.
 
+
+
 For more details please see https://www.biorxiv.org/content/10.1101/2021.01.26.428263v1, in particular Supporting Methods 4 to understand the trade off between high/low parameter settings for *|E|min*. Please note that in this paper LDna-1 is equivalent to *LDnClusteringEL*
 
 Any questions or suggestions may be posted at: https://groups.google.com/forum/#!forum/ld-network-analysis
